@@ -1,0 +1,68 @@
+/**
+ * JCI Mock Environment
+ * Simplifies local development
+ *
+ * Written by Andreas Schwarz (http://github.com/flyandi/mazda-enhanced-compass)
+ * Copyright (c) 2015. All rights reserved.
+ * 
+ * WARNING: The installation of this application requires modifications to your Mazda Connect system.
+ * If you don't feel comfortable performing these changes, please do not attempt to install this. You might
+ * be ending up with an unusuable system that requires reset by your Dealer. You were warned!
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the 
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even 
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+ * License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with this program. 
+ * If not, see http://www.gnu.org/licenses/
+ */
+ 
+body {
+	margin:0;padding:0;
+	font-family: sans-serif;
+	font-size:12px;
+}
+
+#mock {
+	background:#000;
+	width:800px;
+	height:480px;
+	position:relative;
+	overflow:hidden;
+}
+
+	#mock #header {
+		border-bottom:2px solid #fff;
+		position:absolute;
+		top:0;
+		left:0;
+		right:0;
+		height:58px;
+		color:#fff;
+		font-size:2em;
+		display:none;
+	}
+
+		#mock #header label {
+			display:block;
+			padding:0.25em;
+		}
+
+	#mock #view {
+		position:absolute;
+		top:0px;
+		left:0px;
+		right:0;
+		bottom:0;
+		color:#fff;
+	}
+
+		#mock #view #surface {
+			width:100%;
+			height:100%;
+			position:relative;
+		}

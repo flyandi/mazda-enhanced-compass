@@ -1,0 +1,8 @@
+#
+# POI Database Builder
+# Resources
+#
+
+550,starbucks,csv,http://www.poi-factory.com/poifile/download/csv?node=12311
+500,costco,csv,http://www.poi-factory.com/poifile/download/csv?node=9856
+
