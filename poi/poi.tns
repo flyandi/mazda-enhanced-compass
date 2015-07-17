@@ -1,9 +1,0 @@
-address,StreetAddress,street
-latitude,lan
-longitude,lng,lon
-name
-city
-state
-country
-zip,PostalCode
-phone,PhoneNumber
