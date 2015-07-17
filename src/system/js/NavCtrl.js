@@ -225,8 +225,8 @@ NavCtrl.prototype = {
         //poi
         this.mapPOILayers = {};
 
-        // allow poi's now
-        this.hasPOI = true;
+        // disable POI's for now
+        this.hasPOI = false;
     },
 
     loadPOI: function(coord) {
