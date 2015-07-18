@@ -92,7 +92,7 @@ Open this file in vim, e.g. ```vi /jci/gui/apps/emnavi/js/emnaviApp.js```.
 Open the file ```jcipatch/emnaviApp.patch.js``` on your local computer.
 
 
-** WARNING: Basic JavaScript knowledge is required from this point***
+**WARNING: Basic JavaScript knowledge is required from this point***
 
 Find the method ```emnaviApp.prototype._populateCompass``` in first opened file and replace it entirely with the function found with the same name in the second file. 
 
