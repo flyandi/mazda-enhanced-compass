@@ -147,6 +147,9 @@ A couple community members have offered to pre-render tiles for different region
 
 Instructions how to render the tiles can be found here: https://github.com/flyandi/mazda-enhanced-compass-map
 
+See available tiles below to download certain sections.
+
+
 #### POI
 
 POI's are under development and not ready for production yet.
@@ -155,6 +158,14 @@ POI's are under development and not ready for production yet.
 ### Final Word
 
 This is a very active project and changes are made daily. All releases are marked as pre-releases. A stable release should be available in a couple weeks.
+
+
+## Available Tiles
+
+Country 	|	Region 				|	Download Link
+---			|	---					| 	---
+US 			|	Southern California	|	https://mega.nz/#!6hNzBJSR!7oUsURTjZKvrwMhiKQb7Wy_PLB4a-PTZXdhIDSk0AaQ
+
 
 
 ## License
