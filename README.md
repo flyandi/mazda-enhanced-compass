@@ -31,11 +31,13 @@ I carefully crafted these instructions to the best of my knowledge but I don't t
 These instructions have been tested with *Mazda Connect Version 51.0*
 
 
+
 ### Prerequisites
 
 You should be familar with the process of connecting to your Mazda Connect System via ssh. If not, please go to http://www.mazda3hacks.com/doku.php or the Infotainment thread at http://mazda3revolution.com/forums/2014-mazda-3-skyactiv-audio-electronics/57714-infotainment-project.html to understand this process.
 
 Here is the good news, you only have to do this one time and everytime you upgrade to a new system software version. The Enhanced Compass App is updated through the SD Card once these modifications are completed.
+
 
 
 ### Get the latest release
@@ -52,14 +54,16 @@ Download and unzip the latest release. The release package includes the followin
 Download the latest release here: [TBD]
 
 
+
 ### Prepare the Mazda Connect Infotainment System
 
-** DO NOT, I REPEAT DO NOT(!), USE THE TOUCHSCREEN OR COMMAND WHEEL DURING THE MODIFICATION OF THESE FILES **
+**DO NOT, I REPEAT DO NOT(!), USE THE TOUCHSCREEN OR COMMAND WHEEL DURING THE MODIFICATION OF THESE FILES**
 
 **Note: All changes can be done while the system is running**
 
 
 Make sure you are connected to the Infotainment system via ssh and unlocked the hard drive for writing.
+
 
 
 #### Compass Replacement (Bootloader)
@@ -103,6 +107,7 @@ Once this is completed, you can reboot the system or turn on and off your car. O
 ![Screen2](https://github.com/flyandi/mazda-enhanced-compass/blob/master/docs/images/sdcard.jpg)
 
 Make sure that you have removed any original sd cards since they aren't compatible. If you leave them in, you won't see the Enhanced Compass Application.
+
 
 
 ## License
