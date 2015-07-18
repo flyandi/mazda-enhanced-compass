@@ -94,7 +94,7 @@ Open the file ```jcipatch/emnaviApp.patch.js``` on your local computer.
 
 **WARNING: Basic JavaScript knowledge is required from this point***
 
-Find the method ```emnaviApp.prototype._populateCompass``` in first opened file and replace it entirely with the function found with the same name in the second file. 
+Find the method ```emnaviApp.prototype._populateCompass``` in the first opened file and replace it entirely with the function found with the same name in the second file. 
 
 Repeat this for the method ```emnaviApp.prototype._CurrentLocationInfoMsgHandler```.
 
