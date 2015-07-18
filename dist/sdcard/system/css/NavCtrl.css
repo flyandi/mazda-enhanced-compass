@@ -1,0 +1,294 @@
+/**
+ * Enhanced Compass for Mazda Connect Infotainment
+ * 
+ * This is a full replacement for the standard Compass Application that also offers a moving map.
+ *
+ * Written by Andreas Schwarz (http://github.com/flyandi/mazda-enhanced-compass)
+ * Copyright (c) 2015. All rights reserved.
+ * 
+ * WARNING: The installation of this application requires modifications to your Mazda Connect system.
+ * If you don't feel comfortable performing these changes, please do not attempt to install this. You might
+ * be ending up with an unusuable system that requires reset by your Dealer. You were warned!
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the 
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even 
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+ * License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with this program. 
+ * If not, see http://www.gnu.org/licenses/
+ */
+
+.NavCtrl {
+  font-family: "Tipperary", Arial, Helvetica, sans-serif;
+  text-align: left;
+  position: absolute;
+  top:0px;
+  left:0px;
+  width:800px;
+  height:480px;
+  background: #555;
+  z-index: 0;
+  overflow:hidden;
+  font-size:1.8em;
+ }
+
+
+  .NavCtrl #map {
+    position:absolute;
+    top:0;
+    left:0;
+    bottom:0;
+    right:0;
+    background:#656565;
+  }
+
+    .NavCtrl #map.waterZoomFix {
+      background:#333333;
+
+    }
+
+  .NavCtrl #map.tilted {
+     /*-o-transform: perspective(500px) rotate3d(40, 1, 0, 40deg)!important;*/
+  }
+
+  .NavCtrl .mapMenu {
+    position:absolute;
+    left: 270px;
+    top: 20px;
+    bottom: 20px;
+    right: 600px;
+    display: none;
+  }
+
+    
+    .NavCtrl .mapMenu.open {
+      right: 40px;
+      display: block;
+    }
+
+    .NavCtrl .mapMenu .menuContainer {
+      position:relative;
+      background:url(../images/menu-background.png) repeat-x left top #000;
+      box-shadow:#000 0px 0px 2em;
+      padding-top:20px;
+      height:420px;
+      /*border-top:1px solid rgba(255, 255, 255, 0.4);
+      border-bottom:1px solid rgba(255, 255, 255, 0.4);*/
+    }
+
+      .NavCtrl .mapMenu .menuContainer .rightArc {
+        background:url(../images/arc-menu.png) no-repeat right top;
+        position:absolute;
+        top:-1px;
+        right:-25px;
+        bottom:0;
+        width:50px;
+      }
+
+
+      .NavCtrl .mapMenu .menuContainer .menuList {
+
+      }
+
+        .NavCtrl .mapMenu .menuContainer .menuList .menuItem {
+          
+          font-size:1.5em;
+          text-shadow:#000 0px 2px 1px;
+          background:url(../images/menu-item-divider.png) no-repeat 30px bottom;
+        }
+
+          .NavCtrl .mapMenu .menuContainer .menuList .menuItem span {
+            padding:15px;
+            padding-left:40px;
+            display:block;
+            color:rgba(255,255,255,0.7);
+          }
+
+            .NavCtrl .mapMenu .menuContainer .menuList .menuItem.selected span {
+              background:url(../images/menu-item-selected.png) no-repeat center center;
+              background-size:100% 100%;
+              color:#fff;
+            }
+
+
+  .NavCtrl .mapControls {
+    position:absolute;
+    top:10px;
+    left:10px;
+    bottom:10px;
+    width:270px;
+    z-index: 1;
+    box-shadow:#000 0px 2px 2px;
+    border:1px solid rgba(0, 0, 0, 0.1);
+    border-radius:4px;
+    overflow:hidden;
+    background:url(../images/overlay-background.png) left top #666;
+
+  }
+
+
+    .NavCtrl .mapControls .mapCompass {
+      height:101px;
+      position:relative;
+      background:url(../images/centerpoint.png) no-repeat center center;
+    }
+
+      .NavCtrl .mapControls .mapCompass .arc {
+        position:absolute;
+        top:0;
+        left:0;
+        right:0;
+        height:101px;
+        background:url(../images/arc-top.png) no-repeat center 0px;
+        z-index:1;
+      }
+
+      .NavCtrl .mapControls .mapCompass .mapCompassRose {
+        position:absolute;
+        top:14px;
+        left:115px;
+        font-size:2.6em;
+        white-space: nowrap;
+        -o-transition-duration: 1s;
+        -o-transition-timing-function: ease-out;
+        -o-transition-property: left;
+        -o-transition-timing-function: ease-out;
+        -webkit-transition-property: left;
+        -webkit-transition-timing-function: ease-out;
+        transition-property: left;
+        transition-timing-function: ease-out;
+      }
+
+        .NavCtrl .mapControls .mapCompass .mapCompassRose.disabled {
+          opacity:0.5;
+        }
+
+        .NavCtrl .mapControls .mapCompass .mapCompassRose span {
+          color:#ccc;
+          display:inline-block;
+          text-align:center;
+          width:80px;
+          text-shadow:#000 0px 1.5px 0px;
+          font-weight: bold;
+        }
+
+          .NavCtrl .mapControls .mapCompass .mapCompassRose span.selected {
+            text-shadow:#ff0000 0 0 5px, #ff0000 0 0 20px;
+            color:#fff!important;
+          }
+
+          .NavCtrl .mapControls .mapCompass .mapCompassRose span.minor {
+            color:#999;
+            font-size:0.8em;
+          }
+
+    .NavCtrl .mapControls .mapDateTime {
+      margin-top:12px;
+      margin-bottom:20px; /* @mb 5px */
+      text-align:center;
+      text-shadow:#000 0px 3px 0px;
+      font-size:2em; /* @mb 1.5em */
+    }
+
+    .NavCtrl .mapControls .mapDirection {
+      height:255px;
+      position:relative;
+    } 
+
+       .NavCtrl .mapControls .mapInfoDisplay {
+        position: absolute;
+        left:10px;
+        top:2px;
+        width:240px;
+        height:240px;
+        background:rgba(60, 60, 60, 0.6);
+        border:3px solid #ff0000;
+        border-radius:260px;
+        box-shadow:inset #000 0 0 4em, #222 0px 4px 4px;
+        color:#000;
+        text-align:center;
+        overflow:hidden;
+        text-shadow:#000 0px 1.5px 0px;
+        font-size:0.95em;
+       }
+
+         .NavCtrl .mapControls .mapInfoDisplay .label {
+            margin-bottom:8px;
+         }
+
+          .NavCtrl .mapControls .mapInfoDisplay .label:first-child {
+            margin-top:15px;
+          }
+
+          .NavCtrl .mapControls .mapInfoDisplay .label label {
+            display:block;
+            color:#f1f1f1;
+            font-size:0.8em;
+            text-transform:uppercase;
+          }
+
+          .NavCtrl .mapControls .mapInfoDisplay .label strong {
+            display:block;
+            color: rgba(255, 30, 30, 1);
+            font-size:1.8em;
+          }
+
+    .NavCtrl .mapControls .mapButtons {
+      position: relative;
+    }
+
+      .NavCtrl .mapControls .mapButtons .arc {
+        position:absolute;
+        top:-10px;
+        left:0;
+        right:0;
+        height:23px;
+        background:url(../images/arc-bottom.png) no-repeat center 0px;
+        z-index:1;
+      }
+
+      
+
+      .NavCtrl .mapControls .mapButtons .button {
+        margin-top:5px;
+         background:no-repeat center center;
+         width:89px;
+         height:89px;
+         float:left;
+      }
+
+        .NavCtrl .mapControls.disabled .mapButtons .button {
+          opacity: 0.5;
+        }
+
+        .NavCtrl .mapControls .mapButtons .button:nth-child(3) {
+          border-left:1px solid #222;
+          border-right:1px solid #222;
+          width:90px;
+        }
+
+
+        .NavCtrl .mapControls .mapButtons .button:active {
+          background-color:#6B2A29;
+        }
+
+          .NavCtrl .mapControls.disabled .mapButtons .button:active {
+            background-color:transparent;
+          }
+
+        .NavCtrl .mapControls .mapButtons .button#centerMap {
+          background-image:url(../images/ic-center.png);
+        }
+
+        .NavCtrl .mapControls .mapButtons .button#searchPOI {
+          background-image:url(../images/ic-poi.png);
+        }
+
+        .NavCtrl .mapControls .mapButtons .button#switchSettings {
+          background-image:url(../images/ic-settings.png);
+        }
+   

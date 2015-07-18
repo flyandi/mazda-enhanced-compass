@@ -3,5 +3,5 @@ poi/output/
 resources/poi/
 resources/tiles/
 tilepack/
-
+dist/*.zip
 emnaviApp.orig.js
