@@ -51,8 +51,9 @@ Download and unzip the latest release. The release package includes the followin
 
 ```sdcard/``` :	Contains the skeleton of the application including the application
 
-Download the latest release here: [TBD]
+Download the latest release here: https://github.com/flyandi/mazda-enhanced-compass/releases 
 
+Direct download https://github.com/flyandi/mazda-enhanced-compass/releases/download/v0.0.3-beta/mazda-enhanced-compass-0.0.3.zip
 
 
 ### Prepare the Mazda Connect Infotainment System
