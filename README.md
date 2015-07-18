@@ -43,8 +43,10 @@ Here is the good news, you only have to do this one time and everytime you upgra
 Download and unzip the latest release. The release package includes the following folder structure:
 
 
-```jci/``` : Contains the bootloader 
+```jci/``` : Contains the bootloader
+
 ```jcipatch/``` : Contains the patches for the existing Navigation application
+
 ```sdcard/``` :	Contains the skeleton of the application including the application
 
 Download the latest release here: [TBD]
