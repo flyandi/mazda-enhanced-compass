@@ -102,12 +102,58 @@ Repeat this for the method ```emnaviApp.prototype._CurrentLocationInfoMsgHandler
 ```emnaviApp.prototype._CurrentLocationInfoMsgHandler``` is found at line #580 (Version 51.x).
 
 
-Once this is completed, you can reboot the system or turn on and off your car. Once loaded you can go to the Navigation menu item and you will see a screen which asks for an "SD Card", e.g.
+#### Prepare Symlinks
+
+The final step is to connect the Compass application to it's resources on the SD Card (which will we setup in the next step). 
+
+Execute the following command on the Infotainment system which will create the required symlink:
+
+```shell
+ln -s /tmp/mnt/sd_nav /jci/gui/apps/emnavi/controls/Compass/resources
+```
+
+#### Test the installation
+
+Once this is completed, you can reboot the system or turn off and on your car. Once loaded you can go to the Navigation menu item and you will see a screen which asks for an "SD Card", e.g.
 
 ![Screen2](https://github.com/flyandi/mazda-enhanced-compass/blob/master/docs/images/sdcard.jpg)
 
-Make sure that you have removed any original sd cards since they aren't compatible. If you leave them in, you won't see the Enhanced Compass Application.
+Make sure that you have removed the original sd card since they aren't compatible. If you leave them in, you won't see the Enhanced Compass Application.
 
+
+### Setting up the SD Card
+
+The Enhanced Compass App requires it's own SD Card in a certain format. The SD Card contains the actual application, tiles and extensions, like the POI database.
+
+#### Prepare the SD Card
+
+I recommend to use a 16GB or 32GB Class 10 SD Card. Make sure the SD Card is formatted for FAT32 (most of them are). 
+
+#### Copy the files
+
+If you are creating a new SD Card, copy the entire contents of the folder ```sdcard/``` from the release package onto your SD Card. 
+
+If you are upading to a new release, copy the folder ```sdcard/system/``` from the release package and replace it with the one found on your SD Card.
+
+
+#### Installing Tiles
+
+The final step is to actual install the tiles. The base release just comes with the outline of the world. In order to have a full working map you need to download the tiles or render them yourselve.
+
+Tiles need to be copy and paste to ```tiles/``` on your SD Card. Make sure to extend or replace existing files since the tiles are sharing all the same folder naming.
+
+A couple community members have offered to pre-render tiles for different regions. As of writing this wait a couple days before these tiles come available.
+
+Instructions how to render the tiles can be found here: https://github.com/flyandi/mazda-enhanced-compass-map
+
+#### POI
+
+POI's are under development and not ready for production yet.
+
+
+### Final Word
+
+This is a very active project and changes are made daily. All releases are marked as pre-releases. A stable release should be available in a couple weeks.
 
 
 ## License
