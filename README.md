@@ -162,10 +162,24 @@ This is a very active project and changes are made daily. All releases are marke
 
 ## Available Tiles
 
-Country 	|	Region 				|	Download Link
----			|	---					| 	---
-US 			|	Southern California	|	https://mega.nz/#!6hNzBJSR!7oUsURTjZKvrwMhiKQb7Wy_PLB4a-PTZXdhIDSk0AaQ
+### Base Packs
 
+Download the base pack first to get an overview of the entire world.
+
+Zone	 					|	Levels	|	Size	|	Download Link
+---							| 	---		|	---		| 	---
+World 						|	0-6		|	7MB 	| 	https://drive.google.com/open?id=0B-GwhRSdJBq8UzVFdlQ0XzhrMzA
+World + North America 		| 	0-10	|	104MB 	|	https://drive.google.com/open?id=0B-GwhRSdJBq8NzFGU0dEUzdyZTA
+
+
+### Tile Packs
+
+Tile packs include detailed map information. Use these along with the base pack.
+
+Zone	 		|	Region		|	Sub Region 			|	Size	|	Download Link
+---				|	---			| 	---					|	---		|	---
+North America	|	US			|	Southern California |	1.9GB 	|	https://mega.nz/#!6hNzBJSR!7oUsURTjZKvrwMhiKQb7Wy_PLB4a-PTZXdhIDSk0AaQ
+North America 	|	US 			| 	District of Columbia| 	35MB  	| 	https://drive.google.com/open?id=0B-GwhRSdJBq8b0JKSzFEZnljdkk
 
 
 ## License
