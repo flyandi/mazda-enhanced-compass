@@ -20,7 +20,11 @@ https://www.youtube.com/watch?v=RpYIg0FFnLI
 
 ### Installation and Setup Guide
 
-Get the Enhanced Compass installed on your car. [[Click here to get started|Setup]]
+Follow the instructions found in the wiki. 
+
+[Click here|https://github.com/flyandi/mazda-enhanced-compass/wiki/
+
+Get the Enhanced Compass installed on your car. [[Click here to get started|https://github.com/flyandi/mazda-enhanced-compass/wiki/Setup-and-Installation-Guide]]
 
 
 ## Getting Started
