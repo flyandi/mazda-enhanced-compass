@@ -177,7 +177,7 @@ NavCtrl.prototype = {
             source: this.mapSource
         });
 
-        this.mapLayer.setUseInterimTilesOnError(true);
+        this.mapLayer.setUseInterimTilesOnError(false);
 
         // create map
         this.map = new ol.Map({
@@ -222,11 +222,11 @@ NavCtrl.prototype = {
 
 
     initPOI: function() {
-        //poi
+        // poi layer
         this.mapPOILayers = {};
 
-        // disable POI's for now
-        this.hasPOI = false;
+        // poi active
+        this.hasPOI = true;
     },
 
     loadPOI: function(coord) {
