@@ -5,7 +5,7 @@ The Enhanced Compass Application for Mazda Connect is an replacement for the Com
 
 The idea behind this project is to offer an alternative to the optional Navigation Software. Most of the time it is enough to have a moving map to successfully navigate to a destination or find a place.
 
-This software is compatible with all Mazda's equipped 
+This software is compatible with all Mazda's equipped with the Infotainment starting with version 27.x. 
 
 ![Screen1](https://github.com/flyandi/mazda-enhanced-compass/blob/master/docs/images/eca-1.jpg)
 
