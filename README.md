@@ -16,6 +16,13 @@ Full video at
 https://www.youtube.com/watch?v=RpYIg0FFnLI
 
 
+## Overview
+
+### Installation and Setup Guide
+
+Get the Enhanced Compass installed on your car. [[Click here to get started|Setup]]
+
+
 ## Getting Started
 
 Before we start, please read the warning below. 
