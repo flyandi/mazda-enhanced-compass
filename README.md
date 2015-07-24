@@ -41,8 +41,7 @@ POI's are under development and not ready for production yet.
 
 If you see any issues or bugs, please file a bug report [here](https://github.com/flyandi/mazda-enhanced-compass/issues)
 
-
-We have an very active discussion thread on the Mazda3 Forum. [Click here.](http://mazda3revolution.com/forums/2014-mazda-3-skyactiv-audio-electronics/100657-enhanced-compass-application-mazda-connect.html)
+Go to the discussion thread on the Mazda3 Forum for anything else. [Click here.](http://mazda3revolution.com/forums/2014-mazda-3-skyactiv-audio-electronics/100657-enhanced-compass-application-mazda-connect.html)
 
 
 ## Final Word
