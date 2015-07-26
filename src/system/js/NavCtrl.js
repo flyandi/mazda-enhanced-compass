@@ -58,7 +58,7 @@ NavCtrl.prototype = {
 
     _initialized: false,
 
-    _version: '0.0.3',
+    _version: '0.0.4',
 
     _compass: {
         n :  { type:'major', key: 'n',  label:'N',  fullname : 'north',     heading : 0,   rad : 0 * Math.PI / 180,   next:1, prev:7, index:0 },

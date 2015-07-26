@@ -48,6 +48,13 @@ Go to the discussion thread on the Mazda3 Forum for anything else. [Click here.]
 
 This is a very active project and changes are made daily. All releases are marked as pre-releases. A stable release should be available in a couple weeks.
 
+## Help with the project
+
+If you like to contribute, please send me a couple bucks. Hosting the tile files is expensive.
+
+<a href='https://pledgie.com/campaigns/29849'><img alt='Click here to lend your support to: Mazda Enhanced Compass  and make a donation at pledgie.com !' src='https://pledgie.com/campaigns/29849.png?skin_name=chrome' border='0' ></a>
+
+
 
 ## License
 
