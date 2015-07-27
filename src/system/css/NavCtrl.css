@@ -61,13 +61,78 @@
     top: 20px;
     bottom: 20px;
     right: 600px;
-    display: none;
+    opacity: 0;
+    overflow:hidden;
+    -o-animation-name: menuOpenSlideOut;
+    -o-animation-duration: 0.5s;
+    -o-animation-timing-function: ease-out;
+    -o-animation-direction: forward;
+    -o-animation-iteration-count: 1;
+    -webkit-animation-name: menuOpenSlideOut;
+    -webkit-animation-duration: 0.5s;
+    -webkit-animation-timing-function: ease-out;
+    -webkit-animation-direction: forward;
+    -webkit-animation-iteration-count: 1;
+    animation-name: menuOpenSlideOut;
+    animation-duration: 0.5s;
+    animation-timing-function: ease-out;
+    animation-direction: forward;
+    animation-iteration-count: 1;
   }
 
-    
+   @-o-keyframes menuOpenSlideOut {
+      0% { right: 40px; opacity: 1;}
+      100% {right: 600px; opacity: 0}
+    }
+    @-webkit-keyframes menuOpenSlideOut {
+      0% { right: 40px; opacity: 1}
+      100% {right: 600px; opacity: 0}    
+    }
+    @keyframes menuOpenSlideOut {
+      0% { right: 40px;opacity: 1}
+      100% {right: 600px; opacity: 0}
+    }
+    @keyframes menuOpenSlideOut {
+      0% { right: 40px;opacity: 1}
+      100% {right: 600px; opacity: 0}
+    }
+
     .NavCtrl .mapMenu.open {
-      right: 40px;
       display: block;
+      -o-animation-name: menuOpenSlideIn;
+      -o-animation-duration: 0.5s;
+      -o-animation-timing-function: ease-in;
+      -o-animation-direction: forward;
+      -o-animation-iteration-count: 1;
+      -webkit-animation-name: menuOpenSlideIn;
+      -webkit-animation-duration: 0.5s;
+      -webkit-animation-timing-function: ease-in;
+      -webkit-animation-direction: forward;
+      -webkit-animation-iteration-count: 1;
+      animation-name: menuOpenSlideIn;
+      animation-duration: 0.5s;
+      animation-timing-function: ease-in;
+      animation-direction: forward;
+      animation-iteration-count: 1;
+      right:40px;
+      opacity: 1;
+    }
+
+    @-o-keyframes menuOpenSlideIn {
+      0% { right: 600px;}
+      100% {right: 40px;}
+    }
+    @-webkit-keyframes menuOpenSlideIn {
+      0% { right: 600px;}
+      100% {right: 40px;}    
+    }
+    @keyframes menuOpenSlideIn {
+      0% { right: 600px;}
+      100% {right: 40px;}
+    }
+    @keyframes menuOpenSlideIn {
+      0% { right: 600px;}
+      100% {right: 40px;}
     }
 
     .NavCtrl .mapMenu .menuContainer {
@@ -76,6 +141,7 @@
       box-shadow:#000 0px 0px 2em;
       padding-top:20px;
       height:420px;
+      overflow:hidden;
       /*border-top:1px solid rgba(255, 255, 255, 0.4);
       border-bottom:1px solid rgba(255, 255, 255, 0.4);*/
     }
@@ -95,7 +161,7 @@
       }
 
         .NavCtrl .mapMenu .menuContainer .menuList .menuItem {
-          
+          white-space: nowrap;
           font-size:1.5em;
           text-shadow:#000 0px 2px 1px;
           background:url(../images/menu-item-divider.png) no-repeat 30px bottom;

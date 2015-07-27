@@ -371,22 +371,31 @@ NavCtrl.prototype = {
 
         this.menuItemIndex = 0;
         this.menuCurrentIndex = 0;
-        // create menu
-        [
-            {label: 'Center Map'},
-            {label: 'Cancel'},
+        this.menuItemLength = 0;
+
+        this.menuItems = [
+
+            {label: 'Center Map', action: function() {
+                this.reCenter();
+                return true; // close 
+            }},
+            {label: 'Cancel', action: function() { 
+                return true; 
+            }},
             {label: 'Find POI'},
             {label: 'Add POI'},
             {label: 'Favorites'},
             {label: 'POI'},
 
-        ].forEach(function(item) {
+        ];
+
+        this.menuItems.forEach(function(item) {
 
             this.addMenuItem(item);
 
         }.bind(this));
 
-        this.selectMenuItem(0);
+        this.isMenuOpen = false;
 
         // create container
         this.controlsContainer = document.createElement("div");
@@ -473,6 +482,8 @@ NavCtrl.prototype = {
 
         // finalize
         this.hasUI = true;
+
+        this.showMenu(true);
     },
 
     setMapInfoLabelValue: function(id, value) {
@@ -504,7 +515,14 @@ NavCtrl.prototype = {
      */
 
     showMenu: function(open) {
+        if(open) {
+            this.controlMenu.classList.add("open");
+            this.selectMenuItem(0);
+        } else {
+            this.controlMenu.classList.remove("open");
+        }
 
+        this.isMenuOpen = open;
     },
 
     addMenuItem: function(item) {
@@ -520,6 +538,7 @@ NavCtrl.prototype = {
         menuItemLabel.innerHTML = item.label;
 
         this.menuItemIndex++;
+        this.menuItemLength++;
 
     },
 
@@ -537,16 +556,41 @@ NavCtrl.prototype = {
         this.menuCurrentIndex = index;
     },
 
-    controlMenu: function(event) {
+    menuItemAction: function(index) {
+
+        console.log(this.menuItems[index]);
+
+        if(this.menuItems[index]) {
+            switch(true) {
+
+                case typeof(this.menuItems[index].action) == "function":
+
+                    var result = this.menuItems[index].action.call(this);
+
+                    if(result) {
+                        this.showMenu(false);
+                    }
+                    break;
+
+            }
+        }
+    },
+
+    handleMenuEvent: function(event) {
 
         switch(event) {
             case "select":
+                this.menuItemAction(this.menuCurrentIndex);
                 break;
 
+
             case "cw":
+                this.selectMenuItem(this.menuCurrentIndex < this.menuItemLength - 1 ? this.menuCurrentIndex + 1 : 0);
+
                 break;
 
             case "ccw":
+                this.selectMenuItem(this.menuCurrentIndex > 0 ? this.menuCurrentIndex - 1 : this.menuItemLength - 1);
                 break;   
         }
     },
@@ -877,29 +921,40 @@ NavCtrl.prototype = {
 
         //response will be return value at end of function
         var response = "ignored"; // always ignore for this app
+
+        switch(true) {
+
+            // pass control to menu handler
+            case this.isMenuOpen: 
+                return this.handleMenuEvent(eventId);
+                break;
+
+            // default: map controls
+            default:
+                switch(eventId) {
+                    case "select":
+                        //this.reCenter();
+                        this.showMenu(true);
+                        break;
+
+                    case "left":
+                    case "right":
+                    case "down":
+                    case "up":
+                        this.moveMap(eventId);
+                        break;
+
+                    case "cw":
+                        this.zoomIn();
+                        break;
+
+                    case "ccw":
+                        this.zoomOut();
+                        break;    
+                }
         
-        switch(eventId) {
-            case "select":
-                this.reCenter();
-                break;
-
-            case "left":
-            case "right":
-            case "down":
-            case "up":
-                this.moveMap(eventId);
-                break;
-
-            case "cw":
-                this.zoomIn();
-                break;
-
-            case "ccw":
-                this.zoomOut();
-                break;    
+                return response;
         }
-        
-        return response;
     },
 
 }; /** (NavCtrl.prototype) */
