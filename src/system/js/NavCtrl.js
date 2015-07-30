@@ -362,7 +362,7 @@ NavCtrl.prototype = {
         this.controlMenu.appendChild(this.menuContainer);
 
         var arc = document.createElement("div");
-        arc.classList.add("rightArc");
+        arc.classList.add("arc");
         this.menuContainer.appendChild(arc);
 
         var inner = document.createElement("div");
@@ -488,7 +488,6 @@ NavCtrl.prototype = {
 
         // finalize
         this.hasUI = true;
-
         this.showMenu(true);
     },
 
@@ -522,10 +521,12 @@ NavCtrl.prototype = {
 
     showMenu: function(open) {
         if(open) {
+            this.controlMenu.classList.remove("closed");
             this.controlMenu.classList.add("open");
             this.selectMenuItem(0);
         } else {
             this.controlMenu.classList.remove("open");
+            this.controlMenu.classList.add("closed");
         }
 
         this.isMenuOpen = open;
@@ -570,7 +571,6 @@ NavCtrl.prototype = {
         if(p % itemHeight > 0) p = p - (p % itemHeight) + itemHeight;
 
         // check
-        console.log(posHeight, visibleHeight, posHeight - visibleHeight);
         this.menuList.style.top = (-1 * (posHeight > visibleHeight ? p : 0)) + "px";
     },
 
