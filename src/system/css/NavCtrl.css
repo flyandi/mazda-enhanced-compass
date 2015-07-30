@@ -64,17 +64,17 @@
 
   .NavCtrl .mapMenu.closed {
     -o-animation-name: menuOpenSlideOut;
-    -o-animation-duration: 0.5s;
+    -o-animation-duration: 0.3s;
     -o-animation-timing-function: ease-out;
     -o-animation-direction: forward;
     -o-animation-iteration-count: 1;
     -webkit-animation-name: menuOpenSlideOut;
-    -webkit-animation-duration: 0.5s;
+    -webkit-animation-duration: 0.3s;
     -webkit-animation-timing-function: ease-out;
     -webkit-animation-direction: forward;
     -webkit-animation-iteration-count: 1;
     animation-name: menuOpenSlideOut;
-    animation-duration: 0.5s;
+    animation-duration: 0.3s;
     animation-timing-function: ease-out;
     animation-direction: forward;
     animation-iteration-count: 1;
@@ -100,17 +100,17 @@
 
     .NavCtrl .mapMenu.open {
       -o-animation-name: menuOpenSlideIn;
-      -o-animation-duration: 0.5s;
+      -o-animation-duration: 0.3s;
       -o-animation-timing-function: ease-in;
       -o-animation-direction: forward;
       -o-animation-iteration-count: 1;
       -webkit-animation-name: menuOpenSlideIn;
-      -webkit-animation-duration: 0.5s;
+      -webkit-animation-duration: 0.3s;
       -webkit-animation-timing-function: ease-in;
       -webkit-animation-direction: forward;
       -webkit-animation-iteration-count: 1;
       animation-name: menuOpenSlideIn;
-      animation-duration: 0.5s;
+      animation-duration: 0.3s;
       animation-timing-function: ease-in;
       animation-direction: forward;
       animation-iteration-count: 1;
@@ -164,6 +164,7 @@
       .NavCtrl .mapMenu .menuContainer .menuList {
         position: relative;
         z-index:0;
+        padding-top:2px;
       }
 
         .NavCtrl .mapMenu .menuContainer .menuList .menuItem {
@@ -171,9 +172,16 @@
           font-size:1.5em;
           text-shadow:#000 0px 2px 1px;
           background:url(../images/menu-item-divider.png) no-repeat 20px bottom;
+          position:relative;
+          height:73px;
         }
 
           .NavCtrl .mapMenu .menuContainer .menuList .menuItem span {
+            position:absolute;
+            top:-2px;
+            left:0;
+            right:0;
+            bottom:0; 
             padding:15px;
             padding-left:40px;
             display:block;
@@ -181,7 +189,7 @@
           }
 
             .NavCtrl .mapMenu .menuContainer .menuList .menuItem.selected span {
-              background:url(../images/menu-item-selected.png) no-repeat center center;
+              background:url(../images/menu-item-selected.png) no-repeat left top;
               background-size:100% 100%;
               color:#fff;
             }
