@@ -62,7 +62,6 @@
     bottom: 20px;
     right: 600px;
     opacity: 0;
-    overflow:hidden;
     -o-animation-name: menuOpenSlideOut;
     -o-animation-duration: 0.5s;
     -o-animation-timing-function: ease-out;
@@ -119,20 +118,20 @@
     }
 
     @-o-keyframes menuOpenSlideIn {
-      0% { right: 600px;}
-      100% {right: 40px;}
+      0% { right: 600px; opacity:0;}
+      100% {right: 40px; opacity:1;}
     }
     @-webkit-keyframes menuOpenSlideIn {
-      0% { right: 600px;}
-      100% {right: 40px;}    
+      0% { right: 600px;opacity:0;}
+      100% {right: 40px;opacity:1;}    
     }
     @keyframes menuOpenSlideIn {
-      0% { right: 600px;}
-      100% {right: 40px;}
+      0% { right: 600px;opacity:0;}
+      100% {right: 40px;opacity:1;}
     }
     @keyframes menuOpenSlideIn {
-      0% { right: 600px;}
-      100% {right: 40px;}
+      0% { right: 600px;opacity:0;}
+      100% {right: 40px;opacity:1;}
     }
 
     .NavCtrl .mapMenu .menuContainer {
@@ -141,10 +140,10 @@
       box-shadow:#000 0px 0px 2em;
       padding-top:20px;
       height:420px;
-      overflow:hidden;
       /*border-top:1px solid rgba(255, 255, 255, 0.4);
       border-bottom:1px solid rgba(255, 255, 255, 0.4);*/
     }
+
 
       .NavCtrl .mapMenu .menuContainer .rightArc {
         background:url(../images/arc-menu.png) no-repeat right top;
@@ -153,11 +152,19 @@
         right:-25px;
         bottom:0;
         width:50px;
+        z-index:1;
+      }
+
+      .NavCtrl .mapMenu .menuContainer .menuListInner {
+        height:420px;
+        width:100%;
+        overflow:hidden;
       }
 
 
       .NavCtrl .mapMenu .menuContainer .menuList {
-
+        position: relative;
+        z-index:0;
       }
 
         .NavCtrl .mapMenu .menuContainer .menuList .menuItem {

@@ -365,9 +365,13 @@ NavCtrl.prototype = {
         arc.classList.add("rightArc");
         this.menuContainer.appendChild(arc);
 
+        var inner = document.createElement("div");
+        inner.classList.add("menuListInner");
+        this.menuContainer.appendChild(inner);
+
         this.menuList = document.createElement("div");
         this.menuList.classList.add("menuList");
-        this.menuContainer.appendChild(this.menuList);
+        inner.appendChild(this.menuList);
 
         this.menuItemIndex = 0;
         this.menuCurrentIndex = 0;
@@ -386,6 +390,8 @@ NavCtrl.prototype = {
             {label: 'Add POI'},
             {label: 'Favorites'},
             {label: 'POI'},
+            {label: 'Overflow 1'},
+            {label: 'Overflow 2'},
 
         ];
 
@@ -546,7 +552,6 @@ NavCtrl.prototype = {
 
         // clear
         var selected = this.menuList.querySelector(".selected");
-        console.log(selected);
         if(selected) selected.classList.remove("selected");
 
         var menuItem = this.menuList.querySelector("[menuIndex='" + index + "']");
@@ -554,11 +559,22 @@ NavCtrl.prototype = {
         menuItem.classList.add("selected");
 
         this.menuCurrentIndex = index;
+
+        // adjust scroll height
+        var itemHeight = menuItem.clientHeight,
+            visibleHeight = this.menuContainer.clientHeight,
+            totalHeight = this.menuList.clientHeight,
+            posHeight = (index + 1) * itemHeight,
+            p =  Math.max(itemHeight, (posHeight - visibleHeight));
+
+        if(p % itemHeight > 0) p = p - (p % itemHeight) + itemHeight;
+
+        // check
+        console.log(posHeight, visibleHeight, posHeight - visibleHeight);
+        this.menuList.style.top = (-1 * (posHeight > visibleHeight ? p : 0)) + "px";
     },
 
     menuItemAction: function(index) {
-
-        console.log(this.menuItems[index]);
 
         if(this.menuItems[index]) {
             switch(true) {
@@ -577,6 +593,7 @@ NavCtrl.prototype = {
     },
 
     handleMenuEvent: function(event) {
+
 
         switch(event) {
             case "select":
