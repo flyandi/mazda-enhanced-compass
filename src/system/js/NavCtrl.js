@@ -488,7 +488,6 @@ NavCtrl.prototype = {
 
         // finalize
         this.hasUI = true;
-        this.showMenu(true);
     },
 
     setMapInfoLabelValue: function(id, value) {
@@ -520,6 +519,7 @@ NavCtrl.prototype = {
      */
 
     showMenu: function(open) {
+
         if(open) {
             this.controlMenu.classList.remove("closed");
             this.controlMenu.classList.add("open");
