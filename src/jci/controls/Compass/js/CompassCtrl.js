@@ -25,7 +25,7 @@
 
 /**
  * Bootstrap Loader
- * This part of the application just loads the application from th SDCard. 
+ * This part of the application just loads the application from the SDCard. 
  */
 
 /**

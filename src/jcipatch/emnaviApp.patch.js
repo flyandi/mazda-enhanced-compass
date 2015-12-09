@@ -12,6 +12,13 @@ emnaviApp.prototype._CurrentLocationInfoMsgHandler = function (msg) {
 
     if (msg.params.payload.isValidInfo !== 0)
     {
+		// HTML5 coords
+		this._locationData.coords = msg.params.payload;
+		//this._locationData.coords.latitude = msg.params.payload.latitude;
+		//this._locationData.coords.longitude = msg.params.payload.longitude;
+		//this._locationData.coords.heading = msg.params.payload.heading;
+		
+		// enhanced compass
         this._locationData.latUnit = "N";
         if (msg.params.payload.latitude < 0)
         {
@@ -40,6 +47,7 @@ emnaviApp.prototype._CurrentLocationInfoMsgHandler = function (msg) {
     }
     else if (msg.params.payload.isValidInfo === 0)
     {
+		this._locationData.coords = null;
         this._locationData.latitude = "---";
         this._locationData.latUnit = "";
         this._locationData.longitude = "---";
