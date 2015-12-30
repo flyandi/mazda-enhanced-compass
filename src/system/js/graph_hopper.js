@@ -199,6 +199,18 @@ var GraphHopper = (function() {
 			'&weighting=', modifier, '&point=', [ startLat, startLng, ].join('%2C'), via, '&point=',
 			[ destLat, destLng ].join('%2C') ];
 
+<<<<<<< HEAD
+		var that = this;
+		$.ajax({
+		    url : reqUrl.join(''), dataType : "jsonp"
+		}).done(function(data) {
+		    that.route = parse(data);
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+		    console.info("error receiving data: " + textStatus);
+		    error();
+		    that.route = null;
+		});
+=======
 		$.ajax({
 		    url : reqUrl.join(''), dataType : "jsonp"
 		}).done(function(data) {
@@ -208,6 +220,7 @@ var GraphHopper = (function() {
 		    error();
 		    this.route = null;
 		}.bind(this));
+>>>>>>> 82e60e33c839b727758e0aa33e0eb908922db56e
 	    },
 
 	    route : null,
