@@ -185,8 +185,8 @@ NavCtrl.prototype = {
 
     initMap : function(callback) {
 	this.addJs('system/js/ol.js', callback);
+	this.addJs('system/js/jquery-2.1.4.min.js');
 	this.addJs('system/js/settings.js');
-	this.addJs('system/js/proxy.js');
 	this.addJs('system/js/graph_hopper.js');
     },
 

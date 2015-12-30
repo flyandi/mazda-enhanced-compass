@@ -167,8 +167,14 @@ var GraphHopper = (function() {
 			'&weighting=', modifier, '&point=', [ startLat, startLng, ].join('%2C'), via, '&point=',
 			[ destLat, destLng ].join('%2C') ];
 
-		Proxy.getInstance().get({
-		    url : reqUrl.join(''), success : parse, error : error
+		var data = $.ajax({
+		    url : reqUrl.join(''), dataType : "jsonp"
+		}).done(function(data) {
+		    parse(data);
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+		    console.info("error receiving data: " + textStatus);
+		    error();
+		    return null;
 		});
 	    },
 	};
