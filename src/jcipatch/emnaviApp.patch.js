@@ -37,8 +37,8 @@ emnaviApp.prototype._CurrentLocationInfoMsgHandler = function (msg) {
             this._locationData.eleUnit = "FT";
         }
 
-        this._locationData.latitude = Math.round(Math.abs(msg.params.payload.latitude) * 10) / 10 + "°";
-        this._locationData.longitude = Math.round(Math.abs(msg.params.payload.longitude) * 10) / 10 + "°"
+        this._locationData.latitude = Math.round(Math.abs(msg.params.payload.latitude) * 10) / 10 + "d";
+        this._locationData.longitude = Math.round(Math.abs(msg.params.payload.longitude) * 10) / 10 + "d"
         this._locationData.latlng = {
             lat: msg.params.payload.latitude,
             lng: msg.params.payload.longitude

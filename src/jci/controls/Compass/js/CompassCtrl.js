@@ -105,7 +105,7 @@ CompassCtrl.prototype = {
             // set timeout
             var initTimeout = setTimeout(function() {
                 _continue();
-            }.bind(this), 850); // enough time?
+            }.bind(this), 2000); // enough time?
 
             // load update script
             var script = document.createElement('script');

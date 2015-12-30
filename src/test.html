@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Demo Page</title>
+
+    <link rel="stylesheet" type="text/css" href="system\css\NavCtrl.css">
+<!--    
+    <link rel="stylesheet" type="text/css" href="system\css\demo.css">
+    <link rel="stylesheet" type="text/css" href="system\css\debug.css">
+    <link rel="stylesheet" type="text/css" href="system\css\components\components.css">
+    <link rel="stylesheet" type="text/css" href="system\vendor\leaflet\leaflet.css"> -->
+    <link rel="stylesheet" type="text/css" href="test.css">
+
+    <script src="test.js"></script>
+<!--    
+	<script src="system\js/settings.js"></script>
+    <script src="system\js/ffwdme-core.js"></script>
+    <script src="system\js/ffwdme-components.js"></script>
+    <script src="system\js/ffwdme-debug.js"></script>
+    <script src="system\vendor/zepto/zepto.js"></script>
+    <script src="system\vendor/leaflet/leaflet-src.js"></script>
+-->    
+    <script>
+        var compassCtrl;
+    </script>
+</head>
+<body style="" onload="compassCtrl = new CompassCtrl(null, document.getElementById('mainDiv'), 'navCtrlId', null);">
+<div id="mainDiv">
+    <!--
+    compassCtrl.setLocationData({coords: {latitude:48.1378567, longitude:17.1441553, speed:25}});
+    compassCtrl.setLocationData({coords: {latitude:48.1397469, longitude:17.1472131, speed:20}});
+    compassCtrl.setLocationData({coords: {latitude:48.146508, longitude:17.1507024, speed:13.89}});
+    -->
+</div>
+<div id="testDiv" style="left: 800px; position: absolute;">
+    <fieldset>
+        <table id="navigationMockTable">
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <button id="btnUp" onclick="compassCtrl.handleControllerEvent('up');">Up</button>
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>
+                    <button id="btnLeft" onclick="compassCtrl.handleControllerEvent('left');">Left</button>
+                </td>
+                <td>
+                    <button id="btnSelect" onclick="compassCtrl.handleControllerEvent('select');">Select</button>
+                </td>
+                <td>
+                    <button id="btnRight" onclick="compassCtrl.handleControllerEvent('right');">Right</button>
+                </td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <button id="btnDown" onclick="compassCtrl.handleControllerEvent('down');">Down</button>
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>
+                    <button id="btnZoomIn" onclick="compassCtrl.handleControllerEvent('cw');">+</button>
+                </td>
+                <td>
+                    <button id="btnZoomOut" onclick="compassCtrl.handleControllerEvent('ccw');">-</button>
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+        <div style="border: 1px solid black;">
+            <table>
+                <tr>
+                    <td>Lat: <input id="inputLocLat" value="48.130601"></td>
+                </tr>
+                <tr>
+                    <td>Lon: <input id="inputLocLon" value="17.107271"></td>
+                </tr>
+                <tr>
+                    <td>Speed: <input id="inputSpeed" value="10"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="btnSetLocation"
+                                onclick="
+                                var lat = parseFloat(document.getElementById('inputLocLat').value);
+                                var lng = parseFloat(document.getElementById('inputLocLon').value);
+                                var speed = parseInt(document.getElementById('inputSpeed').value);
+                                compassCtrl.setLocationData({coords: {latitude:lat, longitude:lng, speed:speed}, isValidInfo:true, eleUnit:'M', latitude:lat, latUnit: 'N', longitude:lng, longUnit:'W', elevation:0, heading:'90', showNeedle:true,latlng:{lat:lat, lng:lng}});">
+                            Set location
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="border: 1px solid black;">
+            <table>
+                <tr>
+                    <td>Lat: <input id="inputDestLat" value="48.163687"></td>
+                </tr>
+                <tr>
+                    <td>Lon: <input id="inputDestLon" value="17.152889"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="btnNaviagate"
+                                onclick="
+                                var lat = parseFloat(document.getElementById('inputDestLat').value);
+                                var lng = parseFloat(document.getElementById('inputDestLon').value);
+                                compassCtrl.startNavigation(lat, lng);">
+                            Navigate to
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </fieldset>
+
+</div>
+</body>
+</html>
