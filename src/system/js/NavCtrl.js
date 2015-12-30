@@ -66,92 +66,36 @@ NavCtrl.prototype = {
 
     _compass : {
 	n : {
-	    type : 'major',
-	    key : 'n',
-	    label : 'N',
-	    fullname : 'north',
-	    heading : 0,
-	    rad : 0 * Math.PI / 180,
-	    next : 1,
-	    prev : 7,
-	    index : 0
+	    type : 'major', key : 'n', label : 'N', fullname : 'north', heading : 0, rad : 0 * Math.PI / 180, next : 1,
+	    prev : 7, index : 0
 	},
 	ne : {
-	    type : 'minor',
-	    key : 'ne',
-	    label : 'NE',
-	    fullname : 'northeast',
-	    heading : 45,
-	    rad : 45 * Math.PI / 180,
-	    next : 2,
-	    prev : 0,
-	    index : 1
+	    type : 'minor', key : 'ne', label : 'NE', fullname : 'northeast', heading : 45, rad : 45 * Math.PI / 180,
+	    next : 2, prev : 0, index : 1
 	},
 	e : {
-	    type : 'major',
-	    key : 'e',
-	    label : 'E',
-	    fullname : 'east',
-	    heading : 90,
-	    rad : 90 * Math.PI / 180,
-	    next : 3,
-	    prev : 1,
-	    index : 2
+	    type : 'major', key : 'e', label : 'E', fullname : 'east', heading : 90, rad : 90 * Math.PI / 180,
+	    next : 3, prev : 1, index : 2
 	},
 	se : {
-	    type : 'minor',
-	    key : 'se',
-	    label : 'SE',
-	    fullname : 'southeast',
-	    heading : 135,
-	    rad : 135 * Math.PI / 180,
-	    next : 4,
-	    prev : 2,
-	    index : 3
+	    type : 'minor', key : 'se', label : 'SE', fullname : 'southeast', heading : 135, rad : 135 * Math.PI / 180,
+	    next : 4, prev : 2, index : 3
 	},
 	s : {
-	    type : 'major',
-	    key : 's',
-	    label : 'S',
-	    fullname : 'south',
-	    heading : 180,
-	    rad : 180 * Math.PI / 180,
-	    next : 5,
-	    prev : 3,
-	    index : 4
+	    type : 'major', key : 's', label : 'S', fullname : 'south', heading : 180, rad : 180 * Math.PI / 180,
+	    next : 5, prev : 3, index : 4
 	},
 	sw : {
-	    type : 'minor',
-	    key : 'sw',
-	    label : 'SW',
-	    fullname : 'southwest',
-	    heading : 225,
-	    rad : 225 * Math.PI / 180,
-	    next : 6,
-	    prev : 4,
-	    index : 5
+	    type : 'minor', key : 'sw', label : 'SW', fullname : 'southwest', heading : 225, rad : 225 * Math.PI / 180,
+	    next : 6, prev : 4, index : 5
 	},
 	w : {
-	    type : 'major',
-	    key : 'w',
-	    label : 'W',
-	    fullname : 'west',
-	    heading : 270,
-	    rad : 270 * Math.PI / 180,
-	    next : 7,
-	    prev : 5,
-	    index : 6
+	    type : 'major', key : 'w', label : 'W', fullname : 'west', heading : 270, rad : 270 * Math.PI / 180,
+	    next : 7, prev : 5, index : 6
 	},
 	nw : {
-	    type : 'minor',
-	    key : 'nw',
-	    label : 'NW',
-	    fullname : 'northwest',
-	    heading : 315,
-	    rad : 315 * Math.PI / 180,
-	    next : 0,
-	    prev : 6,
-	    index : 7
+	    type : 'minor', key : 'nw', label : 'NW', fullname : 'northwest', heading : 315, rad : 315 * Math.PI / 180,
+	    next : 0, prev : 6, index : 7
 	},
     },
 
@@ -241,6 +185,9 @@ NavCtrl.prototype = {
 
     initMap : function(callback) {
 	this.addJs('system/js/ol.js', callback);
+	this.addJs('system/js/settings.js');
+	this.addJs('system/js/proxy.js');
+	this.addJs('system/js/graph_hopper.js');
     },
 
     /**
@@ -251,9 +198,7 @@ NavCtrl.prototype = {
 
 	// create view
 	this.mapView = new ol.View({
-	    maxZoom : 17,
-	    center : [ -13618678.447785482, 4201854.181677031 ],
-	    zoom : 3,
+	    maxZoom : 17, center : [ -13618678.447785482, 4201854.181677031 ], zoom : 3,
 	// rotation: Math.PI / 6,
 	});
 
@@ -278,13 +223,9 @@ NavCtrl.prototype = {
 
 	// create map
 	this.map = new ol.Map({
-	    layers : [ this.mapLayer ],
-	    target : this.ctrlMap,
-	    controls : [],
-	    view : this.mapView,
+	    layers : [ this.mapLayer ], target : this.ctrlMap, controls : [], view : this.mapView,
 	    interactions : ol.interaction.defaults({
-		dragPan : false,
-		mouseWheelZoom : false,
+		dragPan : false, mouseWheelZoom : false,
 	    }),
 	/** (Experimental) */
 	// loadTilesWhileAnimating: true,
@@ -293,13 +234,8 @@ NavCtrl.prototype = {
 
 	// set props
 	this.mapProps = {
-	    lastCenterLocation : false,
-	    lastMoveLocation : false,
-	    currentZoom : 3,
-	    defaultZoom : 15,
-	    moveWithGPS : true,
-	    isFirstPosition : true,
-	    saveZoomPosition : false,
+	    lastCenterLocation : false, lastMoveLocation : false, currentZoom : 3, defaultZoom : 15,
+	    moveWithGPS : true, isFirstPosition : true, saveZoomPosition : false,
 	};
 
 	// create marker
@@ -374,8 +310,7 @@ NavCtrl.prototype = {
 			    this.mapPOILayers[category] = {};
 
 			    this.mapPOILayers[category].icon = new ol.style.Icon({
-				src : this._PATH + 'poi/markers/' + category + ".png",
-				anchor : [ 0.5, 1 ]
+				src : this._PATH + 'poi/markers/' + category + ".png", anchor : [ 0.5, 1 ]
 			    });
 
 			    this.mapPOILayers[category].style = [ new ol.style.Style({
@@ -385,8 +320,7 @@ NavCtrl.prototype = {
 			    this.mapPOILayers[category].source = new ol.source.Vector();
 
 			    this.mapPOILayers[category].layer = new ol.layer.Vector({
-				source : this.mapPOILayers[category].source,
-				style : function(feature, resolution) {
+				source : this.mapPOILayers[category].source, style : function(feature, resolution) {
 
 				    switch (true) {
 				    case resolution < 2:
@@ -424,12 +358,9 @@ NavCtrl.prototype = {
 			if (!hasFeature) {
 			    // transform to GeoJSON and add feature
 			    this.mapPOILayers[category].source.addFeature((new ol.format.GeoJSON()).readFeature({
-				type : "Feature",
-				geometry : {
-				    type : "Point",
-				    coordinates : [ data.longitude, data.latitude ]
-				},
-				properties : data
+				type : "Feature", geometry : {
+				    type : "Point", coordinates : [ data.longitude, data.latitude ]
+				}, properties : data
 			    }, {
 				featureProjection : 'EPSG:3857'
 			    }));
@@ -485,14 +416,12 @@ NavCtrl.prototype = {
 	this.menuItems = [
 
 	{
-	    label : 'Center Map',
-	    action : function() {
+	    label : 'Center Map', action : function() {
 		this.reCenter();
 		return true; // close
 	    }
 	}, {
-	    label : 'Cancel',
-	    action : function() {
+	    label : 'Cancel', action : function() {
 		return true;
 	    }
 	}, {
@@ -580,9 +509,9 @@ NavCtrl.prototype = {
 	/*
 	 * // info display this.controlInfoDisplay = this.createElement("div");
 	 * this.controlInfoDisplay.classList.add("mapInfoDisplay");
-	 * this.controlDirection.appendChild(this.controlInfoDisplay);
-	 *  // create info labels this.controlInfoDisplayLabels = {};
-	 *  [ 'Latitude', 'Longitude', 'Elevation' ].forEach(function(name) {
+	 * this.controlDirection.appendChild(this.controlInfoDisplay); // create
+	 * info labels this.controlInfoDisplayLabels = {}; [ 'Latitude',
+	 * 'Longitude', 'Elevation' ].forEach(function(name) {
 	 * 
 	 * var id = name.toLowerCase();
 	 * 
@@ -770,9 +699,7 @@ NavCtrl.prototype = {
 	}
 
 	var marker = new ol.Overlay({
-	    offset : [ -1 * width / 2, -1 * height / 2 ],
-	    position : [ 0, 0 ],
-	    element : markerImage
+	    offset : [ -1 * width / 2, -1 * height / 2 ], position : [ 0, 0 ], element : markerImage
 	});
 
 	this.map.addOverlay(marker);
@@ -838,10 +765,7 @@ NavCtrl.prototype = {
 	if (this.mapProps.lastMoveLocation) {
 
 	    var factor = 200, moves = {
-		left : [ factor, 0 ],
-		right : [ -1 * factor, 0 ],
-		up : [ 0, -1 * factor ],
-		down : [ 0, factor ]
+		left : [ factor, 0 ], right : [ -1 * factor, 0 ], up : [ 0, -1 * factor ], down : [ 0, factor ]
 	    };
 
 	    if (moves[id]) {
@@ -873,8 +797,7 @@ NavCtrl.prototype = {
 	// set animation
 	if (this.mapProps.lastMoveLocation && !preventAnimation) {
 	    var animPan = new ol.animation.pan({
-		source : this.mapProps.lastMoveLocation,
-		duration : 150
+		source : this.mapProps.lastMoveLocation, duration : 150
 	    });
 
 	    this.map.beforeRender(animPan);
@@ -1036,12 +959,18 @@ NavCtrl.prototype = {
 	    this.setNeedleVisible(false);
 	}
     },
-    /*
-     * startNavigation : function(destLat, destLng) { try {
-     * ffwdme.routingImpl.calculateRoute(this.mapProps.currentLatitude,
-     * this.mapProps.currentLongitude, destLat, destLng); } catch (e) {
-     * this.showNotification(e.message); } },
-     */
+
+    startNavigation : function(destLat, destLng) {
+	try {
+	    GraphHopper.getInstance().fetch(this.mapProps.currentLatitude, this.mapProps.currentLongitude, destLat,
+		    destLng);
+	    // ffwdme.routingImpl.calculateRoute(this.mapProps.currentLatitude,
+	    // this.mapProps.currentLongitude, destLat, destLng);
+	} catch (e) {
+	    this.showNotification(e.message);
+	}
+    },
+
     showNotification : function(message, timeout) {
 	this.notificationDisplay.innerHTML = message;
 	this.controlNotification.style = "visibility:visible;"
