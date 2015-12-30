@@ -23,8 +23,6 @@ var GraphHopper = (function() {
 
 	var lang = SETTINGS.locale;
 
-	var route = null;
-
 	var anchorPoint = null;
 
 	var direction = null;
@@ -49,7 +47,7 @@ var GraphHopper = (function() {
 		distance : parseInt(route.distance, 10), duration : route.time / 1000
 	    };
 
-	    var path = ffwdme.Route.decodePolyline(route.points);
+	    var path = decodePolyline(route.points);
 
 	    var instruction, d, extractedStreet, geomArr;
 	    var instructions = route.instructions;
@@ -62,8 +60,8 @@ var GraphHopper = (function() {
 		instruction = instructions[i];
 		d = {
 		    instruction : instruction.text, distance : parseInt(instruction.distance, 10),
-		    duration : instruction.time / 1000, turnAngle : this.extractTurnAngle(instruction.sign),
-		    turnType : this.extractTurnType(instruction.sign)
+		    duration : instruction.time / 1000, turnAngle : extractTurnAngle(instruction.sign),
+		    turnType : extractTurnType(instruction.sign)
 		};
 
 		d.path = path.slice(instruction.interval[0], instruction.interval[1] + 1);
@@ -75,9 +73,7 @@ var GraphHopper = (function() {
 		routeStruct.directions.push(d);
 	    }
 
-	    this.route = new ffwdme.Route().parse(routeStruct);
-
-	    this.success(response, this.route);
+	    return new Route().parse(routeStruct);
 	};
 
 	// "FINISH"
@@ -152,6 +148,42 @@ var GraphHopper = (function() {
 	    return angle;
 	};
 
+	// This function is from Google's polyline utility.
+	function decodePolyline(polylineStr) {
+	    var len = polylineStr.length;
+	    var index = 0;
+	    var array = [];
+	    var lat = 0;
+	    var lng = 0;
+
+	    while (index < len) {
+		var b;
+		var shift = 0;
+		var result = 0;
+		do {
+		    b = polylineStr.charCodeAt(index++) - 63;
+		    result |= (b & 0x1f) << shift;
+		    shift += 5;
+		} while (b >= 0x20);
+		var dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+		lat += dlat;
+
+		shift = 0;
+		result = 0;
+		do {
+		    b = polylineStr.charCodeAt(index++) - 63;
+		    result |= (b & 0x1f) << shift;
+		    shift += 5;
+		} while (b >= 0x20);
+		var dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+		lng += dlng;
+
+		array.push([ lat * 1e-5, lng * 1e-5 ]);
+	    }
+
+	    return array;
+	};
+
 	return {
 
 	    // Public methods and variables
@@ -167,16 +199,18 @@ var GraphHopper = (function() {
 			'&weighting=', modifier, '&point=', [ startLat, startLng, ].join('%2C'), via, '&point=',
 			[ destLat, destLng ].join('%2C') ];
 
-		var data = $.ajax({
+		$.ajax({
 		    url : reqUrl.join(''), dataType : "jsonp"
 		}).done(function(data) {
-		    parse(data);
-		}).fail(function(jqXHR, textStatus, errorThrown) {
+		    this.route = parse(data);
+		}.bind(this)).fail(function(jqXHR, textStatus, errorThrown) {
 		    console.info("error receiving data: " + textStatus);
 		    error();
-		    return null;
-		});
+		    this.route = null;
+		}.bind(this));
 	    },
+
+	    route : null,
 	};
 
     };

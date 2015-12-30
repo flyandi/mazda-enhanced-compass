@@ -187,6 +187,8 @@ NavCtrl.prototype = {
 	this.addJs('system/js/ol.js', callback);
 	this.addJs('system/js/jquery-2.1.4.min.js');
 	this.addJs('system/js/settings.js');
+	this.addJs('system/js/lat_lng.js');
+	this.addJs('system/js/route.js');
 	this.addJs('system/js/graph_hopper.js');
     },
 
