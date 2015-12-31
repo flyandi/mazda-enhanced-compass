@@ -61,58 +61,18 @@ var GraphHopper = (function() {
 		d = {
 		    instruction : instruction.text, distance : parseInt(instruction.distance, 10),
 		    duration : instruction.time / 1000, turnAngle : extractTurnAngle(instruction.sign),
-		    turnType : extractTurnType(instruction.sign)
+		    turnType : instruction.sign
 		};
+		if (typeof (instruction.exit_number) !== "undefined"){
+		    d.exit_number = instruction.exit_number;
+		}
 
 		d.path = path.slice(instruction.interval[0], instruction.interval[1] + 1);
-
-		// Strip the streetname out of the route description
-		extractedStreet = d.instruction.split(/(?:on |near |onto |at |Head )/).pop();
-		d.street = extractedStreet.length == d.instruction.length ? '' : extractedStreet;
 
 		routeStruct.directions.push(d);
 	    }
 
 	    return new Route().parse(routeStruct);
-	};
-
-	// "FINISH"
-	// "EXIT1"
-	// "EXIT2"
-	// "EXIT3"
-	// "EXIT4"
-	// "EXIT5"
-	// "EXIT6"
-	// "TU"
-	function extractTurnType(indication) {
-	    var name;
-	    switch (indication) {
-	    case 0: // continue (go straight)
-		name = 'C';
-		break;
-	    case -2: // turn left
-		name = 'TL';
-		break;
-	    case -1: // turn slight left
-		name = 'TSLL';
-		break;
-	    case -3: // turn sharp left
-		name = 'TSHL';
-		break;
-	    case 2: // turn right
-		name = 'TR';
-		break;
-	    case 1: // turn slight right
-		name = 'TSLR';
-		break;
-	    case 3: // turn sharp right
-		name = 'TSHR';
-		break;
-	    // case 'TU': // U-turn
-	    // name = 180;
-	    // break;
-	    }
-	    return name;
 	};
 
 	// see
@@ -185,9 +145,8 @@ var GraphHopper = (function() {
 	};
 
 	return {
-
 	    // Public methods and variables
-	    fetch : function(startLat, startLng, destLat, destLng) {
+	    fetch : function(startLat, startLng, destLat, destLng, routeFinishCallback) {
 
 		var via = '';
 
@@ -199,19 +158,19 @@ var GraphHopper = (function() {
 			'&weighting=', modifier, '&point=', [ startLat, startLng, ].join('%2C'), via, '&point=',
 			[ destLat, destLng ].join('%2C') ];
 
-		var that = this;
+		var route = null;
 		$.ajax({
 		    url : reqUrl.join(''), dataType : "jsonp"
 		}).done(function(data) {
-		    that.route = parse(data);
+		    route = parse(data);
 		}).fail(function(jqXHR, textStatus, errorThrown) {
 		    console.info("error receiving data: " + textStatus);
 		    error();
-		    that.route = null;
+		    route = null;
+		}).always(function() {
+		    routeFinishCallback(route);
 		});
 	    },
-
-	    route : null,
 	};
 
     };

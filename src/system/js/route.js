@@ -67,7 +67,7 @@ Route.prototype = {
 	    distance : 999999, point : null, directionIndex : null, prevPathIndex : null, nextPathIndex : null
 	};
 
-	var geo = geoUtils;
+	var geo = GeoUtils.getInstance();
 	var len = maxIterations ? Math.min(maxIterations, this.directions.length) : this.directions.length;
 
 	for (var i = directionIndex; i < len; i++) {

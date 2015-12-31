@@ -88,10 +88,16 @@
 100%
 {
 left
+
+
 :
+
  
+
 850
 px
+
+
 ;
 }
 }
@@ -103,10 +109,16 @@ px
 100%
 {
 left
+
+
 :
+
  
+
 850
 px
+
+
 ;
 }
 }
@@ -118,10 +130,16 @@ keyframes menuOpenSlideOut { 0% {
 100%
 {
 left
+
+
 :
+
  
+
 850
 px
+
+
 ;
 }
 }
@@ -133,10 +151,16 @@ keyframes menuOpenSlideOut { 0% {
 100%
 {
 left
+
+
 :
+
  
+
 850
 px
+
+
 ;
 }
 }
@@ -167,10 +191,16 @@ px
 100%
 {
 left
+
+
 :
+
  
+
 350
 px
+
+
 ;
 }
 }
@@ -182,10 +212,16 @@ px
 100%
 {
 left
+
+
 :
+
  
+
 350
 px
+
+
 ;
 }
 }
@@ -197,10 +233,16 @@ keyframes menuOpenSlideIn { 0% {
 100%
 {
 left
+
+
 :
+
  
+
 350
 px
+
+
 ;
 }
 }
@@ -212,10 +254,16 @@ keyframes menuOpenSlideIn { 0% {
 100%
 {
 left
+
+
 :
+
  
+
 350
 px
+
+
 ;
 }
 }
@@ -476,13 +524,56 @@ px
 	text-shadow: #000 0px 1.5px 0px;
 }
 
-/*
-.NavCtrl .mapControls .mapRouteDisplay .arrow . {
-	background-image: url(../images/ic-settings.png);
+.NavCtrl .mapControls .mapRouteDisplay #arrow {
+	height: 230px;
+	width: 230px;
 }
-*/
+
+.NavCtrl .mapControls .mapRouteDisplay .arrow-hard-left {
+	background-image: url("../images/arrow/hard-left.png");
+}
+
+.NavCtrl .mapControls .mapRouteDisplay .arrow-left {
+	background-image: url("../images/arrow/left.png");
+}
+
+.NavCtrl .mapControls .mapRouteDisplay .arrow-half-left {
+	background-image: url("../images/arrow/half-left.png");
+}
+
+.NavCtrl .mapControls .mapRouteDisplay .arrow-straight {
+	background-image: url("../images/arrow/straight.png");
+}
+
+.NavCtrl .mapControls .mapRouteDisplay .arrow-half-right {
+	background-image: url("../images/arrow/half-right.png");
+}
+
+.NavCtrl .mapControls .mapRouteDisplay .arrow-right {
+	background-image: url("../images/arrow/right.png");
+}
+
+.NavCtrl .mapControls .mapRouteDisplay .arrow-hard-right {
+	background-image: url("../images/arrow/hard-right.png");
+}
+
+.NavCtrl .mapControls .mapRouteDisplay .arrow-flag {
+	background-image: url("../images/arrow/flag.png");
+}
+
+.NavCtrl .mapControls .mapRouteDisplay .arrow-roundabout {
+	background-image: url("../images/arrow/roundabout.png");
+}
 
 .NavCtrl .mapControls .mapRouteDisplay .distance {
 	color: white;
 	font-size: 1.8em;
+}
+
+.NavCtrl .mapControls .mapRouteDisplay .exitNumberLabel {
+	color: white;
+	font-size: 2.5em;
+	top: 90px;
+	left: 90px;
+	position: absolute;
 }

@@ -187,9 +187,13 @@ NavCtrl.prototype = {
 	this.addJs('system/js/ol.js', callback);
 	this.addJs('system/js/jquery-2.1.4.min.js');
 	this.addJs('system/js/settings.js');
+	this.addJs('system/js/turn_types.js');
 	this.addJs('system/js/lat_lng.js');
 	this.addJs('system/js/route.js');
 	this.addJs('system/js/graph_hopper.js');
+	this.addJs('system/js/geo.js');
+	this.addJs('system/js/navigation_info.js');
+	this.addJs('system/js/navigation.js');
     },
 
     /**
@@ -536,9 +540,12 @@ NavCtrl.prototype = {
 	this.controlRouteDisplay.classList.add("mapRouteDisplay");
 	this.controlDirection.appendChild(this.controlRouteDisplay);
 
-	this.arrowImg = this.createElement("img", "arrow", "arrow");
-	this.arrowImg.src = "system/images/arrow/flag.png";
+	this.arrowImg = this.createElement("div", "arrow", "arrow-roundabout");
 	this.controlRouteDisplay.appendChild(this.arrowImg);
+
+	this.exitNumberLabel = this.createElement("div", "exitNumberLabel", "exitNumberLabel");
+	this.exitNumberLabel.innerHTML = "6";
+	this.controlRouteDisplay.appendChild(this.exitNumberLabel);
 
 	this.distanceLabel = this.createElement("div", "distance", "distance");
 	this.distanceLabel.innerHTML = "300m";
@@ -956,6 +963,13 @@ NavCtrl.prototype = {
 		this.setPosition(location.latlng.lat, location.latlng.lng);
 	    }
 
+	    if (typeof (Navigation.getInstance().route) !== "undefined" && Navigation.getInstance().route !== null) {
+		Navigation.getInstance().getPositionOnRoute({
+		    point : {
+			lat : this.mapProps.currentLatitude, lng : this.mapProps.currentLongitude
+		    }
+		}, this.navigationOnRouteCallback.bind(this), this.navigationOffRouteCallback.bind(this));
+	    }
 	} else {
 
 	    this.setNeedleVisible(false);
@@ -965,12 +979,55 @@ NavCtrl.prototype = {
     startNavigation : function(destLat, destLng) {
 	try {
 	    GraphHopper.getInstance().fetch(this.mapProps.currentLatitude, this.mapProps.currentLongitude, destLat,
-		    destLng);
-	    // ffwdme.routingImpl.calculateRoute(this.mapProps.currentLatitude,
-	    // this.mapProps.currentLongitude, destLat, destLng);
+		    destLng, this.routeFinishCallback);
 	} catch (e) {
 	    this.showNotification(e.message);
 	}
+    },
+
+    routeFinishCallback : function(route) {
+	if (route == null) {
+	    __NavPOICtrl.showNotification("Error calculating route", 5000);
+	    __NavPOICtrl.hideRouteDisplay();
+	} else {
+	    __NavPOICtrl.startNavigationWithRoute(route);
+	}
+    },
+
+    hideRouteDisplay : function() {
+	this.controlRouteDisplay.style = "visibility:hidden;";
+    },
+
+    showRouteDisplay : function(navInfo) {
+	this.controlRouteDisplay.style = "visibility:visible;";
+	this.arrowImg.className = TurnTypes.getInstance().getImgClass(navInfo.nextDirection.turnType);
+	if (typeof (navInfo.nextDirection.exit_number) == "undefined") {
+	    this.exitNumberLabel.innerHTML = "";
+	} else {
+	    this.exitNumberLabel.innerHTML = navInfo.nextDirection.exit_number;
+	}
+	this.distanceLabel.innerHTML = navInfo.nextDirection.distance + " m";
+    },
+
+    startNavigationWithRoute : function(route) {
+	Navigation.getInstance().route = route;
+	console.info(route);
+	Navigation.getInstance().getPositionOnRoute({
+	    point : {
+		lat : this.mapProps.currentLatitude, lng : this.mapProps.currentLongitude
+	    }
+	}, this.navigationOnRouteCallback.bind(this), this.navigationOffRouteCallback.bind(this));
+    },
+
+    navigationOnRouteCallback : function(navInfo) {
+	console.info("on route");
+	console.info(navInfo);
+	this.showRouteDisplay(navInfo);
+    },
+
+    navigationOffRouteCallback : function(navInfo) {
+	console.info("off route");
+	console.info(navInfo);
     },
 
     showNotification : function(message, timeout) {
