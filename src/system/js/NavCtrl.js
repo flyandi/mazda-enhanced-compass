@@ -990,8 +990,12 @@ NavCtrl.prototype = {
     },
 
     routeFinishCallback : function(route) {
-	if (route == null) {
-	    __NavPOICtrl.showNotification("Error calculating route", 5000);
+	if (route == null || typeof (route.error) !== "undefined") {
+	    if (route == null) {
+		__NavPOICtrl.showNotification("Error: unkown", 5000);
+	    } else {
+		__NavPOICtrl.showNotification("Error: " + route.error, 5000);
+	    }
 	    __NavPOICtrl.hideRouteDisplay();
 	} else {
 	    __NavPOICtrl.startNavigationWithRoute(route);
@@ -1020,7 +1024,7 @@ NavCtrl.prototype = {
 	    // 2.236413749·10-1
 	    var dif = 8.387499997 * Math.pow(10, -5) * Math.pow(zoom, 3) - 3.577624999 * Math.pow(10, -3) * zoom * zoom
 		    + 4.974512498 * 0.01 * zoom - 0.2236413749;
-//	    console.info("zoom=" + zoom + " dif= " + dif);
+	    // console.info("zoom=" + zoom + " dif= " + dif);
 	    for (var i = 0; i < this.turnMarkers.length; i++) {
 		var marker = this.turnMarkers[i];
 		pos = ol.proj.fromLonLat([ marker.lng, marker.lat + dif ]);

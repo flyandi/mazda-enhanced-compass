@@ -27,8 +27,14 @@ var GraphHopper = (function() {
 
 	var direction = null;
 
-	function error(error) {
-	    this.base(error);
+	function resolveError(statusCode, error) {
+	    var result = "unkown";
+	    if (429 == statusCode){
+		result = "API limit reached";
+	    } else if (error !== null){
+		result = error;
+	    }
+	    return result;
 	};
 
 	function parse(response) {
@@ -141,8 +147,7 @@ var GraphHopper = (function() {
 		    route = parse(data);
 		}).fail(function(jqXHR, textStatus, errorThrown) {
 		    console.info("error receiving data: " + textStatus);
-		    error();
-		    route = null;
+		    route = {error:resolveError(jqXHR.statusCode(), textStatus)};
 		}).always(function() {
 		    routeFinishCallback(route);
 		});
