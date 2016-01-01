@@ -1006,7 +1006,7 @@ NavCtrl.prototype = {
 	} else {
 	    this.exitNumberLabel.innerHTML = navInfo.nextDirection.exit_number;
 	}
-	this.distanceLabel.innerHTML = navInfo.nextDirection.distance + " m";
+	this.distanceLabel.innerHTML = navInfo.distanceToNextDirection + " m";
     },
 
     startNavigationWithRoute : function(route) {

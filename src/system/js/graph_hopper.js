@@ -52,60 +52,34 @@ var GraphHopper = (function() {
 	    var instruction, d, extractedStreet, geomArr;
 	    var instructions = route.instructions;
 
-	    // we remove the last instruction as it only says "Finish!" in
-	    // GraphHopper and has no value for us.
-	    instructions.pop();
-
 	    for (var i = 0, len = instructions.length; i < len; i++) {
 		instruction = instructions[i];
 		d = {
 		    instruction : instruction.text, distance : parseInt(instruction.distance, 10),
-		    duration : instruction.time / 1000, turnAngle : extractTurnAngle(instruction.sign),
-		    turnType : instruction.sign
+		    duration : instruction.time / 1000, turnType : instruction.sign
 		};
-		if (typeof (instruction.exit_number) !== "undefined"){
+		if (typeof (instruction.exit_number) !== "undefined") {
 		    d.exit_number = instruction.exit_number;
 		}
 
 		d.path = path.slice(instruction.interval[0], instruction.interval[1] + 1);
+		
+		if (d.turnType == 0 && routeStruct.directions.length > 0){ // CONTINUE_ON_STREET
+		    // check if this direction should be merged with previous one
+		    var lastD = routeStruct.directions[routeStruct.directions.length-1];
+		    if (lastD.turnType == 0){
+			if (lastD.instruction.startsWith(d.instruction) || d.instruction.startsWith(lastD.instruction)){
+			    lastD.duration += d.duration;
+			    lastD.distance += d.distance;
+			    continue;
+			}
+		    }
+		}
 
 		routeStruct.directions.push(d);
 	    }
 
 	    return new Route().parse(routeStruct);
-	};
-
-	// see
-	// https://github.com/graphhopper/graphhopper/blob/master/docs/web/api-doc.md
-	function extractTurnAngle(indication) {
-	    var angle;
-	    switch (indication) {
-	    case 0: // continue (go straight)
-		angle = 0;
-		break;
-	    case -2: // turn left
-		angle = 90;
-		break;
-	    case -1: // turn slight left
-		angle = 45;
-		break;
-	    case -3: // turn sharp left
-		angle = 135;
-		break;
-	    case 2: // turn right
-		angle = -90;
-		break;
-	    case 1: // turn slight right
-		angle = -45;
-		break;
-	    case 3: // turn sharp right
-		angle = -135;
-		break;
-	    // case 'TU': // U-turn
-	    // angle = 180;
-	    // break;
-	    }
-	    return angle;
 	};
 
 	// This function is from Google's polyline utility.
