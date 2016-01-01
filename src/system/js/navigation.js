@@ -39,7 +39,7 @@ var Navigation = (function() {
 
 		if (!navInfo.onRoute) {
 		    offRouteCounter++;
-		    navigationOffRouteCallback(navInfo);
+		    navigationOffRouteCallback(navInfo, offRouteCounter);
 		}
 
 		offRouteCounter = 0;

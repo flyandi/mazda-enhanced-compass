@@ -108,6 +108,8 @@ NavCtrl.prototype = {
 
     navigationMode : false,
 
+    turnMarkers : [],
+
     /**
      * (framework)
      */
@@ -421,9 +423,7 @@ NavCtrl.prototype = {
 	this.menuCurrentIndex = 0;
 	this.menuItemLength = 0;
 
-	this.menuItems = [
-
-	{
+	this.menuItems = [ {
 	    label : 'Center Map', action : function() {
 		this.reCenter();
 		return true; // close
@@ -431,6 +431,34 @@ NavCtrl.prototype = {
 	}, {
 	    label : 'Cancel', action : function() {
 		return true;
+	    }
+	}, {
+	    label : 'Navigate Home', action : function() {
+		this.startNavigation(SETTINGS.home.lat, SETTINGS.home.lng);
+		return true; // close
+	    }
+	}, {
+	    label : 'Navigate Work', action : function() {
+		this.startNavigation(SETTINGS.work.lat, SETTINGS.work.lng);
+		return true; // close
+	    }
+	}, {
+	    label : 'Navigate L', action : function() {
+		this.startNavigation(SETTINGS.l.lat, SETTINGS.l.lng);
+		return true; // close
+	    }
+	}, {
+	    label : 'Navigate P', action : function() {
+		this.startNavigation(SETTINGS.p.lat, SETTINGS.p.lng);
+		return true; // close
+	    }
+	}, {
+	    label : 'Clear route', action : function() {
+		this.navigationMode = false;
+		this.hideRouteDisplay();
+		this.clearTurnMarkers();
+		Navigation.getInstance().route = null;
+		return true; // close
 	    }
 	}, {
 	    label : 'Find POI'
@@ -514,29 +542,31 @@ NavCtrl.prototype = {
 	this.controlDirection = document.createElement("div");
 	this.controlDirection.classList.add("mapDirection");
 	this.controlsContainer.appendChild(this.controlDirection);
-	/*
-	 * // info display this.controlInfoDisplay = this.createElement("div");
-	 * this.controlInfoDisplay.classList.add("mapInfoDisplay");
-	 * this.controlDirection.appendChild(this.controlInfoDisplay); // create
-	 * info labels this.controlInfoDisplayLabels = {}; [ 'Latitude',
-	 * 'Longitude', 'Elevation' ].forEach(function(name) {
-	 * 
-	 * var id = name.toLowerCase();
-	 * 
-	 * var host = document.createElement("div");
-	 * host.classList.add("label");
-	 * 
-	 * var label = document.createElement("label"); label.innerHTML = name;
-	 * host.appendChild(label);
-	 * 
-	 * this.controlInfoDisplayLabels[id] = document.createElement("strong");
-	 * this.controlInfoDisplayLabels[id].innerHTML = "---";
-	 * host.appendChild(this.controlInfoDisplayLabels[id]);
-	 * 
-	 * this.controlInfoDisplay.appendChild(host);
-	 * 
-	 * }.bind(this));
-	 */
+
+	// info display
+	this.controlInfoDisplay = this.createElement("div", "mapInfoDisplay", "mapInfoDisplay");
+	this.controlDirection.appendChild(this.controlInfoDisplay); // create
+	// info labels
+	this.controlInfoDisplayLabels = {};
+	[ 'Latitude', 'Longitude', 'Elevation' ].forEach(function(name) {
+
+	    var id = name.toLowerCase();
+
+	    var host = document.createElement("div");
+	    host.classList.add("label");
+
+	    var label = document.createElement("label");
+	    label.innerHTML = name;
+	    host.appendChild(label);
+
+	    this.controlInfoDisplayLabels[id] = document.createElement("strong");
+	    this.controlInfoDisplayLabels[id].innerHTML = "---";
+	    host.appendChild(this.controlInfoDisplayLabels[id]);
+
+	    this.controlInfoDisplay.appendChild(host);
+
+	}.bind(this));
+
 	// routing display
 	this.controlRouteDisplay = document.createElement("div");
 	this.controlRouteDisplay.classList.add("mapRouteDisplay");
@@ -552,6 +582,8 @@ NavCtrl.prototype = {
 	this.distanceLabel = this.createElement("div", "distance", "distance");
 	this.distanceLabel.innerHTML = "300m";
 	this.controlRouteDisplay.appendChild(this.distanceLabel);
+
+	this.hideRouteDisplay();
 
 	// finalize
 	this.hasUI = true;
@@ -715,6 +747,13 @@ NavCtrl.prototype = {
 
 	this.map.addOverlay(marker);
 
+	return marker;
+    },
+
+    addTurnMarker : function(id, lat, lng) {
+	var marker = this.addMarker(this._PATH + "system/images/turn.png", 4, 4, id);
+	marker.lat = lat;
+	marker.lng = lng;
 	return marker;
     },
 
@@ -950,16 +989,11 @@ NavCtrl.prototype = {
      */
 
     setLocationData : function(location) {
-
 	if (location.isValidInfo) {
-	    /*
-	     * this.setMapInfoLabelValue("latitude", location.latitude + " " +
-	     * location.latUnit.toUpperCase());
-	     * this.setMapInfoLabelValue("longitude", location.longitude + " " +
-	     * location.longUnit.toUpperCase());
-	     * this.setMapInfoLabelValue("elevation", location.elevation +
-	     * location.eleUnit.toLowerCase());
-	     */
+	    this.setMapInfoLabelValue("latitude", location.latitude + " " + location.latUnit.toUpperCase());
+	    this.setMapInfoLabelValue("longitude", location.longitude + " " + location.longUnit.toUpperCase());
+	    this.setMapInfoLabelValue("elevation", location.elevation + location.eleUnit.toLowerCase());
+
 	    this.setDirection(location.heading);
 	    this.setNeedleVisible(location.showNeedle);
 
@@ -981,6 +1015,9 @@ NavCtrl.prototype = {
     },
 
     startNavigation : function(destLat, destLng) {
+	this.clearTurnMarkers();
+	this.routeDestLat = destLat;
+	this.routeDestLng = destLng;
 	try {
 	    GraphHopper.getInstance().fetch(this.mapProps.currentLatitude, this.mapProps.currentLongitude, destLat,
 		    destLng, this.routeFinishCallback);
@@ -1004,10 +1041,12 @@ NavCtrl.prototype = {
 
     hideRouteDisplay : function() {
 	this.controlRouteDisplay.style = "visibility:hidden;";
+	this.controlInfoDisplay.style = "visibility:visible;";
     },
 
     showRouteDisplay : function(navInfo) {
 	this.controlRouteDisplay.style = "visibility:visible;";
+	this.controlInfoDisplay.style = "visibility:hidden;";
 	this.arrowImg.className = TurnTypes.getInstance().getImgClass(navInfo.nextDirection.turnType);
 	if (typeof (navInfo.nextDirection.exit_number) == "undefined") {
 	    this.exitNumberLabel.innerHTML = "";
@@ -1033,22 +1072,26 @@ NavCtrl.prototype = {
 	}
     },
 
+    clearTurnMarkers : function() {
+	while (this.turnMarkers.length) {
+	    var marker = this.turnMarkers.pop();
+	    this.map.removeOverlay(marker);
+	}
+    },
+
     startNavigationWithRoute : function(route) {
 	// create markers
-	this.turnMarkers = [];
-
-	var marker = this.addMarker(this._PATH + "system/images/turn.png", 4, 4, "turn_start");
-	marker.lat = this.mapProps.currentLatitude;
-	marker.lng = this.mapProps.currentLongitude;
+	var marker = this.addTurnMarker("turn_start", this.mapProps.currentLatitude, this.mapProps.currentLongitude);
 	this.turnMarkers.push(marker);
 
 	for (var i = 0, len = route.full_path.length; i < len; i++) {
 	    var point = route.full_path[i];
-	    marker = this.addMarker(this._PATH + "system/images/turn.png", 4, 4, "turn_" + i);
-	    marker.lat = point[0];
-	    marker.lng = point[1];
+	    marker = this.addTurnMarker("turn_" + i, point[0], point[1])
 	    this.turnMarkers.push(marker);
 	}
+
+	marker = this.addTurnMarker("turn_finish", this.routeDestLat, this.routeDestLng)
+	this.turnMarkers.push(marker);
 
 	Navigation.getInstance().route = route;
 	Navigation.getInstance().getPositionOnRoute({
@@ -1065,9 +1108,14 @@ NavCtrl.prototype = {
 	this.showRouteDisplay(navInfo);
     },
 
-    navigationOffRouteCallback : function(navInfo) {
+    navigationOffRouteCallback : function(navInfo, offRouteCounter) {
 	console.info("off route");
 	console.info(navInfo);
+	if (offRouteCounter >= SETTINGS.maxOffRouteTime) {
+	    showNotification("recalculating route...");
+	    // todo: test this
+	    this.startNavigationWithRoute(this.routeDestLat, this.routeDestLng);
+	}
     },
 
     showNotification : function(message, timeout) {
