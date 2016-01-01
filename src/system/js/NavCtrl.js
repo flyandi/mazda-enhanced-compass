@@ -106,6 +106,8 @@ NavCtrl.prototype = {
     // _PATH: 'apps/emnavi/controls/Compass/resources/',
     _PATH : "./",
 
+    navigationMode : false,
+
     /**
      * (framework)
      */
@@ -826,6 +828,8 @@ NavCtrl.prototype = {
 	    this.mapView.setZoom(zoom);
 	    this.mapProps.currentZoom = zoom;
 
+	    this.repositionTurnMarkers();
+
 	    // adjust missing tile issue
 
 	    if (zoom < 13) {
@@ -963,10 +967,10 @@ NavCtrl.prototype = {
 		this.setPosition(location.latlng.lat, location.latlng.lng);
 	    }
 
-	    if (typeof (Navigation.getInstance().route) !== "undefined" && Navigation.getInstance().route !== null) {
+	    if (this.navigationMode) {
 		Navigation.getInstance().getPositionOnRoute({
 		    point : {
-			lat : this.mapProps.currentLatitude, lng : this.mapProps.currentLongitude
+			lat : location.latlng.lat, lng : location.latlng.lng
 		    }
 		}, this.navigationOnRouteCallback.bind(this), this.navigationOffRouteCallback.bind(this));
 	    }
@@ -1009,19 +1013,51 @@ NavCtrl.prototype = {
 	this.distanceLabel.innerHTML = navInfo.distanceToNextDirection + " m";
     },
 
+    repositionTurnMarkers : function() {
+	if (this.navigationMode) {
+	    var zoom = this.mapProps.currentZoom;
+	    // 8.387499997·10-5 x3 - 3.577624999·10-3 x2 + 4.974512498·10-2 x -
+	    // 2.236413749·10-1
+	    var dif = 8.387499997 * Math.pow(10, -5) * Math.pow(zoom, 3) - 3.577624999 * Math.pow(10, -3) * zoom * zoom
+		    + 4.974512498 * 0.01 * zoom - 0.2236413749;
+//	    console.info("zoom=" + zoom + " dif= " + dif);
+	    for (var i = 0; i < this.turnMarkers.length; i++) {
+		var marker = this.turnMarkers[i];
+		pos = ol.proj.fromLonLat([ marker.lng, marker.lat + dif ]);
+		marker.setPosition(pos);
+	    }
+	}
+    },
+
     startNavigationWithRoute : function(route) {
+	// create markers
+	this.turnMarkers = [];
+
+	var marker = this.addMarker(this._PATH + "system/images/turn.png", 4, 4, "turn_start");
+	marker.lat = this.mapProps.currentLatitude;
+	marker.lng = this.mapProps.currentLongitude;
+	this.turnMarkers.push(marker);
+
+	for (var i = 0, len = route.full_path.length; i < len; i++) {
+	    var point = route.full_path[i];
+	    marker = this.addMarker(this._PATH + "system/images/turn.png", 4, 4, "turn_" + i);
+	    marker.lat = point[0];
+	    marker.lng = point[1];
+	    this.turnMarkers.push(marker);
+	}
+
 	Navigation.getInstance().route = route;
-	console.info(route);
 	Navigation.getInstance().getPositionOnRoute({
 	    point : {
 		lat : this.mapProps.currentLatitude, lng : this.mapProps.currentLongitude
 	    }
 	}, this.navigationOnRouteCallback.bind(this), this.navigationOffRouteCallback.bind(this));
+	this.navigationMode = true;
+
+	this.repositionTurnMarkers();
     },
 
     navigationOnRouteCallback : function(navInfo) {
-	console.info("on route");
-	console.info(navInfo);
 	this.showRouteDisplay(navInfo);
     },
 

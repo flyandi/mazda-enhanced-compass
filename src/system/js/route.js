@@ -11,10 +11,13 @@ Route.prototype = {
 
     directions : null,
 
+    full_path : null,
+
     // Public methods and variables
     parse : function(json) {
 	this.summary = json.summary;
 	this.directions = json.directions;
+	this.full_path = json.path;
 
 	for (var i = 0, len = this.directions.length; i < len; i++) {
 	    var path = this.directions[i].path, newPath = [];

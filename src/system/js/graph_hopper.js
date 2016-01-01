@@ -63,12 +63,13 @@ var GraphHopper = (function() {
 		}
 
 		d.path = path.slice(instruction.interval[0], instruction.interval[1] + 1);
-		
-		if (d.turnType == 0 && routeStruct.directions.length > 0){ // CONTINUE_ON_STREET
-		    // check if this direction should be merged with previous one
-		    var lastD = routeStruct.directions[routeStruct.directions.length-1];
-		    if (lastD.turnType == 0){
-			if (lastD.instruction.startsWith(d.instruction) || d.instruction.startsWith(lastD.instruction)){
+
+		if (d.turnType == 0 && routeStruct.directions.length > 0) { // CONTINUE_ON_STREET
+		    // check if this direction should be merged with previous
+		    // one
+		    var lastD = routeStruct.directions[routeStruct.directions.length - 1];
+		    if (lastD.turnType == 0) {
+			if (lastD.instruction.startsWith(d.instruction) || d.instruction.startsWith(lastD.instruction)) {
 			    lastD.duration += d.duration;
 			    lastD.distance += d.distance;
 			    continue;
@@ -78,6 +79,7 @@ var GraphHopper = (function() {
 
 		routeStruct.directions.push(d);
 	    }
+	    routeStruct.path = path;
 
 	    return new Route().parse(routeStruct);
 	};
