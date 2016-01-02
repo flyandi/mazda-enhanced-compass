@@ -90,12 +90,24 @@
 left
 
 
+
+
+
+
 :
+
+
 
  
 
+
+
 850
 px
+
+
+
+
 
 
 ;
@@ -111,12 +123,24 @@ px
 left
 
 
+
+
+
+
 :
+
+
 
  
 
+
+
 850
 px
+
+
+
+
 
 
 ;
@@ -132,12 +156,24 @@ keyframes menuOpenSlideOut { 0% {
 left
 
 
+
+
+
+
 :
+
+
 
  
 
+
+
 850
 px
+
+
+
+
 
 
 ;
@@ -153,12 +189,24 @@ keyframes menuOpenSlideOut { 0% {
 left
 
 
+
+
+
+
 :
+
+
 
  
 
+
+
 850
 px
+
+
+
+
 
 
 ;
@@ -193,12 +241,24 @@ px
 left
 
 
+
+
+
+
 :
+
+
 
  
 
+
+
 350
 px
+
+
+
+
 
 
 ;
@@ -214,12 +274,24 @@ px
 left
 
 
+
+
+
+
 :
+
+
 
  
 
+
+
 350
 px
+
+
+
+
 
 
 ;
@@ -235,12 +307,24 @@ keyframes menuOpenSlideIn { 0% {
 left
 
 
+
+
+
+
 :
+
+
 
  
 
+
+
 350
 px
+
+
+
+
 
 
 ;
@@ -256,12 +340,24 @@ keyframes menuOpenSlideIn { 0% {
 left
 
 
+
+
+
+
 :
+
+
 
  
 
+
+
 350
 px
+
+
+
+
 
 
 ;
@@ -416,11 +512,13 @@ px
 	border: 3px solid #ff0000;
 	border-radius: 260px;
 	box-shadow: inset #000 0 0 4em, #222 0px 4px 4px;
+	margin-top: 30px;
 	color: #000;
 	text-align: center;
 	overflow: hidden;
 	text-shadow: #000 0px 1.5px 0px;
 	font-size: 0.95em;
+	color: #000;
 }
 
 .NavCtrl .mapControls .mapInfoDisplay .label {
@@ -563,6 +661,28 @@ px
 
 .NavCtrl .mapControls .mapRouteDisplay .arrow-roundabout {
 	background-image: url("../images/arrow/roundabout.png");
+}
+
+.NavCtrl .mapControls .mapRouteDisplay .offRouteDiv {
+	position: absolute;
+	top: 0px;
+	left: 200px;
+	width: 40px;
+	height: 240px;
+}
+
+.NavCtrl .mapControls .mapRouteDisplay .offRouteRed {
+	background-image: url("../images/offroute_red.png");
+	width: 40px;
+	height: 40px;
+	margin-top: 10px;
+}
+
+.NavCtrl .mapControls .mapRouteDisplay .offRouteGray {
+	background-image: url("../images/offroute_gray.png");
+	width: 40px;
+	height: 40px;
+	margin-top: 10px;
 }
 
 .NavCtrl .mapControls .mapRouteDisplay .distance {

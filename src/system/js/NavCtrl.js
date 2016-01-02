@@ -62,7 +62,7 @@ NavCtrl.prototype = {
 
     _initialized : false,
 
-    _version : '0.0.4',
+    _version : '0.1.0',
 
     _compass : {
 	n : {
@@ -103,8 +103,7 @@ NavCtrl.prototype = {
     _VENDOR : ('opera' in window) ? 'O' : 'webkit',
 
     // Paths
-    _PATH: 'apps/emnavi/controls/Compass/resources/',
-    //_PATH : "./",
+    _PATH : null,
 
     navigationMode : false,
 
@@ -143,8 +142,12 @@ NavCtrl.prototype = {
 
     createElement : function(type, id, clazz) {
 	var elm = document.createElement(type);
-	elm.id = id;
-	elm.className = clazz;
+	if (id) {
+	    elm.id = id;
+	}
+	if (clazz) {
+	    elm.className = clazz;
+	}
 	return elm;
     },
 
@@ -157,6 +160,12 @@ NavCtrl.prototype = {
 	// check for initialization
 	if (this._initialized)
 	    return;
+
+	if (typeof (framework) == "undefined") {
+	    this._PATH = './';
+	} else {
+	    this._PATH = 'apps/emnavi/controls/Compass/resources/';
+	}
 
 	// load css
 	this.addCss('system/css/NavCtrl.css');
@@ -545,7 +554,7 @@ NavCtrl.prototype = {
 
 	// info display
 	this.controlInfoDisplay = this.createElement("div", "mapInfoDisplay", "mapInfoDisplay");
-	this.controlDirection.appendChild(this.controlInfoDisplay); // create
+	this.controlDirection.appendChild(this.controlInfoDisplay);
 	// info labels
 	this.controlInfoDisplayLabels = {};
 	[ 'Latitude', 'Longitude', 'Elevation' ].forEach(function(name) {
@@ -572,12 +581,22 @@ NavCtrl.prototype = {
 	this.controlRouteDisplay.classList.add("mapRouteDisplay");
 	this.controlDirection.appendChild(this.controlRouteDisplay);
 
-	this.arrowImg = this.createElement("div", "arrow", "arrow-roundabout");
-	this.controlRouteDisplay.appendChild(this.arrowImg);
+	this.arrowImgDiv = this.createElement("div", "arrow", "arrow-roundabout");
+	this.controlRouteDisplay.appendChild(this.arrowImgDiv);
 
 	this.exitNumberLabel = this.createElement("div", "exitNumberLabel", "exitNumberLabel");
 	this.exitNumberLabel.innerHTML = "6";
 	this.controlRouteDisplay.appendChild(this.exitNumberLabel);
+
+	this.offRouteDiv = this.createElement("div", "offRouteDiv", "offRouteDiv");
+	this.offRouteDiv.style = "visibility:hidden;"
+	this.controlRouteDisplay.appendChild(this.offRouteDiv);
+
+	this.offRouteImg = [];
+	for (var i = 0; i < 5; i++) {
+	    this.offRouteImg[i] = this.createElement("div", "offRoute" + i);
+	    this.offRouteDiv.appendChild(this.offRouteImg[i]);
+	}
 
 	this.distanceLabel = this.createElement("div", "distance", "distance");
 	this.distanceLabel.innerHTML = "300m";
@@ -1047,22 +1066,38 @@ NavCtrl.prototype = {
     showRouteDisplay : function(navInfo) {
 	this.controlRouteDisplay.style = "visibility:visible;";
 	this.controlInfoDisplay.style = "visibility:hidden;";
-	this.arrowImg.className = TurnTypes.getInstance().getImgClass(navInfo.nextDirection.turnType);
-	if (typeof (navInfo.nextDirection.exit_number) == "undefined") {
-	    this.exitNumberLabel.innerHTML = "";
-	} else {
-	    this.exitNumberLabel.innerHTML = navInfo.nextDirection.exit_number;
+	if (navInfo.onRoute) {
+	    this.arrowImgDiv.className = TurnTypes.getInstance().getImgClass(navInfo.nextDirection.turnType);
+	    if (typeof (navInfo.nextDirection.exit_number) == "undefined") {
+		this.exitNumberLabel.innerHTML = "";
+	    } else {
+		this.exitNumberLabel.innerHTML = navInfo.nextDirection.exit_number;
+	    }
+	    this.distanceLabel.innerHTML = navInfo.distanceToNextDirection + " m";
 	}
-	this.distanceLabel.innerHTML = navInfo.distanceToNextDirection + " m";
     },
 
     repositionTurnMarkers : function() {
 	if (this.navigationMode) {
 	    var zoom = this.mapProps.currentZoom;
-	    // 8.387499997·10-5 x3 - 3.577624999·10-3 x2 + 4.974512498·10-2 x -
-	    // 2.236413749·10-1
-	    var dif = 8.387499997 * Math.pow(10, -5) * Math.pow(zoom, 3) - 3.577624999 * Math.pow(10, -3) * zoom * zoom
-		    + 4.974512498 * 0.01 * zoom - 0.2236413749;
+	    var dif;
+	    switch (zoom) {
+	    case 17:
+		dif = 0.00017;
+		break;
+	    case 15:
+		dif = 0.000648;
+		break;
+	    case 13:
+		dif = 0.0027;
+		break;
+	    case 11:
+		dif = 0.0023;
+		break;
+	    default:
+		dif = 0;
+		break;
+	    }
 	    // console.info("zoom=" + zoom + " dif= " + dif);
 	    for (var i = 0; i < this.turnMarkers.length; i++) {
 		var marker = this.turnMarkers[i];
@@ -1106,15 +1141,23 @@ NavCtrl.prototype = {
 
     navigationOnRouteCallback : function(navInfo) {
 	this.showRouteDisplay(navInfo);
+	this.offRouteDiv.style = "visibility:hidden;"
+	for (i = 0; i < this.offRouteImg.length; i++) {
+	    this.offRouteImg[i].className = "offRouteGray";
+	}
     },
 
     navigationOffRouteCallback : function(navInfo, offRouteCounter) {
 	console.info("off route");
 	console.info(navInfo);
+	this.offRouteDiv.style = "visibility:visible;"
+	if (offRouteCounter < this.offRouteImg.length) {
+	    this.offRouteImg[offRouteCounter-1].className = "offRouteRed";
+	}
 	if (offRouteCounter >= SETTINGS.maxOffRouteTime) {
-	    showNotification("recalculating route...");
+	    this.showNotification("recalculating route...");
 	    // todo: test this
-	    this.startNavigationWithRoute(this.routeDestLat, this.routeDestLng);
+	    this.startNavigation(this.routeDestLat, this.routeDestLng);
 	}
     },
 

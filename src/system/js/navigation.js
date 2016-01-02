@@ -37,14 +37,13 @@ var Navigation = (function() {
 		    onRoute : !!(nearest.point && nearest.distance < MAX_DISTANCE)
 		});
 
-		if (!navInfo.onRoute) {
+		if (navInfo.onRoute) {
+		    offRouteCounter = 0;
+		    navigationOnRouteCallback(navInfo);
+		} else {
 		    offRouteCounter++;
 		    navigationOffRouteCallback(navInfo, offRouteCounter);
 		}
-
-		offRouteCounter = 0;
-
-		navigationOnRouteCallback(navInfo);
 	    },
 	};
 
