@@ -29,9 +29,9 @@ var GraphHopper = (function() {
 
 	function resolveError(statusCode, error) {
 	    var result = "unkown";
-	    if (429 == statusCode){
+	    if (429 == statusCode) {
 		result = "API limit reached";
-	    } else if (error !== null){
+	    } else if (error !== null) {
 		result = error;
 	    }
 	    return result;
@@ -53,37 +53,52 @@ var GraphHopper = (function() {
 		distance : parseInt(route.distance, 10), duration : route.time / 1000
 	    };
 
-	    var path = decodePolyline(route.points);
+	    try {
+		var path = decodePolyline(route.points);
 
-	    var instruction, d, extractedStreet, geomArr;
-	    var instructions = route.instructions;
+		var instruction, d, extractedStreet, geomArr;
+		var instructions = route.instructions;
 
-	    for (var i = 0, len = instructions.length; i < len; i++) {
-		instruction = instructions[i];
-		d = {
-		    instruction : instruction.text, distance : parseInt(instruction.distance, 10),
-		    duration : instruction.time / 1000, turnType : instruction.sign
-		};
-		if (typeof (instruction.exit_number) !== "undefined") {
-		    d.exit_number = instruction.exit_number;
-		}
+		var accContinueDuration = 0;
+		var accContinueDistance = 0;
+		var accContinueInstructionIntervalStart = null;
 
-		d.path = path.slice(instruction.interval[0], instruction.interval[1] + 1);
+		for (var i = 0, len = instructions.length; i < len; i++) {
+		    instruction = instructions[i];
+		    d = {
+			instruction : instruction.text, distance : parseInt(instruction.distance, 10),
+			duration : instruction.time / 1000, turnType : instruction.sign
+		    };
 
-		if (d.turnType == 0 && routeStruct.directions.length > 0) { // CONTINUE_ON_STREET
-		    // check if this direction should be merged with previous
-		    // one
-		    var lastD = routeStruct.directions[routeStruct.directions.length - 1];
-		    if (lastD.turnType == 0) {
-			if (lastD.instruction.startsWith(d.instruction) || d.instruction.startsWith(lastD.instruction)) {
-			    lastD.duration += d.duration;
-			    lastD.distance += d.distance;
-			    continue;
+		    if (d.turnType == 0) { // CONTINUE_ON_STREET
+			accContinueDuration += d.duration;
+			accContinueDistance += d.distance;
+			accContinueInstructionIntervalStart = instruction.interval[0];
+		    } else {
+			if (accContinueInstructionIntervalStart == null) {
+			    d.path = path.slice(instruction.interval[0], instruction.interval[1] + 1);
+			} else {
+			    d.path = path.slice(accContinueInstructionIntervalStart, instruction.interval[1] + 1);
 			}
+
+			if (typeof (instruction.exit_number) !== "undefined") {
+			    d.exit_number = instruction.exit_number;
+			}
+
+			d.duration += accContinueDuration;
+			d.distance += accContinueDistance;
+			routeStruct.directions.push(d);
+
+			accContinueDuration = 0;
+			accContinueDistance = 0;
+			accContinueInstructionIntervalStart = null;
 		    }
 		}
-
-		routeStruct.directions.push(d);
+		// last instruction is always FINISH
+	    } catch (e) {
+		return {
+		    error : e.message
+		};
 	    }
 	    routeStruct.path = path;
 
@@ -146,8 +161,10 @@ var GraphHopper = (function() {
 		}).done(function(data) {
 		    route = parse(data);
 		}).fail(function(jqXHR, textStatus, errorThrown) {
-		    console.info("error receiving data: " + textStatus);
-		    route = {error:resolveError(jqXHR.statusCode(), textStatus)};
+		    // console.info("error receiving data: " + textStatus);
+		    route = {
+			error : resolveError(jqXHR.statusCode(), textStatus)
+		    };
 		}).always(function() {
 		    routeFinishCallback(route);
 		});

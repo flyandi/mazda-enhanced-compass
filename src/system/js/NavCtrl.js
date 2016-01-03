@@ -103,8 +103,8 @@ NavCtrl.prototype = {
     _VENDOR : ('opera' in window) ? 'O' : 'webkit',
 
     // Paths
-    // _PATH: 'apps/emnavi/controls/Compass/resources/',
-    _PATH : "./",
+    _PATH: 'apps/emnavi/controls/Compass/resources/',
+    //_PATH : "./",
 
     navigationMode : false,
 
@@ -1022,7 +1022,7 @@ NavCtrl.prototype = {
 	    GraphHopper.getInstance().fetch(this.mapProps.currentLatitude, this.mapProps.currentLongitude, destLat,
 		    destLng, this.routeFinishCallback);
 	} catch (e) {
-	    this.showNotification(e.message);
+	    this.showNotification("unexpected:" + e.message);
 	}
     },
 
