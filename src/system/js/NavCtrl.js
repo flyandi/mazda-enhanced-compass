@@ -107,7 +107,7 @@ NavCtrl.prototype = {
 
     navigationMode : false,
 
-    turnMarkers : [],
+    routeLayer : null,
 
     /**
      * (framework)
@@ -465,7 +465,10 @@ NavCtrl.prototype = {
 	    label : 'Clear route', action : function() {
 		this.navigationMode = false;
 		this.hideRouteDisplay();
-		this.clearTurnMarkers();
+		if (this.routeLayer != null) {
+		    this.map.removeLayer(this.routeLayer);
+		    this.routeLayer = null;
+		}
 		Navigation.getInstance().route = null;
 		return true; // close
 	    }
@@ -886,8 +889,6 @@ NavCtrl.prototype = {
 	    this.mapView.setZoom(zoom);
 	    this.mapProps.currentZoom = zoom;
 
-	    this.repositionTurnMarkers();
-
 	    // adjust missing tile issue
 
 	    if (zoom < 13) {
@@ -1034,7 +1035,9 @@ NavCtrl.prototype = {
     },
 
     startNavigation : function(destLat, destLng) {
-	this.clearTurnMarkers();
+	if (this.routeLayer != null) {
+	    this.map.removeLayer(this.routeLayer);
+	}
 	this.routeDestLat = destLat;
 	this.routeDestLng = destLng;
 	try {
@@ -1077,56 +1080,17 @@ NavCtrl.prototype = {
 	}
     },
 
-    repositionTurnMarkers : function() {
-	if (this.navigationMode) {
-	    var zoom = this.mapProps.currentZoom;
-	    var dif;
-	    switch (zoom) {
-	    case 17:
-		dif = 0.00017;
-		break;
-	    case 15:
-		dif = 0.000648;
-		break;
-	    case 13:
-		dif = 0.0027;
-		break;
-	    case 11:
-		dif = 0.0023;
-		break;
-	    default:
-		dif = 0;
-		break;
-	    }
-	    // console.info("zoom=" + zoom + " dif= " + dif);
-	    for (var i = 0; i < this.turnMarkers.length; i++) {
-		var marker = this.turnMarkers[i];
-		pos = ol.proj.fromLonLat([ marker.lng, marker.lat + dif ]);
-		marker.setPosition(pos);
-	    }
-	}
-    },
-
-    clearTurnMarkers : function() {
-	while (this.turnMarkers.length) {
-	    var marker = this.turnMarkers.pop();
-	    this.map.removeOverlay(marker);
-	}
-    },
-
     startNavigationWithRoute : function(route) {
-	// create markers
-	var marker = this.addTurnMarker("turn_start", this.mapProps.currentLatitude, this.mapProps.currentLongitude);
-	this.turnMarkers.push(marker);
+	var coordinates = [];
+	coordinates.push(ol.proj.transform([ this.mapProps.currentLongitude, this.mapProps.currentLatitude ],
+		'EPSG:4326', 'EPSG:3857'));
 
 	for (var i = 0, len = route.full_path.length; i < len; i++) {
 	    var point = route.full_path[i];
-	    marker = this.addTurnMarker("turn_" + i, point[0], point[1])
-	    this.turnMarkers.push(marker);
+	    coordinates.push(ol.proj.transform([ point[1], point[0] ], 'EPSG:4326', 'EPSG:3857'));
 	}
 
-	marker = this.addTurnMarker("turn_finish", this.routeDestLat, this.routeDestLng)
-	this.turnMarkers.push(marker);
+	coordinates.push(ol.proj.transform([ this.routeDestLng, this.routeDestLat ], 'EPSG:4326', 'EPSG:3857'));
 
 	Navigation.getInstance().route = route;
 	Navigation.getInstance().getPositionOnRoute({
@@ -1136,7 +1100,23 @@ NavCtrl.prototype = {
 	}, this.navigationOnRouteCallback.bind(this), this.navigationOffRouteCallback.bind(this));
 	this.navigationMode = true;
 
-	this.repositionTurnMarkers();
+	var feature = new ol.Feature({
+	    geometry : new ol.geom.LineString(coordinates, 'XY'), name : 'Line'
+	});
+
+	feature.setStyle(new ol.style.Style({
+	    stroke : new ol.style.Stroke({
+		color : '#00ff00', width : 4
+	    })
+	}));
+
+	this.routeLayer = new ol.layer.Vector({
+	    source : new ol.source.Vector({
+		features : [ feature ]
+	    })
+	});
+
+	this.map.addLayer(this.routeLayer);
     },
 
     navigationOnRouteCallback : function(navInfo) {
@@ -1152,7 +1132,7 @@ NavCtrl.prototype = {
 	console.info(navInfo);
 	this.offRouteDiv.style = "visibility:visible;"
 	if (offRouteCounter < this.offRouteImg.length) {
-	    this.offRouteImg[offRouteCounter-1].className = "offRouteRed";
+	    this.offRouteImg[offRouteCounter - 1].className = "offRouteRed";
 	}
 	if (offRouteCounter >= SETTINGS.maxOffRouteTime) {
 	    this.showNotification("recalculating route...");
