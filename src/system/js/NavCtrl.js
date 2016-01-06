@@ -463,13 +463,7 @@ NavCtrl.prototype = {
 	    }
 	}, {
 	    label : 'Clear route', action : function() {
-		this.navigationMode = false;
-		this.hideRouteDisplay();
-		if (this.routeLayer != null) {
-		    this.map.removeLayer(this.routeLayer);
-		    this.routeLayer = null;
-		}
-		Navigation.getInstance().route = null;
+		this.clearRoute();
 		return true; // close
 	    }
 	}, {
@@ -1034,6 +1028,16 @@ NavCtrl.prototype = {
 	}
     },
 
+    clearRoute : function() {
+	this.navigationMode = false;
+	this.hideRouteDisplay();
+	if (this.routeLayer != null) {
+	    this.map.removeLayer(this.routeLayer);
+	    this.routeLayer = null;
+	}
+	Navigation.getInstance().route = null;
+    },
+
     startNavigation : function(destLat, destLng) {
 	if (this.routeLayer != null) {
 	    this.map.removeLayer(this.routeLayer);
@@ -1077,6 +1081,13 @@ NavCtrl.prototype = {
 		this.exitNumberLabel.innerHTML = navInfo.nextDirection.exit_number;
 	    }
 	    this.distanceLabel.innerHTML = navInfo.distanceToNextDirection + " m";
+
+	    if (navInfo.nextDirection.turnType == TurnTypes.getInstance().FINISH
+		    && navInfo.distanceToNextDirection < 5) {
+		// destination reached
+		this.clearRoute();
+		this.showNotification("destination reached");
+	    }
 	}
     },
 

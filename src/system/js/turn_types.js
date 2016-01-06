@@ -4,7 +4,9 @@ var TurnTypes = (function() {
     var instance;
 
     function init() {
-	return {	    
+	return {
+	    FINISH: 4,
+	    
 	    getImgClass : function(indication) {
 		var result;
 		switch (indication) {
@@ -29,7 +31,7 @@ var TurnTypes = (function() {
 		case 3: // TURN_SHARP_RIGHT
 		    result = "arrow-hard-right";
 		    break;
-		case 4: // FINISH
+		case this.FINISH: // FINISH
 		    result ="arrow-flag";
 		    break;
 		case 5: // VIA_REACHED

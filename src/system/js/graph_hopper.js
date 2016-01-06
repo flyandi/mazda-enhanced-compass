@@ -73,7 +73,9 @@ var GraphHopper = (function() {
 		    if (d.turnType == 0) { // CONTINUE_ON_STREET
 			accContinueDuration += d.duration;
 			accContinueDistance += d.distance;
-			accContinueInstructionIntervalStart = instruction.interval[0];
+			if (accContinueInstructionIntervalStart == null) {
+			    accContinueInstructionIntervalStart = instruction.interval[0];
+			}
 		    } else {
 			if (accContinueInstructionIntervalStart == null) {
 			    d.path = path.slice(instruction.interval[0], instruction.interval[1] + 1);
