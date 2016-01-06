@@ -111,6 +111,8 @@ NavCtrl.prototype = {
 
     routeLayer : null,
 
+    mainMenu : null,
+
     /**
      * (framework)
      */
@@ -185,7 +187,34 @@ NavCtrl.prototype = {
 	this.disableInterface(true);
 
 	// (MAP)
-	this.initMap(function() {
+	this.loadJavascripts(function() {
+	    // create menus
+
+	    var route = new Route();
+
+	    this.mainMenu = new Menu(this.menuContainer);
+	    this.menuListInner.appendChild(this.mainMenu.menuList);
+	    this.mainMenu.addItem('Center Map', function() {
+		this.reCenter();
+	    });
+	    this.mainMenu.addItem('Cancel', function() {});
+	    this.mainMenu.addItem('Navigate Home', function() {
+		this.startNavigation(SETTINGS.home.lat, SETTINGS.home.lng);
+	    });
+	    this.mainMenu.addItem('Navigate Work', function() {
+		this.startNavigation(SETTINGS.work.lat, SETTINGS.work.lng);
+	    });
+	    this.mainMenu.addItem('Navigate L', function() {
+		this.startNavigation(SETTINGS.l.lat, SETTINGS.l.lng);
+	    });
+	    this.mainMenu.addItem('Navigate P', function() {
+		this.startNavigation(SETTINGS.p.lat, SETTINGS.p.lng);
+	    });
+	    this.mainMenu.addItem('Clear route', function() {
+		this.clearRoute();
+	    });
+	    this.mainMenu.addItem('Find POI');
+
 	    // create map
 	    this.createMap();
 
@@ -198,17 +227,21 @@ NavCtrl.prototype = {
 
     },
 
-    initMap : function(callback) {
-	this.addJs('system/js/ol.js', callback);
-	this.addJs('system/js/jquery-2.1.4.min.js');
-	this.addJs('system/js/settings.js');
-	this.addJs('system/js/turn_types.js');
-	this.addJs('system/js/lat_lng.js');
-	this.addJs('system/js/route.js');
-	this.addJs('system/js/graph_hopper.js');
-	this.addJs('system/js/geo.js');
-	this.addJs('system/js/navigation_info.js');
-	this.addJs('system/js/navigation.js');
+    loadJavascripts : function(onLoadCallback) {
+	var files = [ 'system/js/ol.js', 'system/js/jquery-2.1.4.min.js', 'system/js/settings.js', 'system/js/menu.js',
+		'system/js/turn_types.js', 'system/js/lat_lng.js', 'system/js/route.js', 'system/js/graph_hopper.js',
+		'system/js/geo.js', 'system/js/navigation_info.js', 'system/js/navigation.js' ];
+	var toBeLoaded = files.length;
+	function callbackInternal() {
+	    toBeLoaded--;
+	    if (toBeLoaded == 0) {
+		onLoadCallback();
+	    }
+	};
+
+	for (i = 0; i < files.length; i++) {
+	    this.addJs(files[i], callbackInternal);
+	}
     },
 
     /**
@@ -422,73 +455,9 @@ NavCtrl.prototype = {
 	arc.classList.add("arc");
 	this.menuContainer.appendChild(arc);
 
-	var inner = document.createElement("div");
-	inner.classList.add("menuListInner");
-	this.menuContainer.appendChild(inner);
-
-	this.menuList = document.createElement("div");
-	this.menuList.classList.add("menuList");
-	inner.appendChild(this.menuList);
-
-	this.menuItemIndex = 0;
-	this.menuCurrentIndex = 0;
-	this.menuItemLength = 0;
-
-	this.menuItems = [ {
-	    label : 'Center Map', action : function() {
-		this.reCenter();
-		return true; // close
-	    }
-	}, {
-	    label : 'Cancel', action : function() {
-		return true;
-	    }
-	}, {
-	    label : 'Navigate Home', action : function() {
-		this.startNavigation(SETTINGS.home.lat, SETTINGS.home.lng);
-		return true; // close
-	    }
-	}, {
-	    label : 'Navigate Work', action : function() {
-		this.startNavigation(SETTINGS.work.lat, SETTINGS.work.lng);
-		return true; // close
-	    }
-	}, {
-	    label : 'Navigate L', action : function() {
-		this.startNavigation(SETTINGS.l.lat, SETTINGS.l.lng);
-		return true; // close
-	    }
-	}, {
-	    label : 'Navigate P', action : function() {
-		this.startNavigation(SETTINGS.p.lat, SETTINGS.p.lng);
-		return true; // close
-	    }
-	}, {
-	    label : 'Clear route', action : function() {
-		this.clearRoute();
-		return true; // close
-	    }
-	}, {
-	    label : 'Find POI'
-	}, {
-	    label : 'Add POI'
-	}, {
-	    label : 'Favorites'
-	}, {
-	    label : 'POI'
-	}, {
-	    label : 'Overflow 1'
-	}, {
-	    label : 'Overflow 2'
-	},
-
-	];
-
-	this.menuItems.forEach(function(item) {
-
-	    this.addMenuItem(item);
-
-	}.bind(this));
+	this.menuListInner = document.createElement("div");
+	this.menuListInner.classList.add("menuListInner");
+	this.menuContainer.appendChild(this.menuListInner);
 
 	this.isMenuOpen = false;
 
@@ -608,22 +577,15 @@ NavCtrl.prototype = {
     },
 
     setMapInfoLabelValue : function(id, value) {
-
 	if (!this.hasUI)
 	    return;
-
 	if (this.controlInfoDisplayLabels[id]) {
-
 	    this.controlInfoDisplayLabels[id].innerHTML = value;
-
 	}
-
     },
 
     disableInterface : function(disable) {
-
 	this.isDisabled = disable;
-
 	if (disable) {
 	    this.controlsContainer.classList.add("disabled");
 	} else {
@@ -636,11 +598,10 @@ NavCtrl.prototype = {
      */
 
     showMenu : function(open) {
-
 	if (open) {
 	    this.controlMenu.classList.remove("closed");
 	    this.controlMenu.classList.add("open");
-	    this.selectMenuItem(0);
+	    this.mainMenu.selectMenuItem(0)
 	} else {
 	    this.controlMenu.classList.remove("open");
 	    this.controlMenu.classList.add("closed");
@@ -649,79 +610,22 @@ NavCtrl.prototype = {
 	this.isMenuOpen = open;
     },
 
-    addMenuItem : function(item) {
-
-	var menuItem = document.createElement("div");
-	menuItem.setAttribute("menuIndex", this.menuItemIndex);
-	menuItem.classList.add("menuItem");
-	this.menuList.appendChild(menuItem);
-
-	var menuItemLabel = document.createElement("span");
-	menuItem.appendChild(menuItemLabel);
-
-	menuItemLabel.innerHTML = item.label;
-
-	this.menuItemIndex++;
-	this.menuItemLength++;
-
-    },
-
-    selectMenuItem : function(index) {
-
-	// clear
-	var selected = this.menuList.querySelector(".selected");
-	if (selected)
-	    selected.classList.remove("selected");
-
-	var menuItem = this.menuList.querySelector("[menuIndex='" + index + "']");
-
-	menuItem.classList.add("selected");
-
-	this.menuCurrentIndex = index;
-
-	// adjust scroll height
-	var itemHeight = menuItem.clientHeight, visibleHeight = this.menuContainer.clientHeight, totalHeight = this.menuList.clientHeight, posHeight = (index + 1)
-		* itemHeight, p = Math.max(itemHeight, (posHeight - visibleHeight));
-
-	if (p % itemHeight > 0)
-	    p = p - (p % itemHeight) + itemHeight;
-
-	// check
-	this.menuList.style.top = (-1 * (posHeight > visibleHeight ? p : 0)) + "px";
-    },
-
-    menuItemAction : function(index) {
-
-	if (this.menuItems[index]) {
-	    switch (true) {
-
-	    case typeof (this.menuItems[index].action) == "function":
-
-		var result = this.menuItems[index].action.call(this);
-
-		if (result) {
-		    this.showMenu(false);
-		}
-		break;
-
-	    }
-	}
-    },
-
     handleMenuEvent : function(event) {
 
 	switch (event) {
 	case "select":
-	    this.menuItemAction(this.menuCurrentIndex);
+	    closeAfterSelect = this.mainMenu.executeMenuItemAction();
+	    if (closeAfterSelect) {
+		this.showMenu(false);
+	    }
 	    break;
 
 	case "cw":
-	    this.selectMenuItem(this.menuCurrentIndex < this.menuItemLength - 1 ? this.menuCurrentIndex + 1 : 0);
-
+	    this.mainMenu.selectNextItem();
 	    break;
 
 	case "ccw":
-	    this.selectMenuItem(this.menuCurrentIndex > 0 ? this.menuCurrentIndex - 1 : this.menuItemLength - 1);
+	    this.mainMenu.selectPreviousItem();
 	    break;
 	}
     },
@@ -741,17 +645,13 @@ NavCtrl.prototype = {
     },
 
     center : function(lat, lng) {
-
 	var center = ol.proj.fromLonLat([ lng, lat ]);
-
 	this.mapView.setCenter(center);
-
 	return center;
 
     },
 
     addMarker : function(image, width, height, id) {
-
 	var markerImage = document.createElement("img");
 	markerImage.src = image;
 
@@ -765,13 +665,6 @@ NavCtrl.prototype = {
 
 	this.map.addOverlay(marker);
 
-	return marker;
-    },
-
-    addTurnMarker : function(id, lat, lng) {
-	var marker = this.addMarker(this._PATH + "system/images/turn.png", 4, 4, id);
-	marker.lat = lat;
-	marker.lng = lng;
 	return marker;
     },
 
