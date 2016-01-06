@@ -1,5 +1,4 @@
 var SETTINGS = {
-  // locale of the navigation instructions (e.g. pt_PT for Portuguese or de for German)
   locale : 'en',
   home : {
         lat: ,

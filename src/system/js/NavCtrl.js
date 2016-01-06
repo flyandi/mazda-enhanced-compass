@@ -105,6 +105,8 @@ NavCtrl.prototype = {
     // Paths
     _PATH : null,
 
+    maxOffRouteTime : 5,
+
     navigationMode : false,
 
     routeLayer : null,
@@ -1082,8 +1084,7 @@ NavCtrl.prototype = {
 	    }
 	    this.distanceLabel.innerHTML = navInfo.distanceToNextDirection + " m";
 
-	    if (navInfo.nextDirection.turnType == TurnTypes.getInstance().FINISH
-		    && navInfo.distanceToNextDirection < 5) {
+	    if (navInfo.nextDirection.turnType == TurnTypes.getInstance().FINISH && navInfo.distanceToNextDirection < 5) {
 		// destination reached
 		this.clearRoute();
 		this.showNotification("destination reached");
@@ -1145,7 +1146,7 @@ NavCtrl.prototype = {
 	if (offRouteCounter < this.offRouteImg.length) {
 	    this.offRouteImg[offRouteCounter - 1].className = "offRouteRed";
 	}
-	if (offRouteCounter >= SETTINGS.maxOffRouteTime) {
+	if (offRouteCounter >= this.maxOffRouteTime) {
 	    this.showNotification("recalculating route...");
 	    // todo: test this
 	    this.startNavigation(this.routeDestLat, this.routeDestLng);
