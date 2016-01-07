@@ -163,10 +163,24 @@ var GraphHopper = (function() {
 		}).done(function(data) {
 		    route = parse(data);
 		}).fail(function(jqXHR, textStatus, errorThrown) {
-		    // console.info("error receiving data: " + textStatus);
-		    route = {
-			error : resolveError(jqXHR.statusCode(), textStatus)
-		    };
+		    if (jqXHR.readyState == 4) {
+			// HTTP error (can be checked by XMLHttpRequest.status
+			// and XMLHttpRequest.statusText)
+			route = {
+				error : resolveError(jqXHR.statusCode(), textStatus)
+			};
+		    } else if (jqXHR.readyState == 0) {
+			// Network error (i.e. connection refused, access denied
+			// due to CORS, etc.)
+			route = {
+				error : resolveError(jqXHR.statusCode(), "connection problem")
+			};
+		    } else {
+			// something weird is happening
+			route = {
+				error : resolveError(jqXHR.statusCode(), textStatus)
+			};
+		    }
 		}).always(function() {
 		    routeFinishCallback(route);
 		});
