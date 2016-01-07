@@ -2,6 +2,9 @@ function Menu(menuContainerDiv) {
     this.menuContainer = menuContainerDiv;
     this.menuList = document.createElement("div");
     this.menuList.classList.add("menuList");
+
+    this.items = [];
+    this.menuCurrentIndex = 0;
 }
 
 Menu.prototype = {
@@ -10,13 +13,17 @@ Menu.prototype = {
     menuCurrentIndex : 0,
 
     // Public methods and variables
-    addItem : function(label, action, closeAfterSelect) {
-	var close = closeAfterSelect || true;
+    addItem : function(label, action, closeCurrentMenuAfterSelect, closeAllMenuAfterSelect) {
 	if (!action) {
-	    close = false;
+	    closeCurrent = false;
+	    closeAll = false;
+	} else {
+	    closeCurrent = typeof (closeCurrentMenuAfterSelect) == "undefined" || closeCurrentMenuAfterSelect;
+	    closeAll = typeof (closeAllMenuAfterSelect) == "undefined" || closeAllMenuAfterSelect;
 	}
 	this.items.push({
-	    action : (action) ? action.bind(__NavPOICtrl) : null, closeAfterSelect : close
+	    action : (action) ? action.bind(__NavPOICtrl) : null, closeCurrentMenuAfterSelect : closeCurrent,
+	    closeAllMenuAfterSelect : closeAll
 	});
 
 	var menuItem = document.createElement("div");
@@ -73,8 +80,9 @@ Menu.prototype = {
 		break;
 	    }
 
-	    return item.closeAfterSelect;
+	    return {
+		currentMenu : item.closeCurrentMenuAfterSelect, allMenu : item.closeAllMenuAfterSelect
+	    }
 	}
     },
-
 };

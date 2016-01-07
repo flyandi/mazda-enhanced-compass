@@ -111,8 +111,6 @@ NavCtrl.prototype = {
 
     routeLayer : null,
 
-    mainMenu : null,
-
     /**
      * (framework)
      */
@@ -189,31 +187,8 @@ NavCtrl.prototype = {
 	// (MAP)
 	this.loadJavascripts(function() {
 	    // create menus
-
-	    var route = new Route();
-
-	    this.mainMenu = new Menu(this.menuContainer);
-	    this.menuListInner.appendChild(this.mainMenu.menuList);
-	    this.mainMenu.addItem('Center Map', function() {
-		this.reCenter();
-	    });
-	    this.mainMenu.addItem('Cancel', function() {});
-	    this.mainMenu.addItem('Navigate Home', function() {
-		this.startNavigation(SETTINGS.home.lat, SETTINGS.home.lng);
-	    });
-	    this.mainMenu.addItem('Navigate Work', function() {
-		this.startNavigation(SETTINGS.work.lat, SETTINGS.work.lng);
-	    });
-	    this.mainMenu.addItem('Navigate L', function() {
-		this.startNavigation(SETTINGS.l.lat, SETTINGS.l.lng);
-	    });
-	    this.mainMenu.addItem('Navigate P', function() {
-		this.startNavigation(SETTINGS.p.lat, SETTINGS.p.lng);
-	    });
-	    this.mainMenu.addItem('Clear route', function() {
-		this.clearRoute();
-	    });
-	    this.mainMenu.addItem('Find POI');
+	    this.createMainMenu();
+	    this.createNavigationMenu();
 
 	    // create map
 	    this.createMap();
@@ -229,8 +204,9 @@ NavCtrl.prototype = {
 
     loadJavascripts : function(onLoadCallback) {
 	var files = [ 'system/js/ol.js', 'system/js/jquery-2.1.4.min.js', 'system/js/settings.js', 'system/js/menu.js',
-		'system/js/turn_types.js', 'system/js/lat_lng.js', 'system/js/route.js', 'system/js/graph_hopper.js',
-		'system/js/geo.js', 'system/js/navigation_info.js', 'system/js/navigation.js' ];
+		'system/js/menu_manager.js', 'system/js/turn_types.js', 'system/js/lat_lng.js', 'system/js/route.js',
+		'system/js/graph_hopper.js', 'system/js/geo.js', 'system/js/navigation_info.js',
+		'system/js/navigation.js' ];
 	var toBeLoaded = files.length;
 	function callbackInternal() {
 	    toBeLoaded--;
@@ -596,15 +572,64 @@ NavCtrl.prototype = {
     /**
      * Menu
      */
+    createMainMenu : function() {
+	var mainMenu = MenuManager.getInstance().registerMenu("mainMenu", this.menuContainer);
+
+	mainMenu.addItem('Center Map', function() {
+	    this.reCenter();
+	});
+	mainMenu.addItem('Cancel', function() {
+	});
+	mainMenu.addItem('Navigate...', function() {
+	    this.selectAndShowActiveMenu("navigationMenu");
+	}, false, false);
+	mainMenu.addItem('Find POI');
+    },
+
+    createNavigationMenu : function() {
+	var menu = MenuManager.getInstance().registerMenu("navigationMenu", this.menuContainer);
+
+	menu.addItem('Navigate Home', function() {
+	    this.startNavigation(SETTINGS.home.lat, SETTINGS.home.lng);
+	});
+	menu.addItem('Navigate Work', function() {
+	    this.startNavigation(SETTINGS.work.lat, SETTINGS.work.lng);
+	});
+	menu.addItem('Navigate L', function() {
+	    this.startNavigation(SETTINGS.l.lat, SETTINGS.l.lng);
+	});
+	menu.addItem('Navigate P', function() {
+	    this.startNavigation(SETTINGS.p.lat, SETTINGS.p.lng);
+	});
+	menu.addItem('Clear route', function() {
+	    this.clearRoute();
+	});
+	menu.addItem('...back', function() {
+	}, true, false);
+    },
+
+    selectAndShowActiveMenu : function(id) {
+	return this.showActiveMenu(MenuManager.getInstance().activateMenu(id));
+    },
+
+    showActiveMenu : function(menu) {
+	if (this.menuListInner.hasChildNodes()) {
+	    this.menuListInner.removeChild(this.menuListInner.firstChild);
+	}
+	this.menuListInner.appendChild(menu.menuList);
+	menu.selectMenuItem(0);
+	return menu;
+    },
 
     showMenu : function(open) {
 	if (open) {
+	    var menu = this.selectAndShowActiveMenu("mainMenu");
 	    this.controlMenu.classList.remove("closed");
 	    this.controlMenu.classList.add("open");
-	    this.mainMenu.selectMenuItem(0)
 	} else {
 	    this.controlMenu.classList.remove("open");
 	    this.controlMenu.classList.add("closed");
+	    this.menuListInner.removeChild(this.menuListInner.firstChild);
 	}
 
 	this.isMenuOpen = open;
@@ -614,18 +639,30 @@ NavCtrl.prototype = {
 
 	switch (event) {
 	case "select":
-	    closeAfterSelect = this.mainMenu.executeMenuItemAction();
-	    if (closeAfterSelect) {
+	    closeAfterSelect = MenuManager.getInstance().executeMenuItemAction();
+	    hide = false;
+	    if (closeAfterSelect.allMenu) {
+		MenuManager.getInstance().closeAllMenus();
+		hide = true;
+	    } else if (closeAfterSelect.currentMenu) {
+		var menu = MenuManager.getInstance().closeAcitveMenu();
+		if (menu != null) {
+		    this.showActiveMenu(menu)
+		} else {
+		    hide = true;
+		}
+	    }
+	    if (hide) {
 		this.showMenu(false);
 	    }
 	    break;
 
 	case "cw":
-	    this.mainMenu.selectNextItem();
+	    MenuManager.getInstance().selectNextItem();
 	    break;
 
 	case "ccw":
-	    this.mainMenu.selectPreviousItem();
+	    MenuManager.getInstance().selectPreviousItem();
 	    break;
 	}
     },
