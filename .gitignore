@@ -7,6 +7,7 @@ dist/*.zip
 emnaviApp.orig.js
 src/tiles
 src/.project
-src/system/js/settings.js
+settings.js
 .project
 .settings
+routesCacheFile.js

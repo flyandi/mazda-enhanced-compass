@@ -27,6 +27,8 @@ var GraphHopper = (function() {
 
 	var direction = null;
 
+	var CACHED_ROUTE_PREFIX = "cachedRoute-";
+
 	function resolveError(statusCode, error) {
 	    var result = "unkown";
 	    if (429 == statusCode) {
@@ -37,7 +39,7 @@ var GraphHopper = (function() {
 	    return result;
 	};
 
-	function parse(response) {
+	function parse(response, startLat, startLng, destLat, destLng) {
 
 	    // check for error codes
 	    // https://github.com/graphhopper/graphhopper/blob/master/docs/web/api-doc.md
@@ -104,6 +106,8 @@ var GraphHopper = (function() {
 	    }
 	    routeStruct.path = path;
 
+	    cacheResult(startLat, startLng, destLat, destLng, routeStruct);
+
 	    return new Route().parse(routeStruct);
 	};
 
@@ -143,6 +147,71 @@ var GraphHopper = (function() {
 	    return array;
 	};
 
+	function readFromCache(start, dest) {
+	    var result = null;
+
+	    // read from file
+	    for (var i = 0; i < Object.keys(CACHED_ROUTES).length; i++) {
+		var route = CACHED_ROUTES[i];
+		// compute destination to start
+		var distanceStart = GeoUtils.getInstance().distance(start, route.start);
+		console.info("file " + distanceStart);
+		if (distanceStart <= Navigation.getInstance().MAX_DISTANCE && dest.lat == route.dest.lat
+			&& dest.lng == route.dest.lng) {
+		    result = route.data;
+		    break;
+		}
+	    }
+	    
+	    if (result == null) {
+		// read from localStorage
+		for ( var name in localStorage) {
+		    if (name.indexOf(CACHED_ROUTE_PREFIX) == 0) {
+			text = localStorage.getItem(name);
+			var route = eval('(' + text + ')');
+			// compute destination to start
+			var distanceStart = GeoUtils.getInstance().distance(start, route.start);
+			console.info("localStorage " + distanceStart);
+			if (distanceStart <= Navigation.getInstance().MAX_DISTANCE && dest.lat == route.dest.lat
+				&& dest.lng == route.dest.lng) {
+			    result = route.data;
+			    break;
+			}
+		    }
+		}
+	    }
+	    return result;
+	};
+
+	function objToString(obj, ndeep) {
+	    switch (typeof obj) {
+	    case "string":
+		return '"' + obj + '"';
+	    case "function":
+		return obj.name || obj.toString();
+	    case "object":
+		var indent = Array(ndeep || 1).join('\t'), isArray = Array.isArray(obj);
+		return ('{['[+isArray] + Object.keys(obj).map(function(key) {
+		    return '\n\t' + indent + (isArray ? '' : key + ': ') + objToString(obj[key], (ndeep || 1) + 1);
+		}).join(',') + '\n' + indent + '}]'[+isArray]).replace(
+			/[\s\t\n]+(?=(?:[^\'"]*[\'"][^\'"]*[\'"])*[^\'"]*$)/g, '');
+	    default:
+		return obj.toString();
+	    }
+	};
+
+	function cacheResult(startLat, startLng, destLat, destLng, routeStruct) {
+	    var x = btoa(escape(objToString({
+		start : {
+		    lat : startLat, lng : startLng
+		}, dest : {
+		    lat : destLat, lng : destLng
+		}, data : routeStruct
+	    })));
+	    var text = unescape(atob(x));
+	    localStorage.setItem(CACHED_ROUTE_PREFIX + startLat + ',' + startLng + '/' + destLat + ',' + destLng, text);
+	};
+
 	return {
 	    // Public methods and variables
 	    fetch : function(startLat, startLng, destLat, destLng, routeFinishCallback) {
@@ -153,37 +222,50 @@ var GraphHopper = (function() {
 		    via += '&point=' + [ direction.lat, direction.lng ].join('%2C');
 		}
 
-		var reqUrl = [ BASE_URL, 'route?type=jsonp', '&key=', apiKey, '&locale=', lang, '&vehicle=', routeType,
-			'&weighting=', modifier, '&point=', [ startLat, startLng, ].join('%2C'), via, '&point=',
-			[ destLat, destLng ].join('%2C') ];
-
-		var route = null;
-		$.ajax({
-		    url : reqUrl.join(''), dataType : "jsonp"
-		}).done(function(data) {
-		    route = parse(data);
-		}).fail(function(jqXHR, textStatus, errorThrown) {
-		    if (jqXHR.readyState == 4) {
-			// HTTP error (can be checked by XMLHttpRequest.status
-			// and XMLHttpRequest.statusText)
-			route = {
-				error : resolveError(jqXHR.statusCode(), textStatus)
-			};
-		    } else if (jqXHR.readyState == 0) {
-			// Network error (i.e. connection refused, access denied
-			// due to CORS, etc.)
-			route = {
-				error : resolveError(jqXHR.statusCode(), "connection problem")
-			};
-		    } else {
-			// something weird is happening
-			route = {
-				error : resolveError(jqXHR.statusCode(), textStatus)
-			};
-		    }
-		}).always(function() {
-		    routeFinishCallback(route);
+		var routeStruct = readFromCache({
+		    lat : startLat, lng : startLng
+		}, {
+		    lat : destLat, lng : destLng
 		});
+		
+		if (routeStruct != null) {
+		    console.info("cached route used");
+		    routeFinishCallback(new Route().parse(routeStruct));
+		} else {
+		    var reqUrl = [ BASE_URL, 'route?type=jsonp', '&key=', apiKey, '&locale=', lang, '&vehicle=',
+			    routeType, '&weighting=', modifier, '&point=', [ startLat, startLng, ].join('%2C'), via,
+			    '&point=', [ destLat, destLng ].join('%2C') ];
+
+		    var route = null;
+		    $.ajax({
+			url : reqUrl.join(''), dataType : "jsonp"
+		    }).done(function(data) {
+			route = parse(data, startLat, startLng, destLat, destLng);
+		    }).fail(function(jqXHR, textStatus, errorThrown) {
+			if (jqXHR.readyState == 4) {
+			    // HTTP error (can be checked by
+			    // XMLHttpRequest.status
+			    // and XMLHttpRequest.statusText)
+			    route = {
+				error : resolveError(jqXHR.statusCode(), textStatus)
+			    };
+			} else if (jqXHR.readyState == 0) {
+			    // Network error (i.e. connection refused, access
+			    // denied
+			    // due to CORS, etc.)
+			    route = {
+				error : resolveError(jqXHR.statusCode(), "connection problem")
+			    };
+			} else {
+			    // something weird is happening
+			    route = {
+				error : resolveError(jqXHR.statusCode(), textStatus)
+			    };
+			}
+		    }).always(function() {
+			routeFinishCallback(route);
+		    });
+		}
 	    },
 	};
 

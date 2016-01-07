@@ -23,18 +23,17 @@ var Navigation = (function() {
 	    // Public methods and variables
 	    route : null,
 
+	    MAX_DISTANCE : 30,// Math.max(35,
+				// Math.min(pos.coords.accuracy.toFixed(1),
+				// 50));// OR 35?!
+
 	    getPositionOnRoute : function(position, navigationOnRouteCallback, navigationOffRouteCallback) {
-
-		var MAX_DISTANCE = 30;// Math.max(35,
-		// Math.min(pos.coords.accuracy.toFixed(1),
-		// 50));// OR 35?!
-
 		// try to find the current position on the route
 		var nearest = this.route.nearestTo(position.point, 0, 0);
 
 		var navInfo = new NavigationInfo({
 		    nearest : nearest, raw : position, navigation : this, route : this.route,
-		    onRoute : !!(nearest.point && nearest.distance < MAX_DISTANCE)
+		    onRoute : !!(nearest.point && nearest.distance < this.MAX_DISTANCE)
 		});
 
 		if (navInfo.onRoute) {
