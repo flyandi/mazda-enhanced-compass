@@ -589,18 +589,11 @@ NavCtrl.prototype = {
     createNavigationMenu : function() {
 	var menu = MenuManager.getInstance().registerMenu("navigationMenu", this.menuContainer);
 
-	menu.addItem('Navigate Home', function() {
-	    this.startNavigation(SETTINGS.home.lat, SETTINGS.home.lng);
-	});
-	menu.addItem('Navigate Work', function() {
-	    this.startNavigation(SETTINGS.work.lat, SETTINGS.work.lng);
-	});
-	menu.addItem('Navigate L', function() {
-	    this.startNavigation(SETTINGS.l.lat, SETTINGS.l.lng);
-	});
-	menu.addItem('Navigate P', function() {
-	    this.startNavigation(SETTINGS.p.lat, SETTINGS.p.lng);
-	});
+	for (var i = 0; i < Object.keys(SETTINGS.destinations).length; i++) {
+	    var dest = SETTINGS.destinations[i];
+	    menu.addItem('Navigate ' + dest.name, new Function("", "this.startNavigation(" + dest.lat + "," + dest.lng
+		    + ");"));
+	}
 	menu.addItem('Clear route', function() {
 	    this.clearRoute();
 	});

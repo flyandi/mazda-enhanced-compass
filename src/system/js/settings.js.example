@@ -1,13 +1,12 @@
 var SETTINGS = {
   locale : 'en',
-  home : {
-        lat: ,
-        lng: 
-    },
-    work : {
-        lat: ,
-        lng: 
-  }
+  destinations : [ {
+	name : "home", lat : 0, lng : 0
+    }, {
+	name : "work", lat : 0, lng : 0
+    }, 
+	// etc.
+	]
 	credentials : {
     /*
      * Id of the map style - you should not need to change this
