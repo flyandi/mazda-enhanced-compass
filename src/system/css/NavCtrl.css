@@ -1,26 +1,27 @@
 /**
  * Enhanced Compass for Mazda Connect Infotainment
- * 
+ *
  * This is a full replacement for the standard Compass Application that also offers a moving map.
  *
  * Written by Andreas Schwarz (http://github.com/flyandi/mazda-enhanced-compass)
  * Copyright (c) 2015. All rights reserved.
- * 
+ *
  * WARNING: The installation of this application requires modifications to your Mazda Connect system.
  * If you don't feel comfortable performing these changes, please do not attempt to install this. You might
  * be ending up with an unusuable system that requires reset by your Dealer. You were warned!
  *
- * This program is free software: you can redistribute it and/or modify it under the terms of the 
+ * This program is free software: you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
  * License for more details.
- * 
- * You should have received a copy of the GNU General Public License along with this program. 
+ *
+ * You should have received a copy of the GNU General Public License along with this program.
  * If not, see http://www.gnu.org/licenses/
  */
+
 .NavCtrl {
 	font-family: "Tipperary", Arial, Helvetica, sans-serif;
 	text-align: left;
@@ -50,7 +51,6 @@
 
 .NavCtrl #map.tilted {
 	/*-o-transform: perspective(500px) rotate3d(40, 1, 0, 40deg)!important;*/
-	
 }
 
 .NavCtrl .mapMenu {
@@ -80,138 +80,23 @@
 	left: 850px
 }
 
-@
--o-keyframes menuOpenSlideOut { 0% {
-	left: 350px;
+@-o-keyframes menuOpenSlideOut {
+0% { left: 350px;}
+100% {left: 850px;}
+}
+@-webkit-keyframes menuOpenSlideOut {
+0% { left: 350px;}
+100% {left: 850px;}
+}
+@keyframes menuOpenSlideOut {
+0% { left: 350px;}
+100% {left: 850px;}
+}
+@keyframes menuOpenSlideOut {
+0% { left: 350px;}
+100% {left: 850px;}
 }
 
-100%
-{
-left
-
-
-
-
-
-
-:
-
-
-
- 
-
-
-
-850
-px
-
-
-
-
-
-
-;
-}
-}
-@
--webkit-keyframes menuOpenSlideOut { 0% {
-	left: 350px;
-}
-
-100%
-{
-left
-
-
-
-
-
-
-:
-
-
-
- 
-
-
-
-850
-px
-
-
-
-
-
-
-;
-}
-}
-@
-keyframes menuOpenSlideOut { 0% {
-	left: 350px;
-}
-
-100%
-{
-left
-
-
-
-
-
-
-:
-
-
-
- 
-
-
-
-850
-px
-
-
-
-
-
-
-;
-}
-}
-@
-keyframes menuOpenSlideOut { 0% {
-	left: 350px;
-}
-
-100%
-{
-left
-
-
-
-
-
-
-:
-
-
-
- 
-
-
-
-850
-px
-
-
-
-
-
-
-;
-}
-}
 .NavCtrl .mapMenu.open {
 	-o-animation-name: menuOpenSlideIn;
 	-o-animation-duration: 0.3s;
@@ -231,138 +116,23 @@ px
 	left: 350px;
 }
 
-@
--o-keyframes menuOpenSlideIn { 0% {
-	left: 850px;
+@-o-keyframes menuOpenSlideIn {
+0% { left: 850px;}
+100% {left: 350px;}
+}
+@-webkit-keyframes menuOpenSlideIn {
+0% { left: 850px;}
+100% {left: 350px;}
+}
+@keyframes menuOpenSlideIn {
+0% { left: 850px;}
+100% {left: 350px;}
+}
+@keyframes menuOpenSlideIn {
+0% { left: 850px;}
+100% {left: 350px;}
 }
 
-100%
-{
-left
-
-
-
-
-
-
-:
-
-
-
- 
-
-
-
-350
-px
-
-
-
-
-
-
-;
-}
-}
-@
--webkit-keyframes menuOpenSlideIn { 0% {
-	left: 850px;
-}
-
-100%
-{
-left
-
-
-
-
-
-
-:
-
-
-
- 
-
-
-
-350
-px
-
-
-
-
-
-
-;
-}
-}
-@
-keyframes menuOpenSlideIn { 0% {
-	left: 850px;
-}
-
-100%
-{
-left
-
-
-
-
-
-
-:
-
-
-
- 
-
-
-
-350
-px
-
-
-
-
-
-
-;
-}
-}
-@
-keyframes menuOpenSlideIn { 0% {
-	left: 850px;
-}
-
-100%
-{
-left
-
-
-
-
-
-
-:
-
-
-
- 
-
-
-
-350
-px
-
-
-
-
-
-
-;
-}
-}
 .NavCtrl .mapMenu .menuContainer {
 	position: relative;
 	background: url(../images/menu-background.png) repeat-x left top #000;
@@ -370,7 +140,7 @@ px
 	padding-top: 20px;
 	height: 460px;
 	/*border-top:1px solid rgba(255, 255, 255, 0.4);
-      border-bottom:1px solid rgba(255, 255, 255, 0.4);*/
+	 border-bottom:1px solid rgba(255, 255, 255, 0.4);*/
 }
 
 .NavCtrl .mapMenu .menuContainer .arc {
@@ -412,7 +182,7 @@ px
 	padding: 15px;
 	padding-left: 40px;
 	display: block;
-	color: rgba(255, 255, 255, 0.7);
+	color: rgba(255,255,255,0.7);
 }
 
 .NavCtrl .mapMenu .menuContainer .menuList .menuItem.selected span {
@@ -491,9 +261,10 @@ px
 }
 
 .NavCtrl .mapControls .mapDateTime {
+	margin-top: 12px;
 	text-align: center;
 	text-shadow: #000 0px 3px 0px;
-	font-size: 1.5em; /* @mb 1.5em */
+	font-size: 1.5em;
 	color: white;
 }
 
@@ -518,7 +289,6 @@ px
 	overflow: hidden;
 	text-shadow: #000 0px 1.5px 0px;
 	font-size: 0.95em;
-	color: #000;
 }
 
 .NavCtrl .mapControls .mapInfoDisplay .label {
