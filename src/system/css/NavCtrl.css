@@ -467,3 +467,11 @@
 	left: 90px;
 	position: absolute;
 }
+
+.NavCtrl .copyrightInfo {
+	color: white;
+	font-size: 0.5em;
+	top: 460px;
+	left: 670px;
+	position: absolute;
+}

@@ -110,6 +110,8 @@ NavCtrl.prototype = {
     navigationMode : false,
 
     routeLayer : null,
+    
+    copyrightTimer : null,
 
     /**
      * (framework)
@@ -119,6 +121,7 @@ NavCtrl.prototype = {
 
 	clearInterval(this.clockTimer);
 	clearInterval(this.notificationTimer);
+	clearInterval(this.copyrightTimer);
 
     },
 
@@ -281,6 +284,11 @@ NavCtrl.prototype = {
 	this.ctrlDiv.appendChild(this.controlNotification);
 	this.notificationDisplay = this.createElement('div', "notificationDisplay", "notificationDisplay");
 	this.controlNotification.appendChild(this.notificationDisplay);
+
+	this.copyrightInfo = this.createElement('div', "copyrightInfo", "copyrightInfo");
+	this.copyrightInfo.style = "visibility:hidden;"
+	this.ctrlDiv.appendChild(this.copyrightInfo);
+	this.copyrightInfo.innerHTML = "Uses GraphHopper";
     },
 
     /**
@@ -961,9 +969,11 @@ NavCtrl.prototype = {
 	    this.routeLayer = null;
 	}
 	Navigation.getInstance().route = null;
+	Navigation.getInstance().clearOffRouteCounter();
     },
 
     startNavigation : function(destLat, destLng) {
+	Navigation.getInstance().clearOffRouteCounter();
 	if (this.routeLayer != null) {
 	    this.map.removeLayer(this.routeLayer);
 	}
@@ -986,6 +996,12 @@ NavCtrl.prototype = {
 	    }
 	    __NavPOICtrl.hideRouteDisplay();
 	} else {
+	    if (this.copyrightTimer == null) {
+		this.copyrightInfo.style = "visibility:visible;"
+		this.copyrightTimer = setInterval(function() {
+		    this.copyrightInfo.style = "visibility:hidden;"
+		}.bind(this), 5000);
+	    }
 	    __NavPOICtrl.startNavigationWithRoute(route);
 	}
     },
@@ -1064,7 +1080,6 @@ NavCtrl.prototype = {
 
     navigationOffRouteCallback : function(navInfo, offRouteCounter) {
 	console.info("off route");
-	console.info(navInfo);
 	this.offRouteDiv.style = "visibility:visible;"
 	if (offRouteCounter < this.offRouteImg.length) {
 	    this.offRouteImg[offRouteCounter - 1].className = "offRouteRed";

@@ -37,12 +37,16 @@ var Navigation = (function() {
 		});
 
 		if (navInfo.onRoute) {
-		    offRouteCounter = 0;
+		    this.clearOffRouteCounter();
 		    navigationOnRouteCallback(navInfo);
 		} else {
 		    offRouteCounter++;
 		    navigationOffRouteCallback(navInfo, offRouteCounter);
 		}
+	    },
+	    
+	    clearOffRouteCounter: function(){
+		offRouteCounter = 0;
 	    },
 	};
 
