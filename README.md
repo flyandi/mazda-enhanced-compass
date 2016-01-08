@@ -76,3 +76,4 @@ License for more details.
 You should have received a copy of the GNU General Public License along with this program. 
 If not, see http://www.gnu.org/licenses/
 
+[![Analytics](https://ga-beacon.appspot.com/UA-72159725-1/quaso/mazda-enhanced-compass-routing/)](https://github.com/igrigorik/ga-beacon)
