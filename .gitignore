@@ -11,3 +11,4 @@ settings.js
 .project
 .settings
 routesCacheFile.js
+src/test*
