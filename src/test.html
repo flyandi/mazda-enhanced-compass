@@ -6,8 +6,8 @@
 <link rel="stylesheet" type="text/css" href="test.css">
 <script src="test.js"></script>
 <script>
-        var compassCtrl;
-    </script>
+    var compassCtrl;
+</script>
 </head>
 <body style=""
 	onload="compassCtrl = new CompassCtrl(null, document.getElementById('mainDiv'), 'navCtrlId', null);">
@@ -69,6 +69,19 @@
 						<td>Speed: <input id="inputSpeed" value="10"></td>
 					</tr>
 					<tr>
+						<td>Heading: <select id="inputHeading">
+								<option value="n">n</option>
+								<option value="ne">ne</option>
+								<option value="e">e</option>
+								<option value="se">se</option>
+								<option value="s">s</option>
+								<option value="sw">sw</option>
+								<option value="w">w</option>
+								<option value="nw">nw</option>
+						</select>
+						</td>
+					</tr>
+					<tr>
 						<td>
 							<button id="btnSetLocation"
 								onclick="
@@ -77,8 +90,9 @@
                                 var speed = parseInt(document.getElementById('inputSpeed').value);
                                  var latRound = Math.round(Math.abs(lat) * 10) / 10;
                                  var lngRound = Math.round(Math.abs(lng) * 10) / 10;
+                                 var heading = document.getElementById('inputHeading').value;
 
-                                compassCtrl.setLocationData({coords: {latitude:lat, longitude:lng, speed:speed}, isValidInfo:true, eleUnit:'M', latitude:latRound, latUnit: 'N', longitude:lngRound, longUnit:'W', elevation:0, heading:'90', showNeedle:true,latlng:{lat:lat, lng:lng}});">
+                                compassCtrl.setLocationData({coords: {latitude:lat, longitude:lng, speed:speed}, isValidInfo:true, eleUnit:'M', latitude:latRound, latUnit: 'N', longitude:lngRound, longUnit:'W', elevation:0, heading:heading, showNeedle:true,latlng:{lat:lat, lng:lng}});">
 								Set location</button>
 						</td>
 					</tr>

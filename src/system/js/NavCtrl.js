@@ -110,7 +110,7 @@ NavCtrl.prototype = {
     navigationMode : false,
 
     routeLayer : null,
-    
+
     copyrightTimer : null,
 
     /**
@@ -236,9 +236,13 @@ NavCtrl.prototype = {
 	});
 
 	// create map source
-	this.mapSource = new ol.source.OSM({
-	    url : this._PATH + 'tiles/{z}/{x}/{y}.png',
-	});
+	if (typeof (framework) == "undefined") {
+	    this.mapSource = new ol.source.OSM();
+	} else {
+	    this.mapSource = new ol.source.OSM({
+		url : this._PATH + 'tiles/{z}/{x}/{y}.png',
+	    });
+	}
 
 	this.mapSource.on("tileloadend", function(event) {
 
@@ -268,7 +272,7 @@ NavCtrl.prototype = {
 	// set props
 	this.mapProps = {
 	    lastCenterLocation : false, lastMoveLocation : false, currentZoom : 3, defaultZoom : 15,
-	    moveWithGPS : true, isFirstPosition : true, saveZoomPosition : false,
+	    moveWithGPS : true, isFirstPosition : true, saveZoomPosition : false
 	};
 
 	// create marker
@@ -737,7 +741,6 @@ NavCtrl.prototype = {
 	this.mapProps.lastCenterLocation = position;
 
 	if (this.mapProps.moveWithGPS) {
-
 	    this.mapProps.lastMoveLocation = this.offsetPosition(this.mapProps.lastCenterLocation);
 	}
 
@@ -790,8 +793,8 @@ NavCtrl.prototype = {
 	if (typeof (offsetY) == "undefined" || offsetY === false)
 	    offsetY = 0;
 
-	var resolution = this.mapView.getResolution(), cp = [ position[0] - (offsetX * resolution),
-		position[1] - (offsetY * resolution) ];
+	var resolution = this.mapView.getResolution()
+	var cp = [ position[0] - (offsetX * resolution), position[1] - (offsetY * resolution) ];
 
 	// set animation
 	if (this.mapProps.lastMoveLocation && !preventAnimation) {
@@ -803,7 +806,9 @@ NavCtrl.prototype = {
 	}
 
 	this.mapView.setCenter(cp);
-
+//	var rot = (this.compassHeading || 0) / 360 * 2 * Math.PI;
+//	console.info(this.compassHeading || 0);
+//	this.mapView.rotate(rot, position);
 	return cp;
     },
 
