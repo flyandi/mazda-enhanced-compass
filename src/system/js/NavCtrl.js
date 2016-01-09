@@ -1020,15 +1020,15 @@ NavCtrl.prototype = {
 	this.controlRouteDisplay.style = "visibility:visible;";
 	this.controlInfoDisplay.style = "visibility:hidden;";
 	if (navInfo.onRoute) {
-	    this.arrowImgDiv.className = TurnTypes.getInstance().getImgClass(navInfo.nextDirection.turnType);
-	    if (typeof (navInfo.nextDirection.exit_number) == "undefined") {
+	    this.arrowImgDiv.className = TurnTypes.getInstance().getImgClass(navInfo.currentDirection.turnType);
+	    if (typeof (navInfo.currentDirection.exit_number) == "undefined") {
 		this.exitNumberLabel.innerHTML = "";
 	    } else {
-		this.exitNumberLabel.innerHTML = navInfo.nextDirection.exit_number;
+		this.exitNumberLabel.innerHTML = navInfo.currentDirection.exit_number;
 	    }
 	    this.distanceLabel.innerHTML = navInfo.distanceToNextDirection + " m";
 
-	    if (navInfo.nextDirection.turnType == TurnTypes.getInstance().FINISH && navInfo.distanceToNextDirection < 5) {
+	    if (navInfo.currentDirection.turnType == TurnTypes.getInstance().FINISH && navInfo.distanceToNextDirection < 5) {
 		// destination reached
 		this.clearRoute();
 		this.showNotification("destination reached");
@@ -1062,7 +1062,7 @@ NavCtrl.prototype = {
 
 	feature.setStyle(new ol.style.Style({
 	    stroke : new ol.style.Stroke({
-		color : '#00ff00', width : 4
+		color : '#ff0000', width : 6
 	    })
 	}));
 

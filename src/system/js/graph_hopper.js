@@ -58,45 +58,35 @@ var GraphHopper = (function() {
 	    try {
 		var path = decodePolyline(route.points);
 
-		var instruction, d, extractedStreet, geomArr;
 		var instructions = route.instructions;
 
 		var accContinueDuration = 0;
 		var accContinueDistance = 0;
 		var accContinueInstructionIntervalStart = null;
+		var accContinueInstructionIntervalEnd;
 
 		for (var i = 0, len = instructions.length; i < len; i++) {
-		    instruction = instructions[i];
-		    d = {
-			instruction : instruction.text, distance : parseInt(instruction.distance, 10),
-			duration : instruction.time / 1000, turnType : instruction.sign
-		    };
-
-		    if (d.turnType == 0) { // CONTINUE_ON_STREET
-			accContinueDuration += d.duration;
-			accContinueDistance += d.distance;
+		    var instruction = instructions[i];
+		    if (instruction.sign == 0) { // CONTINUE_ON_STREET
 			if (accContinueInstructionIntervalStart == null) {
 			    accContinueInstructionIntervalStart = instruction.interval[0];
 			}
+			accContinueInstructionIntervalEnd = instruction.interval[1];
 		    } else {
-			if (accContinueInstructionIntervalStart == null) {
-			    d.path = path.slice(instruction.interval[0], instruction.interval[1] + 1);
-			} else {
-			    d.path = path.slice(accContinueInstructionIntervalStart, instruction.interval[1] + 1);
+			var d = {
+			    distance : accContinueDistance,
+			    path : path.slice(accContinueInstructionIntervalStart, accContinueInstructionIntervalEnd + 1),
+			    turnType : instruction.sign,
 			}
-
 			if (typeof (instruction.exit_number) !== "undefined") {
 			    d.exit_number = instruction.exit_number;
 			}
-
-			d.duration += accContinueDuration;
-			d.distance += accContinueDistance;
-			routeStruct.directions.push(d);
-
-			accContinueDuration = 0;
 			accContinueDistance = 0;
-			accContinueInstructionIntervalStart = null;
+			accContinueInstructionIntervalStart = instruction.interval[0];
+			accContinueInstructionIntervalEnd = instruction.interval[1];
+			routeStruct.directions.push(d);
 		    }
+		    accContinueDistance += parseInt(instruction.distance, 10);
 		}
 		// last instruction is always FINISH
 	    } catch (e) {
@@ -162,7 +152,7 @@ var GraphHopper = (function() {
 		    break;
 		}
 	    }
-	    
+
 	    if (result == null) {
 		// read from localStorage
 		for ( var name in localStorage) {
@@ -227,7 +217,7 @@ var GraphHopper = (function() {
 		}, {
 		    lat : destLat, lng : destLng
 		});
-		
+
 		if (routeStruct != null) {
 		    console.info("cached route used");
 		    routeFinishCallback(new Route().parse(routeStruct));
