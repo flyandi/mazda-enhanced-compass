@@ -1,0 +1,5 @@
+var CACHED_ROUTES = [
+{start:{lat:0,lng:0},dest:{lat:1,lng:1},data:some_data},
+{start:{lat:0,lng:0},dest:{lat:1,lng:1},data:some_data},
+//etc.
+]

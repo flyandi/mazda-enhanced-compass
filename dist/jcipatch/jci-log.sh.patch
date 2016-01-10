@@ -1,0 +1,17 @@
+Place "hwclock --hctosys" into /jci/bin/jci-log.sh file e.g. in start method like this (line 13 in this file)
+
+do_start()
+{
+    if ! is_running ; then
+        syslog-ng --cfgfile="$CONF_FSPEC" --persist-file="$PERSIST_FSPEC"
+        res=$?
+        if [ $res -eq 0 ] ; then
+            echo "Log started."
+        else
+            echo "ERROR: Log failed to start."
+        fi
+        hwclock --hctosys
+    else
+        echo "Log is already running."
+    fi
+}
