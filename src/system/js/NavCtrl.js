@@ -192,6 +192,7 @@ NavCtrl.prototype = {
 	    // create menus
 	    this.createMainMenu();
 	    this.createNavigationMenu();
+	    this.createManageCachedRoutesMenu();
 
 	    // create map
 	    this.createMap();
@@ -209,7 +210,7 @@ NavCtrl.prototype = {
 	var files = [ 'system/js/ol.js', 'system/js/jquery-2.1.4.min.js', 'system/js/settings.js', 'system/js/menu.js',
 		'system/js/menu_manager.js', 'system/js/turn_types.js', 'system/js/lat_lng.js', 'system/js/route.js',
 		'system/js/graph_hopper.js', 'system/js/geo.js', 'system/js/navigation_info.js',
-		'system/js/navigation.js', 'routesCacheFile.js' ];
+		'system/js/navigation.js', 'system/js/routesCache.js', 'routesCacheFile.js' ];
 	var toBeLoaded = files.length;
 	function callbackInternal() {
 	    toBeLoaded--;
@@ -607,6 +608,20 @@ NavCtrl.prototype = {
 	}
 	menu.addItem('Clear route', function() {
 	    this.clearRoute();
+	});
+	menu.addItem('Manage...', function() {
+	    this.selectAndShowActiveMenu("managedCachedRoutesMenu");
+	}, false, false);
+	menu.addItem('...back', function() {}, true, false);
+    },
+
+    createManageCachedRoutesMenu : function() {
+	var menu = MenuManager.getInstance().registerMenu("managedCachedRoutesMenu", this.menuContainer);
+	menu.addItem('export cached routes', function() {
+	    RoutesCache.getInstance().exportCachedRoutes();
+	});
+	menu.addItem('clear cached routes', function() {
+	    RoutesCache.getInstance().clearCachedRoutes();
 	});
 	menu.addItem('...back', function() {}, true, false);
     },
