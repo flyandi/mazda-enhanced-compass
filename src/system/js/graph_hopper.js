@@ -77,6 +77,7 @@ var GraphHopper = (function() {
 			    distance : accContinueDistance,
 			    path : path.slice(accContinueInstructionIntervalStart, accContinueInstructionIntervalEnd + 1),
 			    turnType : instruction.sign,
+			    text:instruction.text,
 			}
 			if (typeof (instruction.exit_number) !== "undefined") {
 			    d.exit_number = instruction.exit_number;

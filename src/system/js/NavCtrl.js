@@ -590,8 +590,7 @@ NavCtrl.prototype = {
 	mainMenu.addItem('Center Map', function() {
 	    this.reCenter();
 	});
-	mainMenu.addItem('Cancel', function() {
-	});
+	mainMenu.addItem('Cancel', function() {});
 	mainMenu.addItem('Navigate...', function() {
 	    this.selectAndShowActiveMenu("navigationMenu");
 	}, false, false);
@@ -609,8 +608,7 @@ NavCtrl.prototype = {
 	menu.addItem('Clear route', function() {
 	    this.clearRoute();
 	});
-	menu.addItem('...back', function() {
-	}, true, false);
+	menu.addItem('...back', function() {}, true, false);
     },
 
     selectAndShowActiveMenu : function(id) {
@@ -806,9 +804,9 @@ NavCtrl.prototype = {
 	}
 
 	this.mapView.setCenter(cp);
-//	var rot = (this.compassHeading || 0) / 360 * 2 * Math.PI;
-//	console.info(this.compassHeading || 0);
-//	this.mapView.rotate(rot, position);
+	// var rot = (this.compassHeading || 0) / 360 * 2 * Math.PI;
+	// console.info(this.compassHeading || 0);
+	// this.mapView.rotate(rot, position);
 	return cp;
     },
 
@@ -1028,10 +1026,13 @@ NavCtrl.prototype = {
 	    }
 	    this.distanceLabel.innerHTML = navInfo.distanceToNextDirection + " m";
 
-	    if (navInfo.currentDirection.turnType == TurnTypes.getInstance().FINISH && navInfo.distanceToNextDirection < 5) {
+	    if (navInfo.currentDirection.turnType == TurnTypes.getInstance().FINISH
+		    && navInfo.distanceToNextDirection < 5) {
 		// destination reached
 		this.clearRoute();
 		this.showNotification("destination reached");
+	    } else {
+		this.showNotification(navInfo.currentDirection.text, -1);
 	    }
 	}
     },
@@ -1099,9 +1100,11 @@ NavCtrl.prototype = {
     showNotification : function(message, timeout) {
 	this.notificationDisplay.innerHTML = message;
 	this.controlNotification.style = "visibility:visible;"
-	this.notificationTimer = setInterval(function() {
-	    this.controlNotification.style = "visibility:hidden;"
-	}.bind(this), (typeof (timeout) == "undefined") ? 5000 : timeout);
+	if ((typeof (timeout) == "undefined") || timeout > 0) {
+	    this.notificationTimer = setInterval(function() {
+		this.controlNotification.style = "visibility:hidden;"
+	    }.bind(this), (typeof (timeout) == "undefined") ? 5000 : timeout);
+	}
     },
 
     setNeedleVisible : function(state) {
