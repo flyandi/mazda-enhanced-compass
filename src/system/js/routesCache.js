@@ -176,19 +176,16 @@ var RoutesCache = (function() {
 			exportCachedRoutes : function() {
 				for ( var name in localStorage) {
 					if (name.indexOf(CACHED_ROUTE_PREFIX) == 0) {
-						data = localStorage.getItem(name);
-						var reqUrl = "http://localhost:8080/import?data="
-								+ data;
+						var reqUrl = SETTINGS.exportURI + "/import?data="
+								+ localStorage.getItem(name);
 
 						$.ajax({
 							url : reqUrl,
 							dataType : "jsonp"
 						}).done(function(data) {
-							console.info(data);
+							console.info("route sent");
 						}).fail(function(jqXHR, textStatus, errorThrown) {
 							console.info(jqXHR);
-						}).always(function() {
-							console.info("finish");
 						});
 					}
 				}
