@@ -973,6 +973,7 @@ NavCtrl.prototype = {
 	}
 	Navigation.getInstance().route = null;
 	Navigation.getInstance().clearOffRouteCounter();
+	this.controlNotification.style = "visibility:hidden;"
     },
 
     startNavigation : function(destLat, destLng) {
@@ -1063,7 +1064,7 @@ NavCtrl.prototype = {
 
 	feature.setStyle(new ol.style.Style({
 	    stroke : new ol.style.Stroke({
-		color : '#ff0000', width : 6
+		color : '#0136D9', width : 6
 	    })
 	}));
 
@@ -1100,6 +1101,9 @@ NavCtrl.prototype = {
     showNotification : function(message, timeout) {
 	this.notificationDisplay.innerHTML = message;
 	this.controlNotification.style = "visibility:visible;"
+	if ((typeof (this.notificationTimer) == "undefined") && this.notificationTimer != null) {
+	    clearInterval(this.notificationTimer);
+	}
 	if ((typeof (timeout) == "undefined") || timeout > 0) {
 	    this.notificationTimer = setInterval(function() {
 		this.controlNotification.style = "visibility:hidden;"

@@ -114,7 +114,7 @@
 	animation-direction: forward;
 	animation-iteration-count: 1;
 	left: 350px;
-	z-index:2;
+	z-index:10;
 }
 
 @-o-keyframes menuOpenSlideIn {
@@ -377,6 +377,7 @@
 	text-shadow: 0 3px 0 #000;
 	top: 5px;
 	width: 450px;
+	z-index: 9;
 }
 
 .NavCtrl .mapControls .mapRouteDisplay {
