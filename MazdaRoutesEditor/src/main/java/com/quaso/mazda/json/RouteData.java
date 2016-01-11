@@ -1,31 +1,44 @@
 package com.quaso.mazda.json;
 
+import java.util.List;
+
 public class RouteData {
-	private LatLng start;
-	private LatLng dest;
-	private Route data;
+	private List<Direction> directions;
+	private Summary summary;
+	private List<Double[]> path;
 
-	public LatLng getStart() {
-		return start;
+	RouteData() {
+
 	}
 
-	public void setStart(LatLng start) {
-		this.start = start;
+	public RouteData(List<Direction> directions, Summary summary, List<Double[]> path) {
+		this.directions = directions;
+		this.summary = summary;
+		this.path = path;
 	}
 
-	public LatLng getDest() {
-		return dest;
+	public List<Direction> getDirections() {
+		return directions;
 	}
 
-	public void setDest(LatLng dest) {
-		this.dest = dest;
+	public void setDirections(List<Direction> directions) {
+		this.directions = directions;
 	}
 
-	public Route getData() {
-		return data;
+	public Summary getSummary() {
+		return summary;
 	}
 
-	public void setData(Route data) {
-		this.data = data;
+	public void setSummary(Summary summary) {
+		this.summary = summary;
 	}
+
+	public List<Double[]> getPath() {
+		return path;
+	}
+
+	public void setPath(List<Double[]> path) {
+		this.path = path;
+	}
+
 }

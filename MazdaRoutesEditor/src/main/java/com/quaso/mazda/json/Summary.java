@@ -6,7 +6,12 @@ public class Summary {
 
 	Summary() {
 	}
-	
+
+	public Summary(int distance, double duration) {
+		this.distance = distance;
+		this.duration = duration;
+	}
+
 	public int getDistance() {
 		return distance;
 	}

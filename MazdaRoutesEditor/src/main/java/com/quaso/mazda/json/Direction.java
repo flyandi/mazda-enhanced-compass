@@ -8,8 +8,16 @@ public class Direction {
 	private int turnType;
 	private String text;
 	private Integer exit_number;
-	
+
 	Direction() {
+	}
+
+	public Direction(int distance, List<Double[]> path, int turnType, String text, Integer exit_number) {
+		this.distance = distance;
+		this.path = path;
+		this.turnType = turnType;
+		this.text = text;
+		this.exit_number = exit_number;
 	}
 
 	public int getDistance() {
