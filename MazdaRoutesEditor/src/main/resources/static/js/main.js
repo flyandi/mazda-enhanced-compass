@@ -1,8 +1,11 @@
+
+(function(){
+	var routeData;
 var __NavPOICtrl;
 
-function init() {
-    __NavPOICtrl = new NavCtrl();
-};
+$(function(){
+	 __NavPOICtrl = new NavCtrl();
+});
 
 function NavCtrl() {
     this.createMap();
@@ -44,6 +47,36 @@ NavCtrl.prototype = {
     },
 }
 
+function createRouteList(routeData){
+	var $listRoutes = $('#routesList');
+	$listRoutes.empty();
+	
+	this.routeData = routeData;
+	
+	if (routeData === null || routeData.length === 0){
+		$("#message").html("<b>No routes found.</b>");
+	}else{
+		$("#message").html("");
+	
+	  $.each(routeData, function(i, route) {
+          var htmlRoute = "<li id='route-item-"+i+"' class='list-group-item'><button id='route-item-delete-"+i+"' class=\"remove-route\" ><i class=\"fa fa-trash-o\"></i></button>" + route.start.lat + "</li>";
+          $(htmlRoute).appendTo($listRoutes);
+          
+          $('#route-item-'+i).on('click', function(){
+          	//route selected
+	        	alert('route clicked ' + JSON.stringify(route));
+	        });
+          
+          $('#route-item-delete-'+i).on('click', function(e){
+          	//remove route
+          	e.stopPropagation();	         
+	        	routeData.splice(i, 1);
+	        	createRouteList(routeData);
+	        });
+  });
+	}
+}
+
 $(document).ready(
 	function() {
 	    $(function() {
@@ -57,14 +90,9 @@ $(document).ready(
 					url : "/uploadFile", type : 'POST', data : formData, contentType : false,
 					processData : false, dataType : 'text'
 				    }).done(function(data) {
-				console.info("routes uploaded " + data);
-				var listRoutes = $('#routesList');
-			        var numRoutes = listRoutes.children().length;
-//
-			        $.each(data, function(i, route) {
-			                var htmlRoute = "<li class='list-group-item'>" + data + "</li>";
-			                $(htmlRoute).appendTo($(listRoutes));
-			        });
+			      createRouteList(JSON.parse(data));			        
+			   
+			        
 			    }).fail(function(jqXHR, textStatus, errorThrown) {
 				if (jqXHR.readyState == 0 && jqXHR.status == 0 && jqXHR.statusText == "error") {
 				    alert("connection error");
@@ -74,3 +102,4 @@ $(document).ready(
 			});
 	    });
 	});
+})();

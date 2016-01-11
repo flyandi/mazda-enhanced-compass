@@ -52,10 +52,6 @@ public class Direction {
 		this.text = text;
 	}
 
-	public int getExit_number() {
-		return exit_number;
-	}
-
 	public void setExit_number(int exit_number) {
 		this.exit_number = exit_number;
 	}

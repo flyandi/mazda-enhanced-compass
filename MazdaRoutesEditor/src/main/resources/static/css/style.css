@@ -5,6 +5,11 @@
 	font-size: 1.8em;
 }
 
-.state-icon {
-    left: -5px;
+.remove-route{
+	margin-right:0.2em;
+
+	}
+
+.remove-route i{
+    padding: 0.1em;
 }	

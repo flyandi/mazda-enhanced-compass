@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -34,7 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -43,7 +43,7 @@ import com.quaso.mazda.util.RouteCacheFileUtils;
 import com.quaso.mazda.util.ZipUtils;
 
 @RestController
-public class RoutesRestController implements InitializingBean {
+public class RoutesRestController {
 	private static final Logger log = LoggerFactory.getLogger(RoutesRestController.class);
 
 	@Autowired
@@ -119,10 +119,5 @@ public class RoutesRestController implements InitializingBean {
 
 		Transport.send(msg);
 
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		objectMapper.setSerializationInclusion(Include.NON_NULL);
 	}
 }
