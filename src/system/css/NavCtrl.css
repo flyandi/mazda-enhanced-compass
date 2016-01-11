@@ -367,15 +367,17 @@
 
 .NavCtrl .notificationCtrl {
 	background: #2f2f2f none repeat scroll 0 0;
+	opacity: 0.75;
 	border-radius: 10px;
 	color: white;
 	font-size: 26px;
-	height: 35px;
+	height: auto;
+	position: fixed;
 	left: 325px;
-	position: absolute;
 	text-align: center;
 	text-shadow: 0 3px 0 #000;
 	top: 5px;
+	will-change:top, left;
 	width: 450px;
 	z-index: 9;
 }
