@@ -24,8 +24,8 @@ public class RoutesRepository {
 		this.routes.addAll(routes);
 	}
 	
-	public List<Route> getAllRoutes(){
-		return (List<Route>) Collections.unmodifiableCollection(this.routes);
+	public Collection<Route> getAllRoutes(){
+		return Collections.unmodifiableCollection(this.routes);
 	}
 	
 	

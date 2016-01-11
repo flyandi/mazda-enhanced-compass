@@ -3,24 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" type="text/css" href="css/style.css" />
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+	integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
+	crossorigin="anonymous">
+<link rel="stylesheet"
+	href="http://openlayers.org/en/v3.12.1/css/ol.css" type="text/css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+	integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+	crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript" src="js/listgroup.min.js"></script>
+<script src="http://openlayers.org/en/v3.12.1/build/ol.js"></script>
+<script src="http://openlayers.org/en/v3.12.1/build/ol.js"></script>
 <title>Mazda Routes Editor</title>
 </head>
-<!-- <body onload="init()"> -->
-<body>
-	Some text
-	<div id="mainDiv">
-		<div id="navCtrlId" class="NavCtrl">
-			<div id="map">
-				<div class="ol-viewport"
-					style="position: relative; overflow: hidden; width: 100%; height: 100%;">
-					<canvas style="width: 100%; height: 100%;" class="ol-unselectable"
-						width="800" height="480"></canvas>
-				</div>
+<body onload="init()">
+	<div class="container-fluid">
+		<div class="row">
+			<div id="map" class="map col-md-8 col-lg-9"></div>
+
+			<div id="menu" class="col-md-4 col-lg-3">
+				<form id="routesForm" method="POST" enctype="multipart/form-data"
+					action="/uploadFile">
+					<div class="well">
+						<div class="form-group">
+							<label for="inputFile">Load file</label> <input type="file"
+								id="inputFile">
+							<p class="help-block">routeCacheFile.js or zip with this file</p>
+							<button type="submit" class="btn btn-primary">Submit</button>
+						</div>
+					</div>
+					<div class="well" style="max-height: 300px; overflow: auto;">
+						<ul id="routesList" class="list-group">
+							<li class="list-group-item">Cras justo odio</li>
+							<li class="list-group-item">Dapibus ac facilisis in</li>
+							<li class="list-group-item">Morbi leo risus</li>
+							<li class="list-group-item">Porta ac consectetur ac</li>
+							<li class="list-group-item">Vestibulum at eros</li>
+							<li class="list-group-item">Cras justo odio</li>
+							<li class="list-group-item">Dapibus ac facilisis in</li>
+							<li class="list-group-item">Morbi leo risus</li>
+							<li class="list-group-item">Porta ac consectetur ac</li>
+							<li class="list-group-item">Vestibulum at eros</li>
+						</ul>
+					</div>
+
+				</form>
 			</div>
-			<div id="copyrightInfo" class="copyrightInfo"
-				style="visibility: hidden;">Uses GraphHopper</div>
 		</div>
 	</div>
-	<script type="text/javascript" src="js/main.js" />
 </body>
 </html>

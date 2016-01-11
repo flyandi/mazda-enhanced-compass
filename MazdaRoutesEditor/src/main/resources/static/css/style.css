@@ -1,3 +1,10 @@
-body {
-	color: red;
+.map {
+	font-family: "Tipperary", Arial, Helvetica, sans-serif;
+	text-align: left;
+	background: #555;
+	font-size: 1.8em;
 }
+
+.state-icon {
+    left: -5px;
+}	
