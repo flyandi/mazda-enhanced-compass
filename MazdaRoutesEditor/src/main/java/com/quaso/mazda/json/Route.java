@@ -28,4 +28,11 @@ public class Route {
 	public void setData(RouteData data) {
 		this.data = data;
 	}
+	
+	@Override
+	public String toString() {
+		return "route [start=" + start + ", dest=" + dest +"]";
+	}
+	
+	
 }

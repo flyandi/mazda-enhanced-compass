@@ -7,8 +7,8 @@ public class LatLng {
 	LatLng() {
 
 	}
-	
-	public LatLng(double lat, double lng){
+
+	public LatLng(double lat, double lng) {
 		this.lat = lat;
 		this.lng = lng;
 	}
@@ -27,6 +27,23 @@ public class LatLng {
 
 	public void setLng(double lng) {
 		this.lng = lng;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(lat);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(lng);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "[lat=" + lat + ", lng=" + lng + "]";
 	}
 
 }

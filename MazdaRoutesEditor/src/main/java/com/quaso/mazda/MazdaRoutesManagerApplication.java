@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MazdaRoutesEditorApplication {
+public class MazdaRoutesManagerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MazdaRoutesEditorApplication.class, args);
+		SpringApplication.run(MazdaRoutesManagerApplication.class, args);
 	}
 }

@@ -8,8 +8,8 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>MazdaRoutesEditor</name>
-	<description>Mazda Routes Editor</description>
+	<name>MazdaRoutesManager</name>
+	<description>Mazda Routes Manager</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

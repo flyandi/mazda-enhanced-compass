@@ -7,9 +7,9 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = MazdaRoutesEditorApplication.class)
+@SpringApplicationConfiguration(classes = MazdaRoutesManagerApplication.class)
 @WebAppConfiguration
-public class MazdaRoutesEditorApplicationTests {
+public class MazdaRoutesManagerApplicationTests {
 
 	@Test
 	public void contextLoads() {

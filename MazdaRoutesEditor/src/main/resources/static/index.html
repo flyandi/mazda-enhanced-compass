@@ -7,48 +7,46 @@
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
 	integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
 	crossorigin="anonymous">
-<link rel="stylesheet"
-	href="http://openlayers.org/en/v3.12.1/css/ol.css" type="text/css">
+<link rel="stylesheet" href="css/ol.css" type="text/css">
 <link rel="stylesheet"
 	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 <title>Mazda Routes Editor</title>
 </head>
 <body>
-
 	<div class="container-fluid">
+		<nav class="navbar navbar-default">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">Mazda Routes Manager</a>
+			</div>
+			<div class="collapse navbar-collapse">
+				<ul class="nav navbar-nav">
+					<li class="dropdown" id="menuUpload"><a
+						class="dropdown-toggle" href="#" data-toggle="dropdown"
+						id="navLogin">Upload file</a>
+						<div class="dropdown-menu" style="padding: 17px;">
+							<form class="form" id="routesForm">
+								<input type="file" id="inputFile"
+									placeholder="routeCacheFile.js or zip with this file"
+									type="text"><br>
+								<button type="submit" class="btn btn-default">
+									<i class="fa fa-plus"></i>Load file
+								</button>
+							</form>
+						</div></li>
+					<li><a href="#">Create new route</a></li>
+					<li><a href="/save">Save to file</a></li>
+					<li><a onclick="showAllRoutes()">Show all routes</a></li>
+				</ul>
+			</div>
+		</nav>
+		<!-- /.navbar-collapse -->
 		<div class="row">
 			<div id="map" class="map col-md-8 col-lg-9"></div>
 
 			<div id="menu" class="col-md-4 col-lg-3">
-				<form id="routesForm" method="POST" enctype="multipart/form-data"
-					action="/uploadFile">
-					<div class="well">
-						<div class="form-group">
-							<label for="inputFile">Load file</label> <input type="file"
-								id="inputFile">
-							<p class="help-block">routeCacheFile.js or zip with this file</p>
-							<button type="submit" class="btn btn-primary"><i class="fa fa-plus"></i>Submit</button>
-						</div>
-					</div>
-				</form>
 				<div class="well" style="max-height: 300px; overflow: auto;">
-				<div id="message">
-				</div>
+					<div id="message"></div>
 					<ul id="routesList" class="list-group">
-						<li class="list-group-item">
-							<button class="remove-route">
-								<i class="fa fa-trash-o"></i>
-							</button>Cras justo odio
-						</li>
-						<li class="list-group-item">Dapibus ac facilisis in</li>
-						<li class="list-group-item">Morbi leo risus</li>
-						<li class="list-group-item">Porta ac consectetur ac</li>
-						<li class="list-group-item">Vestibulum at eros</li>
-						<li class="list-group-item">Cras justo odio</li>
-						<li class="list-group-item">Dapibus ac facilisis in</li>
-						<li class="list-group-item">Morbi leo risus</li>
-						<li class="list-group-item">Porta ac consectetur ac</li>
-						<li class="list-group-item">Vestibulum at eros</li>
 					</ul>
 				</div>
 
@@ -61,11 +59,8 @@
 		src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
 		integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
 		crossorigin="anonymous"></script>
-
-
-
 	<script type="text/javascript" src="js/main.js"></script>
 	<script type="text/javascript" src="js/listgroup.min.js"></script>
-	<script src="http://openlayers.org/en/v3.12.1/build/ol.js"></script>
+	<script type="text/javascript" src="js/ol.js"></script>
 </body>
 </html>
