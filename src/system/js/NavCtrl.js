@@ -1,29 +1,24 @@
 /**
  * Enhanced Compass for Mazda Connect Infotainment
  * 
- * This is a full replacement for the standard Compass Application that also
- * offers a moving map.
+ * This is a full replacement for the standard Compass Application that also offers a moving map.
  * 
- * Written by Andreas Schwarz (http://github.com/flyandi/mazda-enhanced-compass)
- * Copyright (c) 2015. All rights reserved.
+ * Written by Andreas Schwarz (http://github.com/flyandi/mazda-enhanced-compass) Copyright (c) 2015. All rights
+ * reserved.
  * 
- * WARNING: The installation of this application requires modifications to your
- * Mazda Connect system. If you don't feel comfortable performing these changes,
- * please do not attempt to install this. You might be ending up with an
- * unusuable system that requires reset by your Dealer. You were warned!
+ * WARNING: The installation of this application requires modifications to your Mazda Connect system. If you don't feel
+ * comfortable performing these changes, please do not attempt to install this. You might be ending up with an unusuable
+ * system that requires reset by your Dealer. You were warned!
  * 
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
  * version.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program. If not, see http://www.gnu.org/licenses/
+ * You should have received a copy of the GNU General Public License along with this program. If not, see
+ * http://www.gnu.org/licenses/
  * 
  */
 
@@ -109,9 +104,9 @@ NavCtrl.prototype = {
 
     navigationMode : false,
 
-    routeLayer : null,
-
     copyrightTimer : null,
+
+    routeLayer : [],
 
     /**
      * (framework)
@@ -607,7 +602,7 @@ NavCtrl.prototype = {
 		    + ");"));
 	}
 	menu.addItem('Clear route', function() {
-	    this.clearRoute();
+	    this.clearRoute(true);
 	});
 	menu.addItem('...back', function() {
 	}, true, false);
@@ -966,23 +961,23 @@ NavCtrl.prototype = {
 	}
     },
 
-    clearRoute : function() {
-	this.navigationMode = false;
-	this.hideRouteDisplay();
-	if (this.routeLayer != null) {
-	    this.map.removeLayer(this.routeLayer);
-	    this.routeLayer = null;
+    clearRoute : function(hideRouteDisplay) {
+	if (hideRouteDisplay) {
+	    this.navigationMode = false;
+	    this.hideRouteDisplay();
 	}
+	for (i = 0; i < this.routeLayer.length; i++) {
+	    this.map.removeLayer(this.routeLayer[i]);
+	}
+	this.routeLayer.length = 0;
+
 	Navigation.getInstance().route = null;
 	Navigation.getInstance().clearOffRouteCounter();
 	this.controlNotification.style = "visibility:hidden;"
     },
 
     startNavigation : function(destLat, destLng) {
-	Navigation.getInstance().clearOffRouteCounter();
-	if (this.routeLayer != null) {
-	    this.map.removeLayer(this.routeLayer);
-	}
+	this.clearRoute(false);
 	this.routeDestLat = destLat;
 	this.routeDestLng = destLng;
 	try {
@@ -1000,6 +995,7 @@ NavCtrl.prototype = {
 	    } else {
 		__NavPOICtrl.showNotification("Error: " + route.error, 5000);
 	    }
+	    __NavPOICtrl.showAllRoutesToDestination(true);
 	    __NavPOICtrl.hideRouteDisplay();
 	} else {
 	    if (this.copyrightTimer == null) {
@@ -1032,7 +1028,7 @@ NavCtrl.prototype = {
 	    if (navInfo.currentDirection.turnType == TurnTypes.getInstance().FINISH
 		    && navInfo.distanceToNextDirection < 5) {
 		// destination reached
-		this.clearRoute();
+		this.clearRoute(true);
 		this.showNotification("destination reached");
 	    } else {
 		this.showNotification(navInfo.currentDirection.text, -1);
@@ -1040,18 +1036,41 @@ NavCtrl.prototype = {
 	}
     },
 
-    startNavigationWithRoute : function(route) {
-	var coordinates = [];
-	coordinates.push(ol.proj.transform([ this.mapProps.currentLongitude, this.mapProps.currentLatitude ],
-		'EPSG:4326', 'EPSG:3857'));
-
-	for (var i = 0, len = route.full_path.length; i < len; i++) {
-	    var point = route.full_path[i];
-	    coordinates.push(ol.proj.transform([ point[1], point[0] ], 'EPSG:4326', 'EPSG:3857'));
+    showRoute : function(gpsCoordinates, color) {
+	transformedCoords = [];
+	for (var i = 0, len = gpsCoordinates.length; i < len; i++) {
+	    var point = gpsCoordinates[i];
+	    transformedCoords.push(ol.proj.transform([ point[1], point[0] ], 'EPSG:4326', 'EPSG:3857'));
 	}
 
-	coordinates.push(ol.proj.transform([ this.routeDestLng, this.routeDestLat ], 'EPSG:4326', 'EPSG:3857'));
+	var feature = new ol.Feature({
+	    geometry : new ol.geom.LineString(transformedCoords, 'XY'), name : 'Line'
+	});
 
+	feature.setStyle(new ol.style.Style({
+	    stroke : new ol.style.Stroke({
+		color : color, width : 6
+	    })
+	}));
+
+	newRouteLayer = new ol.layer.Vector({
+	    source : new ol.source.Vector({
+		features : [ feature ]
+	    })
+	});
+	this.routeLayer.push(newRouteLayer);
+
+	this.map.addLayer(newRouteLayer);
+    },
+
+    showAllRoutesToDestination : function(show) {
+	var routes = RoutesCache.getInstance().readMoreFromCache(new LatLng(this.routeDestLat, this.routeDestLng));
+	for (i = 0; i < routes.length; i++) {
+	    this.showRoute(routes[i].data.path, "lightblue");
+	}
+    },
+
+    startNavigationWithRoute : function(route) {
 	Navigation.getInstance().route = route;
 	Navigation.getInstance().getPositionOnRoute({
 	    point : {
@@ -1059,24 +1078,7 @@ NavCtrl.prototype = {
 	    }
 	}, this.navigationOnRouteCallback.bind(this), this.navigationOffRouteCallback.bind(this));
 	this.navigationMode = true;
-
-	var feature = new ol.Feature({
-	    geometry : new ol.geom.LineString(coordinates, 'XY'), name : 'Line'
-	});
-
-	feature.setStyle(new ol.style.Style({
-	    stroke : new ol.style.Stroke({
-		color : SETTINGS.routeColor || "red", width : 6
-	    })
-	}));
-
-	this.routeLayer = new ol.layer.Vector({
-	    source : new ol.source.Vector({
-		features : [ feature ]
-	    })
-	});
-
-	this.map.addLayer(this.routeLayer);
+	this.showRoute(route.full_path, SETTINGS.routeColor || "red");
     },
 
     navigationOnRouteCallback : function(navInfo) {

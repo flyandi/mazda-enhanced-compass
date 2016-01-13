@@ -93,15 +93,18 @@ var RoutesCache = (function() {
 	};
 
 	/**
-	 * compute destination to start
+	 * check if distance between gonnabe-start and route start is within range
 	 */
-	function checkDistance(start, dest, routeStart, routeDest) {
-	    result = false;
-	    if (smallNumber > Math.abs(routeDest.lat - dest.lat) && smallNumber > (routeDest.lng - dest.lng)) {
-		var distanceStart = GeoUtils.getInstance().distance(start, routeStart);
-		result = distanceStart <= Navigation.getInstance().MAX_DISTANCE;
-	    }
-	    return result;
+	function checkStartDistance(start, routeStart) {
+	    var distanceStart = GeoUtils.getInstance().distance(start, routeStart);
+	    return distanceStart <= Navigation.getInstance().MAX_DISTANCE;
+	}
+
+	/**
+	 * check if gonnabe-destination and route destination are the same
+	 */
+	function checkDestDistance(dest, routeDest) {
+	    return smallNumber > Math.abs(routeDest.lat - dest.lat) && smallNumber > (routeDest.lng - dest.lng);
 	}
 
 	return {
@@ -111,8 +114,9 @@ var RoutesCache = (function() {
 		    start : new LatLng(startLat, startLng), dest : new LatLng(destLat, destLng), data : routeStruct
 		})));
 		var text = unescape(atob(x));
-		localStorage.setItem(CACHED_ROUTE_PREFIX + startLat + ',' + startLng + '/' + destLat + ',' + destLng,
-			text);
+		// TODO: uncomment
+		// localStorage.setItem(CACHED_ROUTE_PREFIX + startLat + ',' + startLng + '/' + destLat + ',' + destLng,
+		// text);
 	    },
 
 	    readFromCache : function(start, dest) {
@@ -122,7 +126,7 @@ var RoutesCache = (function() {
 		for (var i = 0; i < Object.keys(CACHED_ROUTES).length; i++) {
 		    var route = CACHED_ROUTES[i];
 		    // check if destination matches and if start is within range
-		    if (checkDistance(start, dest, route.start, route.dest)) {
+		    if (checkDestDistance(dest, route.dest) && checkStartDistance(start, route.start)) {
 			console.info("found route in file");
 			result = route.data;
 			break;
@@ -133,13 +137,13 @@ var RoutesCache = (function() {
 		    // read from localStorage
 		    for ( var name in localStorage) {
 			if (name.indexOf(CACHED_ROUTE_PREFIX) == 0) {
-			    // check if destination is the same
 			    arr = name.split(/[-/,]+/);
 			    if (arr.length != 5) {
 				continue;
 			    }
 			    // check if destination matches and if start is within range
-			    if (checkDistance(start, dest, new LatLng(arr[1], arr[2]), new LatLng(arr[3], arr[4]))) {
+			    if (checkDestDistance(dest, new LatLng(arr[3], arr[4]))
+				    && checkStartDistance(start, new LatLng(arr[1], arr[2]))) {
 				console.info("found route in localStorage");
 				var route = eval('(' + localStorage.getItem(name) + ')');
 				result = route.data;
@@ -150,6 +154,35 @@ var RoutesCache = (function() {
 		}
 		return result;
 	    },
+
+	    readMoreFromCache : function(dest) {
+		var result = [];
+
+		// read from file
+		for (var i = 0; i < Object.keys(CACHED_ROUTES).length; i++) {
+		    var route = CACHED_ROUTES[i];
+		    // check if destination matches
+		    if (checkDestDistance(dest, route.dest)) {
+			result.push(route);
+		    }
+		}
+
+		// read from localStorage
+		for ( var name in localStorage) {
+		    if (name.indexOf(CACHED_ROUTE_PREFIX) == 0) {
+			arr = name.split(/[-/,]+/);
+			if (arr.length != 5) {
+			    continue;
+			}
+			// check if destination matches
+			if (checkDestDistance(dest, new LatLng(arr[3], arr[4]))) {
+			    result.push(eval('(' + localStorage.getItem(name) + ')'));
+			}
+		    }
+		}
+		return result;
+	    },
+
 	};
 
     };

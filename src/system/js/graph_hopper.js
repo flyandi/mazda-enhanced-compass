@@ -159,11 +159,8 @@ var GraphHopper = (function() {
 		    via += '&point=' + [ direction.lat, direction.lng ].join('%2C');
 		}
 
-		var routeStruct = RoutesCache.getInstance().readFromCache({
-		    lat : startLat, lng : startLng
-		}, {
-		    lat : destLat, lng : destLng
-		});
+		var routeStruct = RoutesCache.getInstance().readFromCache(new LatLng(startLat, startLng),
+			new LatLng(destLat, destLng));
 
 		if (routeStruct != null) {
 		    console.info("cached route used");
