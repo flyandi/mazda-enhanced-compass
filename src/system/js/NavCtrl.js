@@ -102,7 +102,17 @@ NavCtrl.prototype = {
 
     maxOffRouteTime : 5,
 
+    /**
+     * Indicates if user is being navigated on any route
+     */
     navigationMode : false,
+
+    /**
+     * Indicates if user wants to be navigated to a destination, but no route can be obtained from internet. When turned
+     * on, user is approaching some cached route to destination. Once the route is reached, this variable is reset and
+     * navigationMode is set.
+     */
+    offlineNavigationMode : false,
 
     copyrightTimer : null,
 
@@ -216,7 +226,8 @@ NavCtrl.prototype = {
 	var files = [ 'system/js/ol.js', 'system/js/jquery-2.1.4.min.js', 'system/js/settings.js', 'system/js/menu.js',
 		'system/js/menu_manager.js', 'system/js/turn_types.js', 'system/js/lat_lng.js', 'system/js/route.js',
 		'system/js/graph_hopper.js', 'system/js/geo.js', 'system/js/navigation_info.js',
-		'system/js/navigation.js', 'system/js/routesCache.js', 'routesCacheFile.js' ];
+		'system/js/navigation.js', 'system/js/offline_navigation.js', 'system/js/routesCache.js',
+		'routesCacheFile.js' ];
 	var toBeLoaded = files.length;
 	function callbackInternal() {
 	    toBeLoaded--;
@@ -542,7 +553,7 @@ NavCtrl.prototype = {
 	this.offRouteDiv = this.createElement("div", "offRouteDiv", "offRouteDiv");
 	this.offRouteDiv.style = "visibility:hidden;"
 	this.controlRouteDisplay.appendChild(this.offRouteDiv);
-
+	
 	this.offRouteImg = [];
 	for (var i = 0; i < 5; i++) {
 	    this.offRouteImg[i] = this.createElement("div", "offRoute" + i);
@@ -719,12 +730,12 @@ NavCtrl.prototype = {
 		-66.94)));
     },
 
-    setPosition : function(lat, lng) {
+    setPosition : function(latLng) {
 
 	if (!this.hasMap)
 	    return;
 
-	var position = ol.proj.fromLonLat([ lng, lat ]);
+	var position = ol.proj.fromLonLat([ latLng.lng, latLng.lat ]);
 
 	// set zoom
 	if (this.mapProps.isFirstPosition) {
@@ -752,8 +763,8 @@ NavCtrl.prototype = {
 	}
 
 	// cache coords
-	this.mapProps.currentLatitude = lat;
-	this.mapProps.currentLongitude = lng;
+	this.mapProps.currentLatitude = latLng.lat;
+	this.mapProps.currentLongitude = latLng.lng;
 
     },
 
@@ -945,18 +956,23 @@ NavCtrl.prototype = {
 	    this.setNeedleVisible(location.showNeedle);
 
 	    if (typeof (location.latlng) == "object") {
-		this.setPosition(location.latlng.lat, location.latlng.lng);
-	    }
+		latLng = new LatLng(location.latlng.lat, location.latlng.lng);
+		this.setPosition(latLng);
 
-	    if (this.navigationMode) {
-		Navigation.getInstance().getPositionOnRoute({
-		    point : {
-			lat : location.latlng.lat, lng : location.latlng.lng
+		if (this.navigationMode) {
+		    Navigation.getInstance().getPositionOnRoute({
+			point : latLng
+		    }, this.navigationOnRouteCallback.bind(this), this.navigationOffRouteCallback.bind(this));
+		} else if (this.offlineNavigationMode) {
+		    var route = OfflineNavigation.getInstance().setPosition(latLng);
+		    if (route != null) {
+			// user get on route, turn on normal navigation
+			this.offlineNavigationEnd();
+			this.startNavigationWithRoute(route);
 		    }
-		}, this.navigationOnRouteCallback.bind(this), this.navigationOffRouteCallback.bind(this));
+		}
 	    }
 	} else {
-
 	    this.setNeedleVisible(false);
 	}
     },
@@ -995,8 +1011,8 @@ NavCtrl.prototype = {
 	    } else {
 		__NavPOICtrl.showNotification("Error: " + route.error, 5000);
 	    }
-	    __NavPOICtrl.showAllRoutesToDestination(true);
-	    __NavPOICtrl.hideRouteDisplay();
+	    // TODO: all errors, but cannot compute route (e.g. when start/destination cannot be found)
+	    __NavPOICtrl.offlineNavigationStart();
 	} else {
 	    if (this.copyrightTimer == null) {
 		this.copyrightInfo.style = "visibility:visible;"
@@ -1064,10 +1080,32 @@ NavCtrl.prototype = {
     },
 
     showAllRoutesToDestination : function(show) {
-	var routes = RoutesCache.getInstance().readMoreFromCache(new LatLng(this.routeDestLat, this.routeDestLng));
-	for (i = 0; i < routes.length; i++) {
-	    this.showRoute(routes[i].data.path, "lightblue");
+	if (show) {
+	    var routes = OfflineNavigation.getInstance().findCachedRoutesToDestination(this.routeDestLat,
+		    this.routeDestLng);
+	    for (i = 0; i < routes.length; i++) {
+		this.showRoute(routes[i].data.path, "blue");
+	    }
+	    OfflineNavigation.getInstance().setPosition(
+		    new LatLng(this.mapProps.currentLatitude, this.mapProps.currentLongitude));
+	} else {
+	    this.clearRoute(false);
 	}
+    },
+
+    offlineNavigationStart : function() {
+	console.info("offline routing started");
+	this.offlineNavigationMode = true;
+	this.navigationMode = false;
+	this.showAllRoutesToDestination(true);
+	this.hideRouteDisplay();
+	// TODO: show notification: you are in offline navigation mode
+    },
+
+    offlineNavigationEnd : function() {
+	console.info("offline routing ended");
+	this.showAllRoutesToDestination(false);
+	this.offlineNavigationMode = false;
     },
 
     startNavigationWithRoute : function(route) {
@@ -1081,12 +1119,16 @@ NavCtrl.prototype = {
 	this.showRoute(route.full_path, SETTINGS.routeColor || "red");
     },
 
-    navigationOnRouteCallback : function(navInfo) {
-	this.showRouteDisplay(navInfo);
+    hideOffRouteDiv : function() {
 	this.offRouteDiv.style = "visibility:hidden;"
 	for (i = 0; i < this.offRouteImg.length; i++) {
 	    this.offRouteImg[i].className = "offRouteGray";
 	}
+    },
+
+    navigationOnRouteCallback : function(navInfo) {
+	this.showRouteDisplay(navInfo);
+	this.hideOffRouteDiv();
     },
 
     navigationOffRouteCallback : function(navInfo, offRouteCounter) {
@@ -1097,6 +1139,7 @@ NavCtrl.prototype = {
 	}
 	if (offRouteCounter >= this.maxOffRouteTime) {
 	    this.showNotification("recalculating route...");
+	    this.hideOffRouteDiv();
 	    this.startNavigation(this.routeDestLat, this.routeDestLng);
 	}
     },

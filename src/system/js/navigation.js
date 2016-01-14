@@ -9,8 +9,8 @@ var Navigation = (function() {
 
 	// Private methods and variables
 	/**
-	 * In case the position of the device can't be mapped on the route this
-	 * counter holds the number of times it happened in a row.
+	 * In case the position of the device can't be mapped on the route this counter holds the number of times it
+	 * happened in a row.
 	 * 
 	 * Will be resetted once the position can be mapped again on the route.
 	 * 
@@ -23,9 +23,7 @@ var Navigation = (function() {
 	    // Public methods and variables
 	    route : null,
 
-	    MAX_DISTANCE : 30,// Math.max(35,
-				// Math.min(pos.coords.accuracy.toFixed(1),
-				// 50));// OR 35?!
+	    MAX_DISTANCE : 30,// Math.max(35, Math.min(pos.coords.accuracy.toFixed(1), 50));// OR 35?!
 
 	    getPositionOnRoute : function(position, navigationOnRouteCallback, navigationOffRouteCallback) {
 		// try to find the current position on the route
@@ -44,27 +42,21 @@ var Navigation = (function() {
 		    navigationOffRouteCallback(navInfo, offRouteCounter);
 		}
 	    },
-	    
-	    clearOffRouteCounter: function(){
+
+	    clearOffRouteCounter : function() {
 		offRouteCounter = 0;
 	    },
 	};
-
     };
 
     return {
 
-	// Get the Singleton instance if one exists
-	// or create one if it doesn't
+	// Get the Singleton instance if one exists or create one if it doesn't
 	getInstance : function() {
-
 	    if (!instance) {
 		instance = init();
 	    }
-
 	    return instance;
 	}
-
     };
-
 })();

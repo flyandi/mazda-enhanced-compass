@@ -114,9 +114,8 @@ var RoutesCache = (function() {
 		    start : new LatLng(startLat, startLng), dest : new LatLng(destLat, destLng), data : routeStruct
 		})));
 		var text = unescape(atob(x));
-		// TODO: uncomment
-		// localStorage.setItem(CACHED_ROUTE_PREFIX + startLat + ',' + startLng + '/' + destLat + ',' + destLng,
-		// text);
+		localStorage.setItem(CACHED_ROUTE_PREFIX + startLat + ',' + startLng + '/' + destLat + ',' + destLng,
+			text);
 	    },
 
 	    readFromCache : function(start, dest) {
@@ -176,10 +175,13 @@ var RoutesCache = (function() {
 			}
 			// check if destination matches
 			if (checkDestDistance(dest, new LatLng(arr[3], arr[4]))) {
-			    result.push(eval('(' + localStorage.getItem(name) + ')'));
+			    route = eval('(' + localStorage.getItem(name) + ')');
+			    result.push(route);
 			}
 		    }
 		}
+
+		console.info("found " + result.length + " cached routes to destination");
 		return result;
 	    },
 
