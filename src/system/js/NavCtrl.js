@@ -1,24 +1,29 @@
 /**
  * Enhanced Compass for Mazda Connect Infotainment
  * 
- * This is a full replacement for the standard Compass Application that also offers a moving map.
+ * This is a full replacement for the standard Compass Application that also
+ * offers a moving map.
  * 
- * Written by Andreas Schwarz (http://github.com/flyandi/mazda-enhanced-compass) Copyright (c) 2015. All rights
- * reserved.
+ * Written by Andreas Schwarz (http://github.com/flyandi/mazda-enhanced-compass)
+ * Copyright (c) 2015. All rights reserved.
  * 
- * WARNING: The installation of this application requires modifications to your Mazda Connect system. If you don't feel
- * comfortable performing these changes, please do not attempt to install this. You might be ending up with an unusuable
- * system that requires reset by your Dealer. You were warned!
+ * WARNING: The installation of this application requires modifications to your
+ * Mazda Connect system. If you don't feel comfortable performing these changes,
+ * please do not attempt to install this. You might be ending up with an
+ * unusuable system that requires reset by your Dealer. You were warned!
  * 
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
- * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
  * version.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  * 
- * You should have received a copy of the GNU General Public License along with this program. If not, see
- * http://www.gnu.org/licenses/
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see http://www.gnu.org/licenses/
  * 
  */
 
@@ -108,9 +113,10 @@ NavCtrl.prototype = {
     navigationMode : false,
 
     /**
-     * Indicates if user wants to be navigated to a destination, but no route can be obtained from internet. When turned
-     * on, user is approaching some cached route to destination. Once the route is reached, this variable is reset and
-     * navigationMode is set.
+     * Indicates if user wants to be navigated to a destination, but no route
+     * can be obtained from internet. When turned on, user is approaching some
+     * cached route to destination. Once the route is reached, this variable is
+     * reset and navigationMode is set.
      */
     offlineNavigationMode : false,
 
@@ -553,7 +559,7 @@ NavCtrl.prototype = {
 	this.offRouteDiv = this.createElement("div", "offRouteDiv", "offRouteDiv");
 	this.offRouteDiv.style = "visibility:hidden;"
 	this.controlRouteDisplay.appendChild(this.offRouteDiv);
-	
+
 	this.offRouteImg = [];
 	for (var i = 0; i < 5; i++) {
 	    this.offRouteImg[i] = this.createElement("div", "offRoute" + i);
@@ -596,8 +602,7 @@ NavCtrl.prototype = {
 	mainMenu.addItem('Center Map', function() {
 	    this.reCenter();
 	});
-	mainMenu.addItem('Cancel', function() {
-	});
+	mainMenu.addItem('Cancel', function() {});
 	mainMenu.addItem('Navigate...', function() {
 	    this.selectAndShowActiveMenu("navigationMenu");
 	}, false, false);
@@ -615,8 +620,7 @@ NavCtrl.prototype = {
 	menu.addItem('Clear route', function() {
 	    this.clearRoute(true);
 	});
-	menu.addItem('...back', function() {
-	}, true, false);
+	menu.addItem('...back', function() {}, true, false);
     },
 
     selectAndShowActiveMenu : function(id) {
@@ -966,9 +970,13 @@ NavCtrl.prototype = {
 		} else if (this.offlineNavigationMode) {
 		    var route = OfflineNavigation.getInstance().setPosition(latLng);
 		    if (route != null) {
-			// user get on route, turn on normal navigation
-			this.offlineNavigationEnd();
-			this.startNavigationWithRoute(route);
+			if (typeof (result) == "string") {
+			    this.showNotification(result, -1);
+			} else {
+			    // user get on route, turn on normal navigation
+			    this.offlineNavigationEnd();
+			    this.startNavigationWithRoute(route);
+			}
 		    }
 		}
 	    }
@@ -1011,7 +1019,8 @@ NavCtrl.prototype = {
 	    } else {
 		__NavPOICtrl.showNotification("Error: " + route.error, 5000);
 	    }
-	    // TODO: all errors, but cannot compute route (e.g. when start/destination cannot be found)
+	    // TODO: all errors, but cannot compute route (e.g. when
+	    // start/destination cannot be found)
 	    __NavPOICtrl.offlineNavigationStart();
 	} else {
 	    if (this.copyrightTimer == null) {
