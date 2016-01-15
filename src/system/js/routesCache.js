@@ -10,8 +10,6 @@ var RoutesCache = (function() {
 	// Private methods and variables
 	var CACHED_ROUTE_PREFIX = "cachedRoute-";
 
-	var smallNumber = Math.pow(10, -7);
-
 	function parse(response, startLat, startLng, destLat, destLng) {
 
 	    // check for error codes
@@ -104,7 +102,7 @@ var RoutesCache = (function() {
 	 * check if gonnabe-destination and route destination are the same
 	 */
 	function checkDestDistance(dest, routeDest) {
-	    return smallNumber > Math.abs(routeDest.lat - dest.lat) && smallNumber > (routeDest.lng - dest.lng);
+	    return routeDest.lat - dest.lat == 0 && routeDest.lng - dest.lng == 0;
 	}
 
 	return {

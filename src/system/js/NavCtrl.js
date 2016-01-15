@@ -610,7 +610,7 @@ NavCtrl.prototype = {
 	for (var i = 0; i < Object.keys(SETTINGS.destinations).length; i++) {
 	    var dest = SETTINGS.destinations[i];
 	    menu.addItem('Navigate ' + dest.name, new Function("", "this.startNavigation(" + dest.lat + "," + dest.lng
-		    + "," + dest.name + ");"));
+		    + ",'" + dest.name + "');"));
 	}
 	menu.addItem('Clear route', function() {
 	    this.clearRoute(true);
