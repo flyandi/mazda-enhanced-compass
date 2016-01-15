@@ -966,8 +966,10 @@ NavCtrl.prototype = {
 		} else if (this.offlineNavigationMode) {
 		    var route = OfflineNavigation.getInstance().setPosition(latLng);
 		    if (route != null) {
-			if (typeof (result) == "string") {
-			    this.showNotification(result, -1);
+			if (typeof (result.text) != "undefined") {
+			    if (SETTINGS.debug) {
+				this.showNotification(result.text, -1);
+			    }
 			} else {
 			    // user get on route, turn on normal navigation
 			    this.offlineNavigationEnd();
@@ -1018,11 +1020,11 @@ NavCtrl.prototype = {
 	    // TODO: all errors, but cannot compute route (e.g. when start/destination cannot be found)
 	    __NavPOICtrl.offlineNavigationStart();
 	} else {
-	    if (this.copyrightTimer == null) {
-		this.setVisible(this.copyrightInfo);
-		this.copyrightTimer = setInterval(function() {
+	    if (__NavPOICtrl.copyrightTimer == null) {
+		__NavPOICtrl.setVisible(__NavPOICtrl.copyrightInfo);
+		__NavPOICtrl.copyrightTimer = setInterval(function() {
 		    this.setHidden(this.copyrightInfo);
-		}.bind(this), 5000);
+		}.bind(__NavPOICtrl), 5000);
 	    }
 	    __NavPOICtrl.startNavigationWithRoute(route);
 	}
@@ -1226,7 +1228,7 @@ NavCtrl.prototype = {
 	el.classList.remove("hidden");
 	el.classList.add("visible");
     },
-    
+
     setHidden : function(el) {
 	el.classList.remove("visible");
 	el.classList.add("hidden");

@@ -12,7 +12,7 @@ var Navigation = (function() {
 	 * In case the position of the device can't be mapped on the route this counter holds the number of times it
 	 * happened in a row.
 	 * 
-	 * Will be resetted once the position can be mapped again on the route.
+	 * Will reset once the position can be mapped again on the route.
 	 * 
 	 * @type Integer
 	 */

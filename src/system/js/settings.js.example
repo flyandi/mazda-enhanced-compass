@@ -24,4 +24,5 @@ var SETTINGS = {
 	},
 	// color of route, one may use color name or hex value
 	routeColor:"red",
+	debug:false
 };
