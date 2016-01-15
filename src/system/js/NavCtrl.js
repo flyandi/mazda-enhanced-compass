@@ -1,29 +1,24 @@
 /**
  * Enhanced Compass for Mazda Connect Infotainment
  * 
- * This is a full replacement for the standard Compass Application that also
- * offers a moving map.
+ * This is a full replacement for the standard Compass Application that also offers a moving map.
  * 
- * Written by Andreas Schwarz (http://github.com/flyandi/mazda-enhanced-compass)
- * Copyright (c) 2015. All rights reserved.
+ * Written by Andreas Schwarz (http://github.com/flyandi/mazda-enhanced-compass) Copyright (c) 2015. All rights
+ * reserved.
  * 
- * WARNING: The installation of this application requires modifications to your
- * Mazda Connect system. If you don't feel comfortable performing these changes,
- * please do not attempt to install this. You might be ending up with an
- * unusuable system that requires reset by your Dealer. You were warned!
+ * WARNING: The installation of this application requires modifications to your Mazda Connect system. If you don't feel
+ * comfortable performing these changes, please do not attempt to install this. You might be ending up with an unusuable
+ * system that requires reset by your Dealer. You were warned!
  * 
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
  * version.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program. If not, see http://www.gnu.org/licenses/
+ * You should have received a copy of the GNU General Public License along with this program. If not, see
+ * http://www.gnu.org/licenses/
  * 
  */
 
@@ -113,10 +108,9 @@ NavCtrl.prototype = {
     navigationMode : false,
 
     /**
-     * Indicates if user wants to be navigated to a destination, but no route
-     * can be obtained from internet. When turned on, user is approaching some
-     * cached route to destination. Once the route is reached, this variable is
-     * reset and navigationMode is set.
+     * Indicates if user wants to be navigated to a destination, but no route can be obtained from internet. When turned
+     * on, user is approaching some cached route to destination. Once the route is reached, this variable is reset and
+     * navigationMode is set.
      */
     offlineNavigationMode : false,
 
@@ -196,13 +190,13 @@ NavCtrl.prototype = {
 
 	// notification div
 	this.controlNotification = this.createElement('div', "notificationCtrl", "notificationCtrl");
-	this.controlNotification.style = "visibility:hidden;"
+	this.setHidden(this.controlNotification);
 	this.ctrlMap.appendChild(this.controlNotification);
 	this.notificationDisplay = this.createElement('div', "notificationDisplay", "notificationDisplay");
 	this.controlNotification.appendChild(this.notificationDisplay);
 
 	this.copyrightInfo = this.createElement('div', "copyrightInfo", "copyrightInfo");
-	this.copyrightInfo.style = "visibility:hidden;"
+	this.setHidden(this.copyrightInfo);
 	this.ctrlDiv.appendChild(this.copyrightInfo);
 	this.copyrightInfo.innerHTML = "Uses GraphHopper";
 
@@ -557,7 +551,7 @@ NavCtrl.prototype = {
 	this.controlRouteDisplay.appendChild(this.exitNumberLabel);
 
 	this.offRouteDiv = this.createElement("div", "offRouteDiv", "offRouteDiv");
-	this.offRouteDiv.style = "visibility:hidden;"
+	this.setHidden(this.offRouteDiv);
 	this.controlRouteDisplay.appendChild(this.offRouteDiv);
 
 	this.offRouteImg = [];
@@ -602,7 +596,8 @@ NavCtrl.prototype = {
 	mainMenu.addItem('Center Map', function() {
 	    this.reCenter();
 	});
-	mainMenu.addItem('Cancel', function() {});
+	mainMenu.addItem('Cancel', function() {
+	});
 	mainMenu.addItem('Navigate...', function() {
 	    this.selectAndShowActiveMenu("navigationMenu");
 	}, false, false);
@@ -620,7 +615,8 @@ NavCtrl.prototype = {
 	menu.addItem('Clear route', function() {
 	    this.clearRoute(true);
 	});
-	menu.addItem('...back', function() {}, true, false);
+	menu.addItem('...back', function() {
+	}, true, false);
     },
 
     selectAndShowActiveMenu : function(id) {
@@ -997,7 +993,7 @@ NavCtrl.prototype = {
 
 	Navigation.getInstance().route = null;
 	Navigation.getInstance().clearOffRouteCounter();
-	this.controlNotification.style = "visibility:hidden;"
+	this.setHidden(this.controlNotification);
     },
 
     startNavigation : function(destLat, destLng) {
@@ -1019,14 +1015,13 @@ NavCtrl.prototype = {
 	    } else {
 		__NavPOICtrl.showNotification("Error: " + route.error, 5000);
 	    }
-	    // TODO: all errors, but cannot compute route (e.g. when
-	    // start/destination cannot be found)
+	    // TODO: all errors, but cannot compute route (e.g. when start/destination cannot be found)
 	    __NavPOICtrl.offlineNavigationStart();
 	} else {
 	    if (this.copyrightTimer == null) {
-		this.copyrightInfo.style = "visibility:visible;"
+		this.setVisible(this.copyrightInfo);
 		this.copyrightTimer = setInterval(function() {
-		    this.copyrightInfo.style = "visibility:hidden;"
+		    this.setHidden(this.copyrightInfo);
 		}.bind(this), 5000);
 	    }
 	    __NavPOICtrl.startNavigationWithRoute(route);
@@ -1034,13 +1029,13 @@ NavCtrl.prototype = {
     },
 
     hideRouteDisplay : function() {
-	this.controlRouteDisplay.style = "visibility:hidden;";
-	this.controlInfoDisplay.style = "visibility:visible;";
+	this.setHidden(this.controlRouteDisplay);
+	this.setVisible(this.controlInfoDisplay);
     },
 
     showRouteDisplay : function(navInfo) {
-	this.controlRouteDisplay.style = "visibility:visible;";
-	this.controlInfoDisplay.style = "visibility:hidden;";
+	this.setVisible(this.controlRouteDisplay);
+	this.setHidden(this.controlInfoDisplay);
 	if (navInfo.onRoute) {
 	    this.arrowImgDiv.className = TurnTypes.getInstance().getImgClass(navInfo.currentDirection.turnType);
 	    if (typeof (navInfo.currentDirection.exit_number) == "undefined") {
@@ -1129,7 +1124,7 @@ NavCtrl.prototype = {
     },
 
     hideOffRouteDiv : function() {
-	this.offRouteDiv.style = "visibility:hidden;"
+	this.setHidden(this.offRouteDiv);
 	for (i = 0; i < this.offRouteImg.length; i++) {
 	    this.offRouteImg[i].className = "offRouteGray";
 	}
@@ -1142,7 +1137,7 @@ NavCtrl.prototype = {
 
     navigationOffRouteCallback : function(navInfo, offRouteCounter) {
 	console.info("off route");
-	this.offRouteDiv.style = "visibility:visible;"
+	this.setVisible(this.offRouteDiv);
 	if (offRouteCounter < this.offRouteImg.length) {
 	    this.offRouteImg[offRouteCounter - 1].className = "offRouteRed";
 	}
@@ -1160,10 +1155,10 @@ NavCtrl.prototype = {
 	if (typeof (this.notificationDisplay.innerHTML) == "undefined"
 		|| this.notificationDisplay.innerHTML !== message) {
 	    this.notificationDisplay.innerHTML = message;
-	    this.controlNotification.style = "visibility:visible;"
+	    this.setVisible(this.controlNotification);
 	    if ((typeof (timeout) == "undefined") || timeout > 0) {
 		this.notificationTimer = setInterval(function() {
-		    this.controlNotification.style = "visibility:hidden;"
+		    this.setHidden(this.controlNotification);
 		}.bind(this), (typeof (timeout) == "undefined") ? 5000 : timeout);
 	    }
 	}
@@ -1225,6 +1220,16 @@ NavCtrl.prototype = {
 
 	    return response;
 	}
+    },
+
+    setVisible : function(el) {
+	el.classList.remove("hidden");
+	el.classList.add("visible");
+    },
+    
+    setHidden : function(el) {
+	el.classList.remove("visible");
+	el.classList.add("hidden");
     },
 
 }; /** (NavCtrl.prototype) */

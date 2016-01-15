@@ -479,3 +479,11 @@
 	left: 670px;
 	position: absolute;
 }
+
+.visible {
+	visibility: visible;
+}
+
+.hidden {
+	visibility: hidden;
+}

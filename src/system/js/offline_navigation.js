@@ -29,6 +29,11 @@ var OfflineNavigation = (function() {
 	    return result;
 	};
 
+	function log(result, text) {
+	    result.text = text + " " + Date.now();
+	    console.info(text);
+	};
+
 	return {
 
 	    // Public methods and variables
@@ -42,24 +47,20 @@ var OfflineNavigation = (function() {
 	    },
 
 	    /**
-	     * Set position and return route, if some route to destination was
-	     * found and we are "on route"
+	     * Set position and return route, if some route to destination was found and we are "on route"
 	     */
 	    setPosition : function(position) {
-		result = null;
+		result = [];
 		if (nearestRoute != null && nearestRoute.route != null) {
 		    // check if we are approaching the nearest route
 		    var nearestPoint = nearestRoute.route.nearestTo(position, 0, 0);
 		    if (nearestPoint.distance <= nearestRoute.distance) {
 			// yes
 			nearestRoute.distance = nearestPoint.distance;
-			result = "nearest route distance " + nearestRoute.distance + " "  + Date.now();
-			console.info("nearest route distance " + nearestRoute.distance);
+			log(result, "nearest route distance " + nearestRoute.distance);
 			if (nearestPoint.distance < Navigation.getInstance().MAX_DISTANCE) {
-			    result = "maybe on route" + " "  + Date.now();
-			    console.info("maybe on route");
-			    // we are "on route", but we need to avoid false
-			    // positives, so we must be "on route" twice
+			    log(result, "maybe on route");
+			    // we are "on route", but we need to avoid false positives, so we must be "on route" twice
 			    // consecutively
 			    if (nearestRoute.onRoute) {
 				// we are officially "on route"
@@ -69,24 +70,29 @@ var OfflineNavigation = (function() {
 			} else {
 			    nearestRoute.onRoute = false;
 			}
+		    } else if (nearestRoute.onRoute) {
+			if (nearestPoint.distance < Navigation.getInstance().MAX_DISTANCE) {
+			    // we are officially "on route"
+			    result = nearestRoute.route;
+			} else {
+			    nearestRoute.onRoute = false;
+			    nearestRoute.distance = nearestPoint.distance;
+			    log(result, "off radius, nearest route distance " + nearestRoute.distance);
+			}
 		    } else {
 			// we might lost the nearest route
 			nearestRoute = null;
-			result = "nearest route lost" + " "  + Date.now();
-			console.info("nearest route lost");
+			log(result, "nearest route lost");
 		    }
 		}
 
-		// recalculate nearest route, if there is none or we one was
-		// lost
+		// recalculate nearest route, if there is none or we one was lost
 		if (nearestRoute == null) {
 		    nearestRoute = findNearestRoute(position);
 		    if (nearestRoute.route != null) {
-			result = "nearest route found, distance " + nearestRoute.distance + " "  + Date.now();
-			console.info("nearest route found, distance " + nearestRoute.distance);
+			log(result, "nearest route found, distance " + nearestRoute.distance);
 			if (nearestRoute.distance < Navigation.getInstance().MAX_DISTANCE) {
-			    result = "maybe on route2" + " "  + Date.now();
-			    console.info("maybe on route");
+			    log(result, "maybe on route already");
 			    nearestRoute.onRoute = true;
 			}
 		    }
