@@ -610,7 +610,7 @@ NavCtrl.prototype = {
 	for (var i = 0; i < Object.keys(SETTINGS.destinations).length; i++) {
 	    var dest = SETTINGS.destinations[i];
 	    menu.addItem('Navigate ' + dest.name, new Function("", "this.startNavigation(" + dest.lat + "," + dest.lng
-		    + ");"));
+		    + "," + dest.name + ");"));
 	}
 	menu.addItem('Clear route', function() {
 	    this.clearRoute(true);
@@ -998,10 +998,13 @@ NavCtrl.prototype = {
 	this.setHidden(this.controlNotification);
     },
 
-    startNavigation : function(destLat, destLng) {
+    startNavigation : function(destLat, destLng, destName) {
 	this.clearRoute(false);
 	this.routeDestLat = destLat;
 	this.routeDestLng = destLng;
+	if (typeof (destName) != "undefined") {
+	    this.destName = destName;
+	}
 	try {
 	    GraphHopper.getInstance().fetch(this.mapProps.currentLatitude, this.mapProps.currentLongitude, destLat,
 		    destLng, this.routeFinishCallback);
@@ -1012,10 +1015,12 @@ NavCtrl.prototype = {
 
     routeFinishCallback : function(route) {
 	if (route == null || typeof (route.error) !== "undefined") {
-	    if (route == null) {
-		__NavPOICtrl.showNotification("Error: unkown", 5000);
-	    } else {
-		__NavPOICtrl.showNotification("Error: " + route.error, 5000);
+	    if (SETTINGS.debug) {
+		if (route == null) {
+		    __NavPOICtrl.showNotification("Error: unkown", 5000);
+		} else {
+		    __NavPOICtrl.showNotification("Error: " + route.error, 5000);
+		}
 	    }
 	    // TODO: all errors, but cannot compute route (e.g. when start/destination cannot be found)
 	    __NavPOICtrl.offlineNavigationStart();
@@ -1105,7 +1110,9 @@ NavCtrl.prototype = {
 	this.navigationMode = false;
 	this.showAllRoutesToDestination(true);
 	this.hideRouteDisplay();
-	// TODO: show notification: you are in offline navigation mode
+	if (!SETTINGS.debug) {
+	    this.showNotification("offline routing to: " + this.destName, 5000);
+	}
     },
 
     offlineNavigationEnd : function() {
