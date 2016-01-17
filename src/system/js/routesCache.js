@@ -102,7 +102,7 @@ var RoutesCache = (function() {
 	 * check if gonnabe-destination and route destination are the same
 	 */
 	function checkDestDistance(dest, routeDest) {
-	    return routeDest.lat - dest.lat == 0 && routeDest.lng - dest.lng == 0;
+	    return Math.abs(routeDest.lat - dest.lat) < 0.000001 && Math.abs(routeDest.lng - dest.lng) < 0.000001;
 	}
 
 	return {
@@ -155,31 +155,33 @@ var RoutesCache = (function() {
 	    readMoreFromCache : function(dest) {
 		var result = [];
 
-		// read from file
-		for (var i = 0; i < Object.keys(CACHED_ROUTES).length; i++) {
-		    var route = CACHED_ROUTES[i];
-		    // check if destination matches
-		    if (checkDestDistance(dest, route.dest)) {
-			result.push(route);
-		    }
-		}
-
-		// read from localStorage
-		for ( var name in localStorage) {
-		    if (name.indexOf(CACHED_ROUTE_PREFIX) == 0) {
-			arr = name.split(/[-/,]+/);
-			if (arr.length != 5) {
-			    continue;
-			}
+		if (typeof (dest.lat) != "undefined") {
+		    // read from file
+		    for (var i = 0; i < Object.keys(CACHED_ROUTES).length; i++) {
+			var route = CACHED_ROUTES[i];
 			// check if destination matches
-			if (checkDestDistance(dest, new LatLng(arr[3], arr[4]))) {
-			    route = eval('(' + localStorage.getItem(name) + ')');
+			if (checkDestDistance(dest, route.dest)) {
 			    result.push(route);
 			}
 		    }
-		}
 
-		console.info("found " + result.length + " cached routes to destination");
+		    // read from localStorage
+		    for ( var name in localStorage) {
+			if (name.indexOf(CACHED_ROUTE_PREFIX) == 0) {
+			    arr = name.split(/[-/,]+/);
+			    if (arr.length != 5) {
+				continue;
+			    }
+			    // check if destination matches
+			    if (checkDestDistance(dest, new LatLng(arr[3], arr[4]))) {
+				route = eval('(' + localStorage.getItem(name) + ')');
+				result.push(route);
+			    }
+			}
+		    }
+
+		    console.info("found " + result.length + " cached routes to destination");
+		}
 		return result;
 	    },
 

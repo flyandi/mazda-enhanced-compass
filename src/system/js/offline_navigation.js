@@ -37,8 +37,8 @@ var OfflineNavigation = (function() {
 	return {
 
 	    // Public methods and variables
-	    findCachedRoutesToDestination : function(destLat, destLng) {
-		var result = RoutesCache.getInstance().readMoreFromCache(new LatLng(destLat, destLng));
+	    findCachedRoutesToDestination : function(dest) {
+		var result = RoutesCache.getInstance().readMoreFromCache(dest);
 		for (i = 0; i < result.length; i++) {
 		    route = new Route().parse(result[i].data);
 		    routes.push(route);
@@ -95,6 +95,8 @@ var OfflineNavigation = (function() {
 			    log(result, "maybe on route already");
 			    nearestRoute.onRoute = true;
 			}
+		    } else {
+			log(result, "no cached route found");
 		    }
 		}
 

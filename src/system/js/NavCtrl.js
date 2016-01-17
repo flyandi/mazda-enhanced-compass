@@ -227,7 +227,7 @@ NavCtrl.prototype = {
 		'system/js/menu_manager.js', 'system/js/turn_types.js', 'system/js/lat_lng.js', 'system/js/route.js',
 		'system/js/graph_hopper.js', 'system/js/geo.js', 'system/js/navigation_info.js',
 		'system/js/navigation.js', 'system/js/offline_navigation.js', 'system/js/routesCache.js',
-		'routesCacheFile.js' ];
+		'routesCacheFile.js', 'system/js/destination_holder.js' ];
 	var toBeLoaded = files.length;
 	function callbackInternal() {
 	    toBeLoaded--;
@@ -960,6 +960,7 @@ NavCtrl.prototype = {
 		this.setPosition(latLng);
 
 		if (this.navigationMode) {
+		    DestinationHolder.getInstance().update();
 		    Navigation.getInstance().getPositionOnRoute({
 			point : latLng
 		    }, this.navigationOnRouteCallback.bind(this), this.navigationOffRouteCallback.bind(this));
@@ -976,6 +977,11 @@ NavCtrl.prototype = {
 			    this.startNavigationWithRoute(route);
 			}
 		    }
+		} else {
+		    var storedDest = DestinationHolder.getInstance().getDestination();
+		    if (storedDest != null) {
+			this.startNavigation(storedDest.lat, storedDest.lng, storedDest.name)
+		    }
 		}
 	    }
 	} else {
@@ -987,6 +993,7 @@ NavCtrl.prototype = {
 	if (hideRouteDisplay) {
 	    this.navigationMode = false;
 	    this.hideRouteDisplay();
+	    DestinationHolder.getInstance().removeDestination();
 	}
 	for (i = 0; i < this.routeLayer.length; i++) {
 	    this.map.removeLayer(this.routeLayer[i]);
@@ -996,15 +1003,12 @@ NavCtrl.prototype = {
 	Navigation.getInstance().route = null;
 	Navigation.getInstance().clearOffRouteCounter();
 	this.setHidden(this.controlNotification);
+
     },
 
     startNavigation : function(destLat, destLng, destName) {
 	this.clearRoute(false);
-	this.routeDestLat = destLat;
-	this.routeDestLng = destLng;
-	if (typeof (destName) != "undefined") {
-	    this.destName = destName;
-	}
+	DestinationHolder.getInstance().saveDestination(destLat, destLng, destName);
 	try {
 	    GraphHopper.getInstance().fetch(this.mapProps.currentLatitude, this.mapProps.currentLongitude, destLat,
 		    destLng, this.routeFinishCallback);
@@ -1022,7 +1026,7 @@ NavCtrl.prototype = {
 		    __NavPOICtrl.showNotification("Error: " + route.error, 5000);
 		}
 	    }
-	    // TODO: all errors, but cannot compute route (e.g. when start/destination cannot be found)
+	    // TODO: all errors, but cannot compute route
 	    __NavPOICtrl.offlineNavigationStart();
 	} else {
 	    if (__NavPOICtrl.copyrightTimer == null) {
@@ -1092,8 +1096,8 @@ NavCtrl.prototype = {
 
     showAllRoutesToDestination : function(show) {
 	if (show) {
-	    var routes = OfflineNavigation.getInstance().findCachedRoutesToDestination(this.routeDestLat,
-		    this.routeDestLng);
+	    var routes = OfflineNavigation.getInstance().findCachedRoutesToDestination(
+		    DestinationHolder.getInstance().getDestination());
 	    for (i = 0; i < routes.length; i++) {
 		this.showRoute(routes[i].data.path, "blue");
 	    }
@@ -1111,7 +1115,12 @@ NavCtrl.prototype = {
 	this.showAllRoutesToDestination(true);
 	this.hideRouteDisplay();
 	if (!SETTINGS.debug) {
-	    this.showNotification("offline routing to: " + this.destName, 5000);
+	    var destName = DestinationHolder.getInstance().getDestinationName();
+	    if (destName != null) {
+		this.showNotification("offline routing to: " + destName, 5000);
+	    } else {
+		this.showNotification("offline routing", 5000);
+	    }
 	}
     },
 
@@ -1153,7 +1162,8 @@ NavCtrl.prototype = {
 	if (offRouteCounter >= this.maxOffRouteTime) {
 	    this.showNotification("recalculating route...");
 	    this.hideOffRouteDiv();
-	    this.startNavigation(this.routeDestLat, this.routeDestLng);
+	    var dest = DestinationHolder.getInstance().getDestination()
+	    this.startNavigation(dest.lat, dest.lng, dest.name);
 	}
     },
 
