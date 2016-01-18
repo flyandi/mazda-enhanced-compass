@@ -87,7 +87,7 @@ var OfflineNavigation = (function() {
 		}
 
 		// recalculate nearest route, if there is none or we one was lost
-		if (nearestRoute == null) {
+		if (nearestRoute == null || nearestRoute.route == null) {
 		    nearestRoute = findNearestRoute(position);
 		    if (nearestRoute.route != null) {
 			log(result, "nearest route found, distance " + nearestRoute.distance);

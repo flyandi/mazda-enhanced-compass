@@ -971,7 +971,7 @@ NavCtrl.prototype = {
 			    if (SETTINGS.debug) {
 				this.showNotification(result.text, -1);
 			    }
-			} else {
+			} else if (result.route != null) {
 			    // user get on route, turn on normal navigation
 			    this.offlineNavigationEnd();
 			    this.startNavigationWithRoute(route);
@@ -979,7 +979,7 @@ NavCtrl.prototype = {
 		    }
 		} else {
 		    var storedDest = DestinationHolder.getInstance().getDestination();
-		    if (storedDest != null) {
+		    if (storedDest != null && typeof(storedDest.lat) != "undefined") {
 			this.startNavigation(storedDest.lat, storedDest.lng, storedDest.name)
 		    }
 		}
