@@ -971,7 +971,7 @@ NavCtrl.prototype = {
 			    if (SETTINGS.debug) {
 				this.showNotification(result.text, -1);
 			    }
-			} else if (result.route != null) {
+			} else if (typeof (result.directions) != "undefined") {
 			    // user get on route, turn on normal navigation
 			    this.offlineNavigationEnd();
 			    this.startNavigationWithRoute(route);
@@ -979,7 +979,7 @@ NavCtrl.prototype = {
 		    }
 		} else {
 		    var storedDest = DestinationHolder.getInstance().getDestination();
-		    if (storedDest != null && typeof(storedDest.lat) != "undefined") {
+		    if (storedDest != null && typeof (storedDest.lat) != "undefined") {
 			this.startNavigation(storedDest.lat, storedDest.lng, storedDest.name)
 		    }
 		}
@@ -1003,6 +1003,7 @@ NavCtrl.prototype = {
 	Navigation.getInstance().route = null;
 	Navigation.getInstance().clearOffRouteCounter();
 	this.setHidden(this.controlNotification);
+	this.offlineNavigationEnd();
 
     },
 
@@ -1026,8 +1027,12 @@ NavCtrl.prototype = {
 		    __NavPOICtrl.showNotification("Error: " + route.error, 5000);
 		}
 	    }
-	    // TODO: all errors, but cannot compute route
-	    __NavPOICtrl.offlineNavigationStart();
+	    var dest = DestinationHolder.getInstance().getDestination();
+	    if (dest != null && typeof (dest.lat) != "undefined") {
+		// destination is set already
+		// TODO: all errors, but cannot compute route
+		__NavPOICtrl.offlineNavigationStart(dest);
+	    }
 	} else {
 	    if (__NavPOICtrl.copyrightTimer == null) {
 		__NavPOICtrl.setVisible(__NavPOICtrl.copyrightInfo);
@@ -1094,10 +1099,9 @@ NavCtrl.prototype = {
 	this.map.addLayer(newRouteLayer);
     },
 
-    showAllRoutesToDestination : function(show) {
+    showAllRoutesToDestination : function(show, dest) {
 	if (show) {
-	    var routes = OfflineNavigation.getInstance().findCachedRoutesToDestination(
-		    DestinationHolder.getInstance().getDestination());
+	    var routes = OfflineNavigation.getInstance().findCachedRoutesToDestination(dest);
 	    for (i = 0; i < routes.length; i++) {
 		this.showRoute(routes[i].data.path, "blue");
 	    }
@@ -1108,15 +1112,14 @@ NavCtrl.prototype = {
 	}
     },
 
-    offlineNavigationStart : function() {
+    offlineNavigationStart : function(dest) {
 	console.info("offline routing started");
 	this.offlineNavigationMode = true;
 	this.navigationMode = false;
-	this.showAllRoutesToDestination(true);
+	this.showAllRoutesToDestination(true, dest);
 	this.hideRouteDisplay();
 	if (!SETTINGS.debug) {
-	    var destName = DestinationHolder.getInstance().getDestinationName();
-	    if (destName != null) {
+	    if (typeof (dest.name) != "undefined" && dest.name != null) {
 		this.showNotification("offline routing to: " + destName, 5000);
 	    } else {
 		this.showNotification("offline routing", 5000);
@@ -1125,9 +1128,11 @@ NavCtrl.prototype = {
     },
 
     offlineNavigationEnd : function() {
-	console.info("offline routing ended");
-	this.showAllRoutesToDestination(false);
-	this.offlineNavigationMode = false;
+	if (this.offlineNavigationMode) {
+	    this.offlineNavigationMode = false;
+	    console.info("offline routing ended");
+	    this.showAllRoutesToDestination(false);
+	}
     },
 
     startNavigationWithRoute : function(route) {

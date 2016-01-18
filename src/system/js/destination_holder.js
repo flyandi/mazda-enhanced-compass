@@ -43,16 +43,9 @@ var DestinationHolder = (function() {
 		return result;
 	    },
 
-	    getDestinationName : function() {
-		result = this.getDestination().name;
-		if (typeof (result) == undefined) {
-		    result = null;
-		}
-		return result;
-	    },
-
 	    removeDestination : function() {
 		localStorage.removeItem(localStorageKey);
+		data = null;
 	    },
 
 	    update : function() {
