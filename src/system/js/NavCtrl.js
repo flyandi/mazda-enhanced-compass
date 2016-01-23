@@ -509,6 +509,10 @@ NavCtrl.prototype = {
 	    clockDisplay.innerHTML = framework.common.statusBar.clock.innerHTML;
 	}
 
+	this.noConnectionDiv = this.createElement("div", "noConnection", "noConnection");
+	this.controlDateTime.appendChild(this.noConnectionDiv);
+	this.setHidden(this.noConnectionDiv);
+
 	// create direction display
 	this.controlDirection = document.createElement("div");
 	this.controlDirection.classList.add("mapDirection");
@@ -995,6 +999,7 @@ NavCtrl.prototype = {
 	    this.hideRouteDisplay();
 	    DestinationHolder.getInstance().removeDestination();
 	}
+	this.offlineNavigationEnd();
 	for (i = 0; i < this.routeLayer.length; i++) {
 	    this.map.removeLayer(this.routeLayer[i]);
 	}
@@ -1003,8 +1008,6 @@ NavCtrl.prototype = {
 	Navigation.getInstance().route = null;
 	Navigation.getInstance().clearOffRouteCounter();
 	this.setHidden(this.controlNotification);
-	this.offlineNavigationEnd();
-
     },
 
     startNavigation : function(destLat, destLng, destName) {
@@ -1120,11 +1123,12 @@ NavCtrl.prototype = {
 	this.hideRouteDisplay();
 	if (!SETTINGS.debug) {
 	    if (typeof (dest.name) != "undefined" && dest.name != null) {
-		this.showNotification("offline routing to: " + destName, 5000);
+		this.showNotification("going to: " + dest.name, -1);
 	    } else {
 		this.showNotification("offline routing", 5000);
 	    }
 	}
+	this.setVisible(this.noConnectionDiv);
     },
 
     offlineNavigationEnd : function() {
@@ -1132,6 +1136,7 @@ NavCtrl.prototype = {
 	    this.offlineNavigationMode = false;
 	    console.info("offline routing ended");
 	    this.showAllRoutesToDestination(false);
+	    this.setHidden(this.noConnectionDiv);
 	}
     },
 

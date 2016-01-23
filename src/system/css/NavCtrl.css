@@ -269,6 +269,20 @@
 	color: white;
 }
 
+.NavCtrl .mapControls .mapDateTime .clock {
+	left:75px;
+	display: inline-block;
+}
+
+.NavCtrl .mapControls .noConnection {
+	background-image: url("../images/noconnection.png");
+	width: 40px;
+	height: 40px;
+	position:absolute;
+	left:220px;
+	display: inline-block;
+}
+
 .NavCtrl .mapControls .mapDirection {
 	height: 255px;
 	position: relative;
