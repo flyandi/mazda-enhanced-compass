@@ -21,9 +21,5 @@ var SETTINGS = {
      * https://graphhopper.com/#directions-api and obtain your own API key.
      */
     graphHopper: 'place your API key here'
-	},
-	// color of route, one may use color name or hex value
-	routeColor:"red",
-	debug:false,
-	exportURI: "http://localhost:8080",
+	}
 };

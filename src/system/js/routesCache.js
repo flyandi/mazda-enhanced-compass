@@ -91,22 +91,25 @@ var RoutesCache = (function() {
 	};
 
 	/**
-	 * compute destination to start
+	 * check if distance between gonnabe-start and route start is within range
 	 */
-	function checkDistance(start, dest, route) {
-	    var distanceStart = GeoUtils.getInstance().distance(start, route.start);
-	    return (distanceStart <= Navigation.getInstance().MAX_DISTANCE && dest.lat == route.dest.lat && dest.lng == route.dest.lng);
+	function checkStartDistance(start, routeStart) {
+	    var distanceStart = GeoUtils.getInstance().distance(start, routeStart);
+	    return distanceStart <= Navigation.getInstance().MAX_DISTANCE;
+	}
+
+	/**
+	 * check if gonnabe-destination and route destination are the same
+	 */
+	function checkDestDistance(dest, routeDest) {
+	    return Math.abs(routeDest.lat - dest.lat) < 0.000001 && Math.abs(routeDest.lng - dest.lng) < 0.000001;
 	}
 
 	return {
 	    // Public methods and variables
 	    cacheResult : function(startLat, startLng, destLat, destLng, routeStruct) {
 		var x = btoa(escape(objToString({
-		    start : {
-			lat : startLat, lng : startLng
-		    }, dest : {
-			lat : destLat, lng : destLng
-		    }, data : routeStruct
+		    start : new LatLng(startLat, startLng), dest : new LatLng(destLat, destLng), data : routeStruct
 		})));
 		var text = unescape(atob(x));
 		localStorage.setItem(CACHED_ROUTE_PREFIX + startLat + ',' + startLng + '/' + destLat + ',' + destLng,
@@ -119,8 +122,8 @@ var RoutesCache = (function() {
 		// read from file
 		for (var i = 0; i < Object.keys(CACHED_ROUTES).length; i++) {
 		    var route = CACHED_ROUTES[i];
-		    // compute destination to start
-		    if (checkDistance(start, dest, route)) {
+		    // check if destination matches and if start is within range
+		    if (checkDestDistance(dest, route.dest) && checkStartDistance(start, route.start)) {
 			console.info("found route in file");
 			result = route.data;
 			break;
@@ -131,15 +134,53 @@ var RoutesCache = (function() {
 		    // read from localStorage
 		    for ( var name in localStorage) {
 			if (name.indexOf(CACHED_ROUTE_PREFIX) == 0) {
-			    data = localStorage.getItem(name);
-			    var route = eval('(' + data + ')');
-			    if (checkDistance(start, dest, route)) {
+			    arr = name.split(/[-/,]+/);
+			    if (arr.length != 5) {
+				continue;
+			    }
+			    // check if destination matches and if start is within range
+			    if (checkDestDistance(dest, new LatLng(arr[3], arr[4]))
+				    && checkStartDistance(start, new LatLng(arr[1], arr[2]))) {
 				console.info("found route in localStorage");
+				var route = eval('(' + localStorage.getItem(name) + ')');
 				result = route.data;
 				break;
 			    }
 			}
 		    }
+		}
+		return result;
+	    },
+
+	    readMoreFromCache : function(dest) {
+		var result = [];
+
+		if (typeof (dest.lat) != "undefined") {
+		    // read from file
+		    for (var i = 0; i < Object.keys(CACHED_ROUTES).length; i++) {
+			var route = CACHED_ROUTES[i];
+			// check if destination matches
+			if (checkDestDistance(dest, route.dest)) {
+			    result.push(route);
+			}
+		    }
+
+		    // read from localStorage
+		    for ( var name in localStorage) {
+			if (name.indexOf(CACHED_ROUTE_PREFIX) == 0) {
+			    arr = name.split(/[-/,]+/);
+			    if (arr.length != 5) {
+				continue;
+			    }
+			    // check if destination matches
+			    if (checkDestDistance(dest, new LatLng(arr[3], arr[4]))) {
+				route = eval('(' + localStorage.getItem(name) + ')');
+				result.push(route);
+			    }
+			}
+		    }
+
+		    console.info("found " + result.length + " cached routes to destination");
 		}
 		return result;
 	    },
@@ -159,22 +200,22 @@ var RoutesCache = (function() {
 
 			$.ajax({
 			    url : reqUrl, dataType : "jsonp"
+
 			}).done(function(data) {
 			    console.info("route sent");
 			}).fail(function(jqXHR, textStatus, errorThrown) {
 			    console.info(jqXHR);
+
 			});
 		    }
 		}
 	    },
 	};
-
     };
 
     return {
 
-	// Get the Singleton instance if one exists
-	// or create one if it doesn't
+	// Get the Singleton instance if one exists or create one if it doesn't
 	getInstance : function() {
 
 	    if (!instance) {

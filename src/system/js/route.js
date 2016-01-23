@@ -1,6 +1,5 @@
 /**
- * The route object represents a calculated route as it is returned by one of
- * the routing services.
+ * The route object represents a calculated route as it is returned by one of the routing services.
  */
 function Route() {
 
@@ -19,12 +18,15 @@ Route.prototype = {
 	this.directions = json.directions;
 	this.full_path = json.path;
 
-	for (var i = 0, len = this.directions.length; i < len; i++) {
-	    var path = this.directions[i].path, newPath = [];
-	    for (var j = 0, plen = path.length; j < plen; j++) {
-		newPath.push(new LatLng(path[j][0], path[j][1]));
+	if (this.directions.length > 0 && this.directions[0].path.length > 0
+		&& typeof (this.directions[0].path[0].lat) == "undefined") {
+	    for (var i = 0, len = this.directions.length; i < len; i++) {
+		var path = this.directions[i].path, newPath = [];
+		for (var j = 0, plen = path.length; j < plen; j++) {
+		    newPath.push(new LatLng(path[j][0], path[j][1]));
+		}
+		this.directions[i].path = newPath;
 	    }
-	    this.directions[i].path = newPath;
 	}
 	return this;
     },
@@ -47,22 +49,18 @@ Route.prototype = {
      * @param {ffwdme.LatLng}
      *                pos A ffwdme LatLng object
      * @param {Object}
-     *                direction_index The index of the directions of the route
-     *                to start searching for the nearest point of the route.
+     *                direction_index The index of the directions of the route to start searching for the nearest point
+     *                of the route.
      * @param {Object}
-     *                path_index The index of the single paths representing the
-     *                direction above the start searching.
+     *                path_index The index of the single paths representing the direction above the start searching.
      * @param {Object}
-     *                direction_max The maximum number of directions to go
-     *                through.
+     *                direction_max The maximum number of directions to go through.
      * 
-     * @return {Object} A hashtable containing the following information:
-     *         directionIndex (int): The direction index of the nearest point
-     *         found. prevPathIndex (int): The path index of the nearest point
-     *         found. nextPathIndex (int): The path index of the nearest point
-     *         found. distance (float): The distance to from the nearest point
-     *         found to the captured position. point: (ffwdme.LatLng):The
-     *         nearest point found on the route (keys: lat, lng).
+     * @return {Object} A hashtable containing the following information: directionIndex (int): The direction index of
+     *         the nearest point found. prevPathIndex (int): The path index of the nearest point found. nextPathIndex
+     *         (int): The path index of the nearest point found. distance (float): The distance to from the nearest
+     *         point found to the captured position. point: (ffwdme.LatLng):The nearest point found on the route (keys:
+     *         lat, lng).
      */
     nearestTo : function(pos, directionIndex, pathIndex, maxIterations) {
 

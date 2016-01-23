@@ -1,29 +1,24 @@
 /**
  * Enhanced Compass for Mazda Connect Infotainment
  * 
- * This is a full replacement for the standard Compass Application that also
- * offers a moving map.
+ * This is a full replacement for the standard Compass Application that also offers a moving map.
  * 
- * Written by Andreas Schwarz (http://github.com/flyandi/mazda-enhanced-compass)
- * Copyright (c) 2015. All rights reserved.
+ * Written by Andreas Schwarz (http://github.com/flyandi/mazda-enhanced-compass) Copyright (c) 2015. All rights
+ * reserved.
  * 
- * WARNING: The installation of this application requires modifications to your
- * Mazda Connect system. If you don't feel comfortable performing these changes,
- * please do not attempt to install this. You might be ending up with an
- * unusuable system that requires reset by your Dealer. You were warned!
+ * WARNING: The installation of this application requires modifications to your Mazda Connect system. If you don't feel
+ * comfortable performing these changes, please do not attempt to install this. You might be ending up with an unusuable
+ * system that requires reset by your Dealer. You were warned!
  * 
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
  * version.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program. If not, see http://www.gnu.org/licenses/
+ * You should have received a copy of the GNU General Public License along with this program. If not, see
+ * http://www.gnu.org/licenses/
  * 
  */
 
@@ -107,11 +102,21 @@ NavCtrl.prototype = {
 
     maxOffRouteTime : 5,
 
+    /**
+     * Indicates if user is being navigated on any route
+     */
     navigationMode : false,
 
-    routeLayer : null,
+    /**
+     * Indicates if user wants to be navigated to a destination, but no route can be obtained from internet. When turned
+     * on, user is approaching some cached route to destination. Once the route is reached, this variable is reset and
+     * navigationMode is set.
+     */
+    offlineNavigationMode : false,
 
     copyrightTimer : null,
+
+    routeLayer : [],
 
     /**
      * (framework)
@@ -183,6 +188,18 @@ NavCtrl.prototype = {
 	this.ctrlMap = this.createElement('div', "map");
 	this.ctrlDiv.appendChild(this.ctrlMap);
 
+	// notification div
+	this.controlNotification = this.createElement('div', "notificationCtrl", "notificationCtrl");
+	this.setHidden(this.controlNotification);
+	this.ctrlMap.appendChild(this.controlNotification);
+	this.notificationDisplay = this.createElement('div', "notificationDisplay", "notificationDisplay");
+	this.controlNotification.appendChild(this.notificationDisplay);
+
+	this.copyrightInfo = this.createElement('div', "copyrightInfo", "copyrightInfo");
+	this.setHidden(this.copyrightInfo);
+	this.ctrlDiv.appendChild(this.copyrightInfo);
+	this.copyrightInfo.innerHTML = "Uses GraphHopper";
+
 	// (UI)
 	this.createMapControls();
 	this.disableInterface(true);
@@ -210,7 +227,8 @@ NavCtrl.prototype = {
 	var files = [ 'system/js/ol.js', 'system/js/jquery-2.1.4.min.js', 'system/js/settings.js', 'system/js/menu.js',
 		'system/js/menu_manager.js', 'system/js/turn_types.js', 'system/js/lat_lng.js', 'system/js/route.js',
 		'system/js/graph_hopper.js', 'system/js/geo.js', 'system/js/navigation_info.js',
-		'system/js/navigation.js', 'system/js/routesCache.js', 'routesCacheFile.js' ];
+		'system/js/navigation.js', 'system/js/offline_navigation.js', 'system/js/routesCache.js',
+		'routesCacheFile.js', 'system/js/destination_holder.js' ];
 	var toBeLoaded = files.length;
 	function callbackInternal() {
 	    toBeLoaded--;
@@ -282,18 +300,6 @@ NavCtrl.prototype = {
 	// map
 	this.hasMap = true;
 	this.disableInterface(false);
-
-	// notification div
-	this.controlNotification = this.createElement('div', "notificationCtrl", "notificationCtrl");
-	this.controlNotification.style = "visibility:hidden;"
-	this.ctrlDiv.appendChild(this.controlNotification);
-	this.notificationDisplay = this.createElement('div', "notificationDisplay", "notificationDisplay");
-	this.controlNotification.appendChild(this.notificationDisplay);
-
-	this.copyrightInfo = this.createElement('div', "copyrightInfo", "copyrightInfo");
-	this.copyrightInfo.style = "visibility:hidden;"
-	this.ctrlDiv.appendChild(this.copyrightInfo);
-	this.copyrightInfo.innerHTML = "Uses GraphHopper";
     },
 
     /**
@@ -504,6 +510,10 @@ NavCtrl.prototype = {
 	    clockDisplay.innerHTML = framework.common.statusBar.clock.innerHTML;
 	}
 
+	this.noConnectionDiv = this.createElement("div", "noConnection", "noConnection");
+	this.controlDateTime.appendChild(this.noConnectionDiv);
+	this.setHidden(this.noConnectionDiv);
+
 	// create direction display
 	this.controlDirection = document.createElement("div");
 	this.controlDirection.classList.add("mapDirection");
@@ -546,7 +556,7 @@ NavCtrl.prototype = {
 	this.controlRouteDisplay.appendChild(this.exitNumberLabel);
 
 	this.offRouteDiv = this.createElement("div", "offRouteDiv", "offRouteDiv");
-	this.offRouteDiv.style = "visibility:hidden;"
+	this.setHidden(this.offRouteDiv);
 	this.controlRouteDisplay.appendChild(this.offRouteDiv);
 
 	this.offRouteImg = [];
@@ -591,7 +601,8 @@ NavCtrl.prototype = {
 	mainMenu.addItem('Center Map', function() {
 	    this.reCenter();
 	});
-	mainMenu.addItem('Cancel', function() {});
+	mainMenu.addItem('Cancel', function() {
+	});
 	mainMenu.addItem('Navigate...', function() {
 	    this.selectAndShowActiveMenu("navigationMenu");
 	}, false, false);
@@ -604,10 +615,10 @@ NavCtrl.prototype = {
 	for (var i = 0; i < Object.keys(SETTINGS.destinations).length; i++) {
 	    var dest = SETTINGS.destinations[i];
 	    menu.addItem('Navigate ' + dest.name, new Function("", "this.startNavigation(" + dest.lat + "," + dest.lng
-		    + ");"));
+		    + ",'" + dest.name + "');"));
 	}
 	menu.addItem('Clear route', function() {
-	    this.clearRoute();
+	    this.clearRoute(true);
 	});
 	menu.addItem('Manage...', function() {
 	    this.selectAndShowActiveMenu("managedCachedRoutesMenu");
@@ -737,12 +748,12 @@ NavCtrl.prototype = {
 		-66.94)));
     },
 
-    setPosition : function(lat, lng) {
+    setPosition : function(latLng) {
 
 	if (!this.hasMap)
 	    return;
 
-	var position = ol.proj.fromLonLat([ lng, lat ]);
+	var position = ol.proj.fromLonLat([ latLng.lng, latLng.lat ]);
 
 	// set zoom
 	if (this.mapProps.isFirstPosition) {
@@ -770,8 +781,8 @@ NavCtrl.prototype = {
 	}
 
 	// cache coords
-	this.mapProps.currentLatitude = lat;
-	this.mapProps.currentLongitude = lng;
+	this.mapProps.currentLatitude = latLng.lat;
+	this.mapProps.currentLongitude = latLng.lng;
 
     },
 
@@ -963,40 +974,59 @@ NavCtrl.prototype = {
 	    this.setNeedleVisible(location.showNeedle);
 
 	    if (typeof (location.latlng) == "object") {
-		this.setPosition(location.latlng.lat, location.latlng.lng);
-	    }
+		latLng = new LatLng(location.latlng.lat, location.latlng.lng);
+		this.setPosition(latLng);
 
-	    if (this.navigationMode) {
-		Navigation.getInstance().getPositionOnRoute({
-		    point : {
-			lat : location.latlng.lat, lng : location.latlng.lng
+		if (this.navigationMode) {
+		    DestinationHolder.getInstance().update();
+		    Navigation.getInstance().getPositionOnRoute({
+			point : latLng
+		    }, this.navigationOnRouteCallback.bind(this), this.navigationOffRouteCallback.bind(this));
+		} else if (this.offlineNavigationMode) {
+		    var route = OfflineNavigation.getInstance().setPosition(latLng);
+		    if (route != null) {
+			if (typeof (result.text) != "undefined") {
+			    if (SETTINGS.debug) {
+				this.showNotification(result.text, -1);
+			    }
+			} else if (typeof (result.directions) != "undefined") {
+			    // user get on route, turn on normal navigation
+			    this.offlineNavigationEnd();
+			    this.startNavigationWithRoute(route);
+			}
 		    }
-		}, this.navigationOnRouteCallback.bind(this), this.navigationOffRouteCallback.bind(this));
+		} else {
+		    var storedDest = DestinationHolder.getInstance().getDestination();
+		    if (storedDest != null && typeof (storedDest.lat) != "undefined") {
+			this.startNavigation(storedDest.lat, storedDest.lng, storedDest.name)
+		    }
+		}
 	    }
 	} else {
-
 	    this.setNeedleVisible(false);
 	}
     },
 
-    clearRoute : function() {
-	this.navigationMode = false;
-	this.hideRouteDisplay();
-	if (this.routeLayer != null) {
-	    this.map.removeLayer(this.routeLayer);
-	    this.routeLayer = null;
+    clearRoute : function(hideRouteDisplay) {
+	if (hideRouteDisplay) {
+	    this.navigationMode = false;
+	    this.hideRouteDisplay();
+	    DestinationHolder.getInstance().removeDestination();
 	}
+	this.offlineNavigationEnd();
+	for (i = 0; i < this.routeLayer.length; i++) {
+	    this.map.removeLayer(this.routeLayer[i]);
+	}
+	this.routeLayer.length = 0;
+
 	Navigation.getInstance().route = null;
 	Navigation.getInstance().clearOffRouteCounter();
+	this.setHidden(this.controlNotification);
     },
 
-    startNavigation : function(destLat, destLng) {
-	Navigation.getInstance().clearOffRouteCounter();
-	if (this.routeLayer != null) {
-	    this.map.removeLayer(this.routeLayer);
-	}
-	this.routeDestLat = destLat;
-	this.routeDestLng = destLng;
+    startNavigation : function(destLat, destLng, destName) {
+	this.clearRoute(false);
+	DestinationHolder.getInstance().saveDestination(destLat, destLng, destName);
 	try {
 	    GraphHopper.getInstance().fetch(this.mapProps.currentLatitude, this.mapProps.currentLongitude, destLat,
 		    destLng, this.routeFinishCallback);
@@ -1007,31 +1037,38 @@ NavCtrl.prototype = {
 
     routeFinishCallback : function(route) {
 	if (route == null || typeof (route.error) !== "undefined") {
-	    if (route == null) {
-		__NavPOICtrl.showNotification("Error: unkown", 5000);
-	    } else {
-		__NavPOICtrl.showNotification("Error: " + route.error, 5000);
+	    if (SETTINGS.debug) {
+		if (route == null) {
+		    __NavPOICtrl.showNotification("Error: unkown", 5000);
+		} else {
+		    __NavPOICtrl.showNotification("Error: " + route.error, 5000);
+		}
 	    }
-	    __NavPOICtrl.hideRouteDisplay();
+	    var dest = DestinationHolder.getInstance().getDestination();
+	    if (dest != null && typeof (dest.lat) != "undefined") {
+		// destination is set already
+		// TODO: all errors, but cannot compute route
+		__NavPOICtrl.offlineNavigationStart(dest);
+	    }
 	} else {
-	    if (this.copyrightTimer == null) {
-		this.copyrightInfo.style = "visibility:visible;"
-		this.copyrightTimer = setInterval(function() {
-		    this.copyrightInfo.style = "visibility:hidden;"
-		}.bind(this), 5000);
+	    if (__NavPOICtrl.copyrightTimer == null) {
+		__NavPOICtrl.setVisible(__NavPOICtrl.copyrightInfo);
+		__NavPOICtrl.copyrightTimer = setInterval(function() {
+		    this.setHidden(this.copyrightInfo);
+		}.bind(__NavPOICtrl), 5000);
 	    }
 	    __NavPOICtrl.startNavigationWithRoute(route);
 	}
     },
 
     hideRouteDisplay : function() {
-	this.controlRouteDisplay.style = "visibility:hidden;";
-	this.controlInfoDisplay.style = "visibility:visible;";
+	this.setHidden(this.controlRouteDisplay);
+	this.setVisible(this.controlInfoDisplay);
     },
 
     showRouteDisplay : function(navInfo) {
-	this.controlRouteDisplay.style = "visibility:visible;";
-	this.controlInfoDisplay.style = "visibility:hidden;";
+	this.setVisible(this.controlRouteDisplay);
+	this.setHidden(this.controlInfoDisplay);
 	if (navInfo.onRoute) {
 	    this.arrowImgDiv.className = TurnTypes.getInstance().getImgClass(navInfo.currentDirection.turnType);
 	    if (typeof (navInfo.currentDirection.exit_number) == "undefined") {
@@ -1044,7 +1081,7 @@ NavCtrl.prototype = {
 	    if (navInfo.currentDirection.turnType == TurnTypes.getInstance().FINISH
 		    && navInfo.distanceToNextDirection < 5) {
 		// destination reached
-		this.clearRoute();
+		this.clearRoute(true);
 		this.showNotification("destination reached");
 	    } else {
 		this.showNotification(navInfo.currentDirection.text, -1);
@@ -1052,18 +1089,72 @@ NavCtrl.prototype = {
 	}
     },
 
-    startNavigationWithRoute : function(route) {
-	var coordinates = [];
-	coordinates.push(ol.proj.transform([ this.mapProps.currentLongitude, this.mapProps.currentLatitude ],
-		'EPSG:4326', 'EPSG:3857'));
-
-	for (var i = 0, len = route.full_path.length; i < len; i++) {
-	    var point = route.full_path[i];
-	    coordinates.push(ol.proj.transform([ point[1], point[0] ], 'EPSG:4326', 'EPSG:3857'));
+    showRoute : function(gpsCoordinates, color) {
+	transformedCoords = [];
+	for (var i = 0, len = gpsCoordinates.length; i < len; i++) {
+	    var point = gpsCoordinates[i];
+	    transformedCoords.push(ol.proj.transform([ point[1], point[0] ], 'EPSG:4326', 'EPSG:3857'));
 	}
 
-	coordinates.push(ol.proj.transform([ this.routeDestLng, this.routeDestLat ], 'EPSG:4326', 'EPSG:3857'));
+	var feature = new ol.Feature({
+	    geometry : new ol.geom.LineString(transformedCoords, 'XY'), name : 'Line'
+	});
 
+	feature.setStyle(new ol.style.Style({
+	    stroke : new ol.style.Stroke({
+		color : color, width : 6
+	    })
+	}));
+
+	newRouteLayer = new ol.layer.Vector({
+	    source : new ol.source.Vector({
+		features : [ feature ]
+	    })
+	});
+	this.routeLayer.push(newRouteLayer);
+
+	this.map.addLayer(newRouteLayer);
+    },
+
+    showAllRoutesToDestination : function(show, dest) {
+	if (show) {
+	    var routes = OfflineNavigation.getInstance().findCachedRoutesToDestination(dest);
+	    for (i = 0; i < routes.length; i++) {
+		this.showRoute(routes[i].data.path, "blue");
+	    }
+	    OfflineNavigation.getInstance().setPosition(
+		    new LatLng(this.mapProps.currentLatitude, this.mapProps.currentLongitude));
+	} else {
+	    this.clearRoute(false);
+	}
+    },
+
+    offlineNavigationStart : function(dest) {
+	console.info("offline routing started");
+	this.offlineNavigationMode = true;
+	this.navigationMode = false;
+	this.showAllRoutesToDestination(true, dest);
+	this.hideRouteDisplay();
+	if (!SETTINGS.debug) {
+	    if (typeof (dest.name) != "undefined" && dest.name != null) {
+		this.showNotification("going to: " + dest.name, -1);
+	    } else {
+		this.showNotification("offline routing", 5000);
+	    }
+	}
+	this.setVisible(this.noConnectionDiv);
+    },
+
+    offlineNavigationEnd : function() {
+	if (this.offlineNavigationMode) {
+	    this.offlineNavigationMode = false;
+	    console.info("offline routing ended");
+	    this.showAllRoutesToDestination(false);
+	    this.setHidden(this.noConnectionDiv);
+	}
+    },
+
+    startNavigationWithRoute : function(route) {
 	Navigation.getInstance().route = route;
 	Navigation.getInstance().getPositionOnRoute({
 	    point : {
@@ -1071,54 +1162,48 @@ NavCtrl.prototype = {
 	    }
 	}, this.navigationOnRouteCallback.bind(this), this.navigationOffRouteCallback.bind(this));
 	this.navigationMode = true;
-
-	var feature = new ol.Feature({
-	    geometry : new ol.geom.LineString(coordinates, 'XY'), name : 'Line'
-	});
-
-	feature.setStyle(new ol.style.Style({
-	    stroke : new ol.style.Stroke({
-		color : '#ff0000', width : 6
-	    })
-	}));
-
-	this.routeLayer = new ol.layer.Vector({
-	    source : new ol.source.Vector({
-		features : [ feature ]
-	    })
-	});
-
-	this.map.addLayer(this.routeLayer);
+	this.showRoute(route.full_path, SETTINGS.routeColor || "red");
     },
 
-    navigationOnRouteCallback : function(navInfo) {
-	this.showRouteDisplay(navInfo);
-	this.offRouteDiv.style = "visibility:hidden;"
+    hideOffRouteDiv : function() {
+	this.setHidden(this.offRouteDiv);
 	for (i = 0; i < this.offRouteImg.length; i++) {
 	    this.offRouteImg[i].className = "offRouteGray";
 	}
     },
 
+    navigationOnRouteCallback : function(navInfo) {
+	this.showRouteDisplay(navInfo);
+	this.hideOffRouteDiv();
+    },
+
     navigationOffRouteCallback : function(navInfo, offRouteCounter) {
 	console.info("off route");
-	this.offRouteDiv.style = "visibility:visible;"
+	this.setVisible(this.offRouteDiv);
 	if (offRouteCounter < this.offRouteImg.length) {
 	    this.offRouteImg[offRouteCounter - 1].className = "offRouteRed";
 	}
 	if (offRouteCounter >= this.maxOffRouteTime) {
 	    this.showNotification("recalculating route...");
-	    // todo: test this
-	    this.startNavigation(this.routeDestLat, this.routeDestLng);
+	    this.hideOffRouteDiv();
+	    var dest = DestinationHolder.getInstance().getDestination()
+	    this.startNavigation(dest.lat, dest.lng, dest.name);
 	}
     },
 
     showNotification : function(message, timeout) {
-	this.notificationDisplay.innerHTML = message;
-	this.controlNotification.style = "visibility:visible;"
-	if ((typeof (timeout) == "undefined") || timeout > 0) {
-	    this.notificationTimer = setInterval(function() {
-		this.controlNotification.style = "visibility:hidden;"
-	    }.bind(this), (typeof (timeout) == "undefined") ? 5000 : timeout);
+	if ((typeof (this.notificationTimer) != "undefined") && this.notificationTimer != null) {
+	    clearInterval(this.notificationTimer);
+	}
+	if (typeof (this.notificationDisplay.innerHTML) == "undefined"
+		|| this.notificationDisplay.innerHTML !== message) {
+	    this.notificationDisplay.innerHTML = message;
+	    this.setVisible(this.controlNotification);
+	    if ((typeof (timeout) == "undefined") || timeout > 0) {
+		this.notificationTimer = setInterval(function() {
+		    this.setHidden(this.controlNotification);
+		}.bind(this), (typeof (timeout) == "undefined") ? 5000 : timeout);
+	    }
 	}
     },
 
@@ -1178,6 +1263,16 @@ NavCtrl.prototype = {
 
 	    return response;
 	}
+    },
+
+    setVisible : function(el) {
+	el.classList.remove("hidden");
+	el.classList.add("visible");
+    },
+
+    setHidden : function(el) {
+	el.classList.remove("visible");
+	el.classList.add("hidden");
     },
 
 }; /** (NavCtrl.prototype) */

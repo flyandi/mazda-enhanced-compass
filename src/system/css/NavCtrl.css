@@ -114,7 +114,7 @@
 	animation-direction: forward;
 	animation-iteration-count: 1;
 	left: 350px;
-	z-index:2;
+	z-index:10;
 }
 
 @-o-keyframes menuOpenSlideIn {
@@ -269,6 +269,20 @@
 	color: white;
 }
 
+.NavCtrl .mapControls .mapDateTime .clock {
+	left:75px;
+	display: inline-block;
+}
+
+.NavCtrl .mapControls .noConnection {
+	background-image: url("../images/noconnection.png");
+	width: 40px;
+	height: 40px;
+	position:absolute;
+	left:220px;
+	display: inline-block;
+}
+
 .NavCtrl .mapControls .mapDirection {
 	height: 255px;
 	position: relative;
@@ -367,16 +381,19 @@
 
 .NavCtrl .notificationCtrl {
 	background: #2f2f2f none repeat scroll 0 0;
+	opacity: 0.75;
 	border-radius: 10px;
 	color: white;
 	font-size: 26px;
-	height: 35px;
+	height: auto;
+	position: fixed;
 	left: 325px;
-	position: absolute;
 	text-align: center;
 	text-shadow: 0 3px 0 #000;
 	top: 5px;
+	will-change:top, left;
 	width: 450px;
+	z-index: 9;
 }
 
 .NavCtrl .mapControls .mapRouteDisplay {
@@ -475,4 +492,12 @@
 	top: 460px;
 	left: 670px;
 	position: absolute;
+}
+
+.visible {
+	visibility: visible;
+}
+
+.hidden {
+	visibility: hidden;
 }
