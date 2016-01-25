@@ -4,6 +4,9 @@
     var mapView = null;
     var map = null;
     var routeLayer = [];
+    var newRoute = {
+	start : null, finish : null
+    };
 
     $(function() {
 	createMap();
@@ -51,9 +54,17 @@
 
 	mapLayer.setUseInterimTilesOnError(false);
 
+	var startMarkerLayer = new ol.layer.Vector({
+	    source : new ol.source.Vector({})
+	});
+	var finishMarkerLaxer = new ol.layer.Vector({
+	    source : new ol.source.Vector({})
+	});
+
 	// create map
 	map = new ol.Map({
-	    layers : [ this.mapLayer ], target : 'map', view : mapView, interactions : ol.interaction.defaults({
+	    layers : [ this.mapLayer, startMarkerLayer, finishMarkerLaxer ], target : 'map', view : mapView,
+	    interactions : ol.interaction.defaults({
 		dragPan : true, mouseWheelZoom : true
 	    })
 	});
@@ -68,11 +79,68 @@
 	    mapView.setCenter(coordinates);
 	});
 	geolocation.on('error', function(error) {
-	    var position = ol.proj.fromLonLat([ 0,0]);
+	    var position = ol.proj.fromLonLat([ 0, 0 ]);
 	    mapView.setCenter(position);
 	    mapView.setZoom(2);
 	});
+
+	createStartMarker = function(obj) {
+	    feature = new ol.Feature(new ol.geom.Point(obj.coordinate));
+	    feature.setStyle(new ol.style.Style({
+		image : new ol.style.Icon({
+		    scale : .6, anchor : [ 0.5, 1 ], src : 'images/routeStart.png'
+		})
+	    }));
+	    startMarkerLayer.getSource().clear();
+	    startMarkerLayer.getSource().addFeature(feature);
+	    newRoute.start = new LatLng(ol.proj.transform(obj.coordinate, 'EPSG:3857', 'EPSG:4326'));
+	    computeRoute();
+	}
+
+	createFinishMarker = function(obj) {
+	    feature = new ol.Feature(new ol.geom.Point(obj.coordinate));
+	    feature.setStyle(new ol.style.Style({
+		image : new ol.style.Icon({
+		    scale : .6, anchor : [ 0.5, 1 ], src : 'images/routeFinish.png'
+		})
+	    }));
+	    finishMarkerLaxer.getSource().clear();
+	    finishMarkerLaxer.getSource().addFeature(feature);
+	    newRoute.finish = new LatLng(ol.proj.transform(obj.coordinate, 'EPSG:3857', 'EPSG:4326'));
+	    computeRoute();
+	}
+
+	var contextmenu = new ContextMenu({
+	    width : 170, default_items : false, items : [ {
+		text : 'Set start', icon : 'images/routeStart.png', callback : createStartMarker
+	    }, {
+		text : 'Set finish', icon : 'images/routeFinish.png', callback : createFinishMarker
+	    } ]
+	});
+	map.addControl(contextmenu);
     }
+
+    function computeRoute() {
+	if (newRoute.start != null && newRoute.finish != null) {
+	    console.info("start: " + newRoute.start);
+	    console.info("finish: " + newRoute.finish);
+	    GraphHopper.getInstance().fetch(newRoute.start.lng, newRoute.start.lat, newRoute.finish.lng,
+		    newRoute.finish.lat, routeFinishCallback);
+	}
+    }
+
+    function routeFinishCallback(route) {
+	if (route == null || typeof (route.error) !== "undefined") {
+	    if (route == null) {
+		alert("Error: unkown");
+	    } else {
+		alert("Error: " + route.error);
+	    }
+	} else {
+	    console.info(route);
+	    showRoute(route);
+	}
+    };
 
     function createRouteList(data, doConcat) {
 	var $listRoutes = $('#routesList');
@@ -119,9 +187,15 @@
     function showRoute(route, lineWidth, removeCurrent) {
 
 	var coordinates = [];
+	var path;
+	try {
+	    path = route.data.path;
+	} catch (e) {
+	    path = route.full_path;
+	}
 
-	for (var i = 0, len = route.data.path.length; i < len; i++) {
-	    var point = route.data.path[i];
+	for (var i = 0, len = path.length; i < len; i++) {
+	    var point = path[i];
 	    coordinates.push(ol.proj.transform([ point[1], point[0] ], 'EPSG:4326', 'EPSG:3857'));
 	}
 
