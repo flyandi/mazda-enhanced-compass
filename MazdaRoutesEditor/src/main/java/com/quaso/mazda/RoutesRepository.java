@@ -1,5 +1,6 @@
 package com.quaso.mazda;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -10,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.quaso.mazda.json.Route;
 
-public class RoutesRepository {
+public class RoutesRepository implements Serializable{
 	private static final Logger log = LoggerFactory.getLogger(RoutesRestController.class);
 
 	private Set<Route> routes = new HashSet<>();

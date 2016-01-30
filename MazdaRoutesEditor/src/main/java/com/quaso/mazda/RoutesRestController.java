@@ -1,23 +1,13 @@
 package com.quaso.mazda;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
@@ -27,13 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.google.appengine.api.mail.MailService;
+import com.google.appengine.api.mail.MailService.Attachment;
+import com.google.appengine.api.mail.MailService.Message;
 import com.google.gson.Gson;
 import com.quaso.mazda.json.Route;
 import com.quaso.mazda.util.RouteCacheFileUtils;
@@ -52,16 +44,34 @@ public class RoutesRestController {
 	@Autowired
 	private RouteCacheFileUtils routeCacheFileUtils;
 
+	@Autowired
+	private MailService mailService;
+
 	@RequestMapping(value = "/importOne")
 	@ResponseStatus(HttpStatus.OK)
 	public void importRoute(String data) {
 		this.routeRepository.addRoute(new Gson().fromJson(data, Route.class));
 	}
 	
-	@RequestMapping(value = "/importDone")
+	@RequestMapping(value = "/sendEmail")
 	@ResponseStatus(HttpStatus.OK)
-	public void importDone(String data) {
-		// TODO: send email
+	public void sendEmail(String address) throws IOException {
+		sendEmail(address, address);
+	}
+
+	@RequestMapping(value = "/sendEmailFromTo")
+	@ResponseStatus(HttpStatus.OK)
+	public void sendEmail(String fromAddress, String toAddress) throws IOException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		Message message = new Message(fromAddress, toAddress,
+				"Your mazda routes exported at " + sdf.format(new Date()),
+				"These are your exported cached routes from Mazda");
+		byte[] zipData = zipUtils.doZip(routeCacheFileUtils.createFileContent(routeRepository.getAllRoutes()));
+		Attachment attachment = new Attachment("routes.zip", zipData);
+		message.setAttachments(attachment);
+
+		mailService.send(message);
+		log.info("Routes sent to \"{}\"", toAddress);
 	}
 
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
@@ -91,35 +101,5 @@ public class RoutesRestController {
 		} else {
 			return Collections.emptyList();
 		}
-	}
-
-	@RequestMapping(value = "/sendEmail")
-	@ResponseStatus(HttpStatus.OK)
-	public void sendEmail(@RequestParam String email) throws IOException, MessagingException {
-		Properties props = new Properties();
-		Session session = Session.getDefaultInstance(props, null);
-
-		Message msg = new MimeMessage(session);
-		msg.setFrom(new InternetAddress("admin@mazdaRoutesmanager.com", "Example.com Admin"));
-		msg.addRecipient(Message.RecipientType.TO, new InternetAddress(email, "Mr. User"));
-		msg.setSubject("These are your exported cached routes from Mazda");
-
-		Multipart mp = new MimeMultipart();
-
-		MimeBodyPart textPart = new MimeBodyPart();
-		textPart.setContent("Please find attached zip file", "text");
-		mp.addBodyPart(textPart);
-
-		MimeBodyPart attachment = new MimeBodyPart();
-		byte[] zipData = zipUtils.doZip(routeCacheFileUtils.createFileContent(routeRepository.getAllRoutes()));
-		InputStream attachmentDataStream = new ByteArrayInputStream(zipData);
-		attachment.setFileName("routes.zip");
-		attachment.setContent(attachmentDataStream, "application/zip");
-		mp.addBodyPart(attachment);
-
-		msg.setContent(mp);
-
-		Transport.send(msg);
-
 	}
 }

@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 
+import com.google.appengine.api.mail.MailService;
+import com.google.appengine.api.mail.MailServiceFactory;
 import com.quaso.mazda.util.RouteCacheFileUtils;
 import com.quaso.mazda.util.ZipUtils;
 
@@ -16,6 +18,11 @@ public class MazdaRoutesManagerApplication {
 	public RoutesRepository routesRepository() {
 		return new RoutesRepository();
 	}
+	
+	@Bean
+    public MailService mailService() {
+        return MailServiceFactory.getMailService();
+    }
 
 	@Bean
 	public RouteCacheFileUtils routeCacheFileUtils() {
