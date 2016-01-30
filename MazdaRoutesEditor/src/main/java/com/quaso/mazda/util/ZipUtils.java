@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-@Component
 public class ZipUtils {
 	private static final Logger log = LoggerFactory.getLogger(ZipUtils.class);
 

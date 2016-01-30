@@ -57,6 +57,12 @@ public class RoutesRestController {
 	public void importRoute(String data) {
 		this.routeRepository.addRoute(new Gson().fromJson(data, Route.class));
 	}
+	
+	@RequestMapping(value = "/importDone")
+	@ResponseStatus(HttpStatus.OK)
+	public void importDone(String data) {
+		// TODO: send email
+	}
 
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
 	public @ResponseBody Collection<Route> handleFileUpload(MultipartHttpServletRequest request,
