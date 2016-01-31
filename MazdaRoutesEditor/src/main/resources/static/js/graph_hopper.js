@@ -164,7 +164,7 @@ var GraphHopper = (function() {
 
 		    var reqUrl = [ BASE_URL, 'route?type=jsonp', '&key=', this.apiKey, '&locale=', this.lang,
 			    '&vehicle=', routeType, '&weighting=', modifier, '&point=',
-			    [ startLat, startLng, ].join('%2C'), via, '&point=', [ destLat, destLng ].join('%2C') ];
+			    [ startLng, startLat, ].join('%2C'), via, '&point=', [ destLng, destLat ].join('%2C') ];
 
 		    var route = null;
 		    $.ajax({

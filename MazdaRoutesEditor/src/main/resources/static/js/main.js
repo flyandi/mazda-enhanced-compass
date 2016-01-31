@@ -34,33 +34,44 @@
 
 		});
 
-	$('#settingsForm').submit(function(e) {
-	    e.preventDefault();
-	    $('#menuUpload.dropdown.open .dropdown-toggle').dropdown('toggle');
-	    var file = inputSettingsFile.files[0];
-	    if (file) {
-		var reader = new FileReader();
-		reader.readAsText(file, "UTF-8");
-		reader.onload = function(evt) {
-		    var elm = document.getElementById("settingsJs");
-		    if (elm != null) {
-			alert("You cannot load settings.js file more than once. Reload the page.");
-		    } else {
-			elm = document.createElement('script');
-			elm.id = "settingsJs";
-			elm.type = "application/javascript";
-			elm.innerHTML = evt.target.result;
-			document.body.appendChild(elm);
-			GraphHopper.getInstance().apiKey = SETTINGS.credentials.graphHopper;
-			GraphHopper.getInstance().locale = SETTINGS.locale;
-		    }
-		}
-		reader.onerror = function(evt) {
-		    alert("error reading file");
-		}
-	    }
+	$('#settingsForm').submit(
+		function(e) {
+		    e.preventDefault();
+		    $('#menuUpload.dropdown.open .dropdown-toggle').dropdown('toggle');
+		    var file = inputSettingsFile.files[0];
+		    if (file) {
+			var reader = new FileReader();
+			reader.readAsText(file, "UTF-8");
+			reader.onload = function(evt) {
+			    var elm = document.getElementById("settingsJs");
+			    if (elm != null) {
+				alert("You cannot load settings.js file more than once. Reload the page.");
+			    } else {
+				elm = document.createElement('script');
+				elm.id = "settingsJs";
+				elm.type = "application/javascript";
+				elm.innerHTML = evt.target.result;
+				document.body.appendChild(elm);
+				GraphHopper.getInstance().apiKey = SETTINGS.credentials.graphHopper;
+				GraphHopper.getInstance().locale = SETTINGS.locale;
 
-	});
+				for (i = 0; i < SETTINGS.destinations.length; i++) {
+				    var item = [ {
+					text : 'Go to: ' + SETTINGS.destinations[i].name,
+					icon : 'images/routeFinish.png', callback : createFinishMarker, data : {
+					    lat : SETTINGS.destinations[i].lat, lng : SETTINGS.destinations[i].lng
+					}
+				    } ];
+				    window.contextMenu.extend(item);
+				}
+			    }
+			}
+			reader.onerror = function(evt) {
+			    alert("error reading file");
+			}
+		    }
+
+		});
 
 	$('#show-all-routes').on('click', showAllRoutes);
     });
@@ -85,13 +96,13 @@
 	var startMarkerLayer = new ol.layer.Vector({
 	    source : new ol.source.Vector({})
 	});
-	var finishMarkerLaxer = new ol.layer.Vector({
+	var finishMarkerLayer = new ol.layer.Vector({
 	    source : new ol.source.Vector({})
 	});
 
 	// create map
 	map = new ol.Map({
-	    layers : [ this.mapLayer, startMarkerLayer, finishMarkerLaxer ], target : 'map', view : mapView,
+	    layers : [ this.mapLayer, startMarkerLayer, finishMarkerLayer ], target : 'map', view : mapView,
 	    interactions : ol.interaction.defaults({
 		dragPan : true, mouseWheelZoom : true
 	    })
@@ -126,26 +137,33 @@
 	}
 
 	createFinishMarker = function(obj) {
-	    feature = new ol.Feature(new ol.geom.Point(obj.coordinate));
+	    if (obj.data != null) {
+		newRoute.finish = obj.data;
+		feature = new ol.Feature(new ol.geom.Point(ol.proj.transform([ obj.data.lat, obj.data.lng ],
+			'EPSG:4326', 'EPSG:3857')));
+	    } else {
+		feature = new ol.Feature(new ol.geom.Point(obj.coordinate));
+		newRoute.finish = new LatLng(ol.proj.transform(obj.coordinate, 'EPSG:3857', 'EPSG:4326'));
+	    }
 	    feature.setStyle(new ol.style.Style({
 		image : new ol.style.Icon({
 		    scale : .6, anchor : [ 0.5, 1 ], src : 'images/routeFinish.png'
 		})
 	    }));
-	    finishMarkerLaxer.getSource().clear();
-	    finishMarkerLaxer.getSource().addFeature(feature);
-	    newRoute.finish = new LatLng(ol.proj.transform(obj.coordinate, 'EPSG:3857', 'EPSG:4326'));
+	    finishMarkerLayer.getSource().clear();
+	    finishMarkerLayer.getSource().addFeature(feature);
 	    computeRoute();
 	}
 
-	var contextmenu = new ContextMenu({
+	this.contextMenu = new ContextMenu({
 	    width : 170, default_items : false, items : [ {
 		text : 'Set start', icon : 'images/routeStart.png', callback : createStartMarker
-	    }, {
+	    }, '-', // this is a separator
+	    {
 		text : 'Set finish', icon : 'images/routeFinish.png', callback : createFinishMarker
 	    } ]
 	});
-	map.addControl(contextmenu);
+	map.addControl(this.contextMenu);
     }
 
     function computeRoute() {

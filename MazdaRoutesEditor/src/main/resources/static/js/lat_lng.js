@@ -1,8 +1,8 @@
  var LatLng = function(lat, lng) {
 
   if (toString.call(lat) === '[object Array]') {
-    lng = lat[1];
-    lat = lat[0];
+    lng = lat[0];
+    lat = lat[1];
   }
 
   lat = parseFloat(lat);
