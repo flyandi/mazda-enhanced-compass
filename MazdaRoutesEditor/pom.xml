@@ -18,7 +18,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<start-class>com.quaso.mazda.App</start-class>
+		<start-class>com.quaso.mazda.MazdaRoutesManagerApplication</start-class>
 		<java.version>1.7</java.version>
 		<spring-boot-legacy.version>1.0.1.RELEASE</spring-boot-legacy.version>
 		<appengine.target.version>1.9.17</appengine.target.version>

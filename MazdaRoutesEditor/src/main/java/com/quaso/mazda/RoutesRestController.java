@@ -5,10 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -17,11 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Attachment;
@@ -52,7 +49,7 @@ public class RoutesRestController {
 	public void importRoute(String data) {
 		this.routeRepository.addRoute(new Gson().fromJson(data, Route.class));
 	}
-	
+
 	@RequestMapping(value = "/sendEmail")
 	@ResponseStatus(HttpStatus.OK)
 	public void sendEmail(String address) throws IOException {
@@ -75,31 +72,30 @@ public class RoutesRestController {
 	}
 
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
-	public @ResponseBody Collection<Route> handleFileUpload(MultipartHttpServletRequest request,
-			HttpServletResponse response) throws IOException {
-		Iterator<String> itr = request.getFileNames();
+	public @ResponseBody Collection<Route> handleFileUpload(@RequestParam("file") MultipartFile file) {
+		Collection<Route> result = Collections.emptyList();
+		if (!file.isEmpty()) {
+			log.info("{} uploaded", file.getOriginalFilename());
+			try {
+				String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+				byte[] data = null;
+				if ("zip".equals(extension)) {
+					data = zipUtils.doUnzip(file.getBytes());
+				} else if ("js".equals(extension)) {
+					data = file.getBytes();
+				}
 
-		if (itr.hasNext()) {
-			MultipartFile mpf = request.getFile(itr.next());
-			log.info("{} uploaded", mpf.getOriginalFilename());
+				if (data == null) {
+					throw new IllegalArgumentException("Unrecognized file extension");
+				}
 
-			String extension = FilenameUtils.getExtension(mpf.getOriginalFilename());
-			byte[] data = null;
-			if ("zip".equals(extension)) {
-				data = zipUtils.doUnzip(mpf.getBytes());
-			} else if ("js".equals(extension)) {
-				data = mpf.getBytes();
+				List<Route> routes = routeCacheFileUtils.parseRoutes(data);
+				log.info("Found {} routes", routes.size());
+				result = routes;
+			} catch (Exception e) {
+				log.error("Unexpected error occured while uploading a file", e);
 			}
-
-			if (data == null) {
-				throw new IllegalArgumentException("Unrecognized file extension");
-			}
-
-			List<Route> routes = routeCacheFileUtils.parseRoutes(data);
-			log.info("Found {} routes", routes.size());
-			return routes;
-		} else {
-			return Collections.emptyList();
 		}
+		return result;
 	}
 }
