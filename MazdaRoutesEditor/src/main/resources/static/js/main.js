@@ -77,23 +77,8 @@
 	$('#show-all-routes').on('click', showAllRoutes);
 	$('#createNewRoute').on('click', createNewRoute);
 	$('#addNewRoute').on('click', addNewRoute);
+	$('#saveToFile').on('click', saveToFile);
     });
-
-    function createNewRoute() {
-	newRoute.start = null;
-	newRoute.finish = null;
-	$('#addNewRoute').parent().addClass("disabled");
-    }
-
-    function addNewRoute() {
-	newRoute.data.start = newRoute.start;
-	newRoute.data.dest = newRoute.finish;
-	routeData.push(newRoute.data);
-	newRoute.start = null;
-	newRoute.finish = null;
-	newRoute.data = null;
-	createRouteList(routeData, false);
-    }
 
     function createMap() {
 
@@ -322,4 +307,45 @@
 	routeLayer = [];
     }
 
+    function createNewRoute() {
+	newRoute.start = null;
+	newRoute.finish = null;
+	$('#addNewRoute').parent().addClass("disabled");
+    }
+
+    function addNewRoute() {
+	newRoute.data.start = newRoute.start;
+	newRoute.data.dest = newRoute.finish;
+
+	if (routeData === null || routeData.length === 0) {
+	    routeData = [];
+	}
+	routeData.push(newRoute.data);
+	newRoute.start = null;
+	newRoute.finish = null;
+	newRoute.data = null;
+	createRouteList(routeData, false);
+    }
+
+    function saveToFile() {
+	// TODO wait till all routes are send, then call saveAsZip
+	for (i = 0; i < routeData.length; i++) {
+	    var reqUrl = "/importRoute?data=" + routeData[i].data;
+	    $.ajax({
+		url : reqUrl, dataType : "jsonp"
+	    }).done(function(data) {
+		console.info("route sent");
+	    }).fail(function(jqXHR, textStatus, errorThrown) {
+		alert(jqXHR);
+		return;
+	    });
+	}
+	$.ajax({
+	    url : "/saveAsZip", dataType : "jsonp"
+	}).done(function(data) {
+	    console.info("routes sent by email");
+	}).fail(function(jqXHR, textStatus, errorThrown) {
+	    console.info(jqXHR);
+	});
+    }
 })();

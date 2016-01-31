@@ -7,7 +7,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +47,7 @@ public class RoutesRestController {
 	@Autowired
 	private MailService mailService;
 
-	@RequestMapping(value = "/importOne")
+	@RequestMapping(value = "/importRoute")
 	@ResponseStatus(HttpStatus.OK)
 	public void importRoute(String data) {
 		this.routeRepository.addRoute(new Gson().fromJson(data, Route.class));
@@ -63,10 +66,8 @@ public class RoutesRestController {
 		Message message = new Message(fromAddress, toAddress,
 				"Your mazda routes exported at " + sdf.format(new Date()),
 				"These are your exported cached routes from Mazda");
-		byte[] zipData = zipUtils.doZip(routeCacheFileUtils.createFileContent(routeRepository.getAllRoutes()));
-		Attachment attachment = new Attachment("routes.zip", zipData);
+		Attachment attachment = new Attachment("routes.zip", createZip());
 		message.setAttachments(attachment);
-
 		mailService.send(message);
 		log.info("Routes sent to \"{}\"", toAddress);
 	}
@@ -97,5 +98,16 @@ public class RoutesRestController {
 			}
 		}
 		return result;
+	}
+
+	@RequestMapping(value = "/saveAsZip", method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	public void saveAsZip(HttpServletResponse response) throws IOException{
+		IOUtils.write(createZip(), response.getOutputStream());
+		response.flushBuffer();
+	}
+
+	private byte[] createZip() throws IOException {
+		return zipUtils.doZip(routeCacheFileUtils.createFileContent(routeRepository.getAllRoutes()));
 	}
 }

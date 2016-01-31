@@ -194,21 +194,31 @@ var RoutesCache = (function() {
 	    },
 
 	    exportCachedRoutes : function() {
+		//TODO wait till all routes are send, then call sendEmail
 		for ( var name in localStorage) {
 		    if (name.indexOf(CACHED_ROUTE_PREFIX) == 0) {
-			var reqUrl = SETTINGS.exportURI + "/import?data=" + localStorage.getItem(name);
+			var reqUrl = SETTINGS.exportURI + "/importRoute?data=" + localStorage.getItem(name);
 
 			$.ajax({
 			    url : reqUrl, dataType : "jsonp"
-
 			}).done(function(data) {
 			    console.info("route sent");
 			}).fail(function(jqXHR, textStatus, errorThrown) {
 			    console.info(jqXHR);
-
 			});
 		    }
 		}
+		
+		//TODO: read address from settings
+		var reqUrl = SETTINGS.exportURI + "/sendEmail?address=" + "some@address";
+
+		$.ajax({
+		    url : reqUrl, dataType : "jsonp"
+		}).done(function(data) {
+		    console.info("routes sent by email");
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+		    console.info(jqXHR);
+		});
 	    },
 	};
     };
