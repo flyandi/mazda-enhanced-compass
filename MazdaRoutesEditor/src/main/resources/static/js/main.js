@@ -3,9 +3,10 @@
 
     var mapView = null;
     var map = null;
+    var contextMenu = null;
     var routeLayer = [];
     var newRoute = {
-	start : null, finish : null
+	start : null, finish : null, data : null
     };
 
     $(function() {
@@ -62,7 +63,7 @@
 					    lat : SETTINGS.destinations[i].lat, lng : SETTINGS.destinations[i].lng
 					}
 				    } ];
-				    window.contextMenu.extend(item);
+				    contextMenu.extend(item);
 				}
 			    }
 			}
@@ -74,7 +75,25 @@
 		});
 
 	$('#show-all-routes').on('click', showAllRoutes);
+	$('#createNewRoute').on('click', createNewRoute);
+	$('#addNewRoute').on('click', addNewRoute);
     });
+
+    function createNewRoute() {
+	newRoute.start = null;
+	newRoute.finish = null;
+	$('#addNewRoute').parent().addClass("disabled");
+    }
+
+    function addNewRoute() {
+	newRoute.data.start = newRoute.start;
+	newRoute.data.dest = newRoute.finish;
+	routeData.push(newRoute.data);
+	newRoute.start = null;
+	newRoute.finish = null;
+	newRoute.data = null;
+	createRouteList(routeData, false);
+    }
 
     function createMap() {
 
@@ -155,7 +174,7 @@
 	    computeRoute();
 	}
 
-	this.contextMenu = new ContextMenu({
+	contextMenu = new ContextMenu({
 	    width : 170, default_items : false, items : [ {
 		text : 'Set start', icon : 'images/routeStart.png', callback : createStartMarker
 	    }, '-', // this is a separator
@@ -163,7 +182,7 @@
 		text : 'Set finish', icon : 'images/routeFinish.png', callback : createFinishMarker
 	    } ]
 	});
-	map.addControl(this.contextMenu);
+	map.addControl(contextMenu);
     }
 
     function computeRoute() {
@@ -183,8 +202,9 @@
 		alert("Error: " + route.error);
 	    }
 	} else {
-	    console.info(route);
+	    newRoute.data = route;
 	    showRoute(route);
+	    $('#addNewRoute').parent().removeClass("disabled");
 	}
     };
 
@@ -209,7 +229,7 @@
 
 		$('#route-item-' + i).on('click', function() {
 		    // route selected
-
+		    $('#addNewRoute').parent().addClass("disabled");
 		    clearRoutes();
 		    showRoute(route);
 		});

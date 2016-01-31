@@ -24,24 +24,31 @@
 				<ul class="nav navbar-nav">
 					<li class="dropdown" id="menuUpload"><a
 						class="dropdown-toggle" href="#" data-toggle="dropdown"
-						id="navLogin">Upload file</a>
-						<div class="dropdown-menu" style="padding: 17px;">
-							<form class="form" id="routesForm">
-								<input type="file" id="inputRoutesFile"
-									placeholder="routeCacheFile.js or zip with this file" /><br />
-								<button type="submit" class="btn btn-default">
-									<i class="fa fa-plus"></i>Load routes
-								</button>
-							</form>
-							<form class="form" id="settingsForm">
-								<input type="file" id="inputSettingsFile" /><br />
-								<button type="submit" class="btn btn-default">
-									<i class="fa fa-plus"></i>Load settings
-								</button>
-							</form>
-						</div></li>
-					<li><a href="#">Create new route</a></li>
-					<li><a href="/save">Save to file</a></li>
+						id="navUpload">Upload file<span class="caret"></span></a>
+						<ul class="dropdown-menu" style="padding: 17px;">
+							<li><form class="form" id="settingsForm">
+									<input type="file" id="inputSettingsFile" /><br />
+									<button type="submit" class="btn btn-default">
+										<i class="fa fa-plus"></i>Load settings
+									</button>
+								</form></li>
+							<li role="separator" class="divider"></li>
+							<li><form class="form" id="routesForm">
+									<input type="file" id="inputRoutesFile"
+										placeholder="routeCacheFile.js or zip with this file" /><br />
+									<button type="submit" class="btn btn-default">
+										<i class="fa fa-plus"></i>Load routes
+									</button>
+								</form></li>
+						</ul></li>
+					<li class="dropdown" id="menuNewRoute"><a
+						class="dropdown-toggle" href="#" data-toggle="dropdown"
+						id="navCreate">Create new route<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="#" id="createNewRoute">Create</a></li>
+							<li class="disabled"><a href="#" id="addNewRoute">Add</a></li>
+						</ul></li>
+					<li><a href="#">Save to file</a></li>
 					<li><a href="#" id="show-all-routes">Show all routes</a></li>
 				</ul>
 			</div>
@@ -72,6 +79,7 @@
 	<script type="text/javascript" src="js/graph_hopper.js"></script>
 	<script type="text/javascript" src="js/route.js"></script>
 	<script type="text/javascript" src="js/lat_lng.js"></script>
-	<script type="text/javascript" src="js/listgroup.min.js"></script>>
+	<script type="text/javascript" src="js/listgroup.min.js"></script>
+	>
 </body>
 </html>
