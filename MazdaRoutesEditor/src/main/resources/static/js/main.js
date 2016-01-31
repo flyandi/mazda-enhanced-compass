@@ -18,7 +18,7 @@
 		    e.preventDefault();
 		    $('#menuUpload.dropdown.open .dropdown-toggle').dropdown('toggle');
 		    var formData = new FormData();
-		    formData.append("file", inputFile.files[0]);
+		    formData.append("file", inputRoutesFile.files[0]);
 		    $.ajax(
 			    {
 				url : "/uploadFile", type : 'POST', data : formData, contentType : false,
@@ -33,6 +33,34 @@
 		    });
 
 		});
+
+	$('#settingsForm').submit(function(e) {
+	    e.preventDefault();
+	    $('#menuUpload.dropdown.open .dropdown-toggle').dropdown('toggle');
+	    var file = inputSettingsFile.files[0];
+	    if (file) {
+		var reader = new FileReader();
+		reader.readAsText(file, "UTF-8");
+		reader.onload = function(evt) {
+		    var elm = document.getElementById("settingsJs");
+		    if (elm != null) {
+			alert("You cannot load settings.js file more than once. Reload the page.");
+		    } else {
+			elm = document.createElement('script');
+			elm.id = "settingsJs";
+			elm.type = "application/javascript";
+			elm.innerHTML = evt.target.result;
+			document.body.appendChild(elm);
+			GraphHopper.getInstance().apiKey = SETTINGS.credentials.graphHopper;
+			GraphHopper.getInstance().locale = SETTINGS.locale;
+		    }
+		}
+		reader.onerror = function(evt) {
+		    alert("error reading file");
+		}
+	    }
+
+	});
 
 	$('#show-all-routes').on('click', showAllRoutes);
     });

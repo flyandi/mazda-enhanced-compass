@@ -15,13 +15,9 @@ var GraphHopper = (function() {
 	 */
 	var BASE_URL = 'http://graphhopper.com/api/1/';
 
-	var apiKey = SETTINGS.credentials.graphHopper;
-
 	var modifier = 'fastest';
 
 	var routeType = 'car';
-
-	var lang = SETTINGS.locale;
 
 	var anchorPoint = null;
 
@@ -148,6 +144,9 @@ var GraphHopper = (function() {
 	};
 
 	return {
+	    apiKey : null,
+	    locale : "en",
+
 	    // Public methods and variables
 	    fetch : function(startLat, startLng, destLat, destLng, routeFinishCallback) {
 
@@ -157,22 +156,29 @@ var GraphHopper = (function() {
 		    via += '&point=' + [ direction.lat, direction.lng ].join('%2C');
 		}
 
-		var reqUrl = [ BASE_URL, 'route?type=jsonp', '&key=', apiKey, '&locale=', lang, '&vehicle=', routeType,
-			'&weighting=', modifier, '&point=', [ startLat, startLng, ].join('%2C'), via, '&point=',
-			[ destLat, destLng ].join('%2C') ];
+		if (this.apiKey == null) {
+		    routeFinishCallback({
+			error : "You must load your settings.js file first"
+		    });
+		} else {
 
-		var route = null;
-		$.ajax({
-		    url : reqUrl.join(''), dataType : "jsonp"
-		}).done(function(data) {
-		    route = parse(data, startLat, startLng, destLat, destLng);
-		}).fail(function(jqXHR, textStatus, errorThrown) {
-		    route = {
-			error : resolveError(jqXHR.readyState, jqXHR.statusCode(), textStatus)
-		    };
-		}).always(function() {
-		    routeFinishCallback(route);
-		});
+		    var reqUrl = [ BASE_URL, 'route?type=jsonp', '&key=', this.apiKey, '&locale=', this.lang,
+			    '&vehicle=', routeType, '&weighting=', modifier, '&point=',
+			    [ startLat, startLng, ].join('%2C'), via, '&point=', [ destLat, destLng ].join('%2C') ];
+
+		    var route = null;
+		    $.ajax({
+			url : reqUrl.join(''), dataType : "jsonp"
+		    }).done(function(data) {
+			route = parse(data, startLat, startLng, destLat, destLng);
+		    }).fail(function(jqXHR, textStatus, errorThrown) {
+			route = {
+			    error : resolveError(jqXHR.readyState, jqXHR.statusCode(), textStatus)
+			};
+		    }).always(function() {
+			routeFinishCallback(route);
+		    });
+		}
 	    },
 	};
 
