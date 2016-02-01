@@ -118,6 +118,8 @@ NavCtrl.prototype = {
 
     routeLayer : [],
 
+    showingAlerts : false,
+
     /**
      * (framework)
      */
@@ -227,7 +229,7 @@ NavCtrl.prototype = {
 		'system/js/menu_manager.js', 'system/js/turn_types.js', 'system/js/lat_lng.js', 'system/js/route.js',
 		'system/js/graph_hopper.js', 'system/js/geo.js', 'system/js/navigation_info.js',
 		'system/js/navigation.js', 'system/js/offline_navigation.js', 'system/js/routesCache.js',
-		'routesCacheFile.js', 'system/js/destination_holder.js' ];
+		'routesCacheFile.js', 'system/js/destination_holder.js', "alerts.js"];
 	var toBeLoaded = files.length;
 	function callbackInternal() {
 	    toBeLoaded--;
@@ -299,6 +301,8 @@ NavCtrl.prototype = {
 	// map
 	this.hasMap = true;
 	this.disableInterface(false);
+
+	this.toggleAlerts();
     },
 
     /**
@@ -605,7 +609,38 @@ NavCtrl.prototype = {
 	mainMenu.addItem('Navigate...', function() {
 	    this.selectAndShowActiveMenu("navigationMenu");
 	}, false, false);
-	mainMenu.addItem('Find POI');
+	mainMenu.addItem('Toggle alerts POI', function() {
+	    this.showAlerts();
+	});
+    },
+
+    createAlertsLayer : function() {
+	this.alertsLayer = new ol.layer.Vector({
+	    source : new ol.source.Vector({})
+	});
+
+	// read alerts from KML file
+	for (i = 0; i < ALERTS.length; i++) {
+	    feature = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([ ALERTS[i].lng, ALERTS[i].lat ])));
+	    feature.setStyle(new ol.style.Style({
+		image : new ol.style.Icon({
+		    scale : .6, anchor : [ 0.5, 1 ], src : this._PATH + 'system/images/alert.png'
+		})
+	    }));
+	    this.alertsLayer.getSource().addFeature(feature);
+	}
+    },
+
+    toggleAlerts : function() {
+	this.showingAlerts = !this.showingAlerts;
+	if (this.showingAlerts) {
+	    if (typeof (this.alertsLayer) == "undefined") {
+		this.createAlertsLayer();
+	    }
+	    this.map.addLayer(this.alertsLayer);
+	} else {
+	    this.map.removeLayer(this.alertsLayer);
+	}
     },
 
     createNavigationMenu : function() {
