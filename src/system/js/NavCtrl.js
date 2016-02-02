@@ -610,7 +610,7 @@ NavCtrl.prototype = {
 	    this.selectAndShowActiveMenu("navigationMenu");
 	}, false, false);
 	mainMenu.addItem('Toggle alerts POI', function() {
-	    this.showAlerts();
+	    this.toggleAlerts();
 	});
     },
 
