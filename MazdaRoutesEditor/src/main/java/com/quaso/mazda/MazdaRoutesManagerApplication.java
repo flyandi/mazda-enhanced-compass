@@ -1,13 +1,10 @@
 package com.quaso.mazda;
 
-import org.gmr.web.multipart.GMultipartResolver;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.servlet.DispatcherServlet;
 
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailServiceFactory;
@@ -17,12 +14,19 @@ import com.quaso.mazda.util.ZipUtils;
 @SpringBootApplication
 public class MazdaRoutesManagerApplication {
 
-	@Bean(name = DispatcherServlet.MULTIPART_RESOLVER_BEAN_NAME)
-	MultipartResolver multipartResolver(@Value("${multipart.maxFileSize:1048576}") int maxUploadSize) {
-		GMultipartResolver multipartResolver = new GMultipartResolver();
-		multipartResolver.setMaxUploadSize(maxUploadSize);
-		return multipartResolver;
+	public static void main(String[] args) {
+		SpringApplication.run(MazdaRoutesManagerApplication.class, args);
 	}
+
+	//TODO uncomment for Google App Engine???
+	// @Bean(name = DispatcherServlet.MULTIPART_RESOLVER_BEAN_NAME)
+	// public MultipartResolver
+	// multipartResolver(@Value("${multipart.maxFileSize:1048576}") int
+	// maxUploadSize) {
+	// GMultipartResolver multipartResolver = new GMultipartResolver();
+	// multipartResolver.setMaxUploadSize(maxUploadSize);
+	// return multipartResolver;
+	// }
 
 	@Bean
 	@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)

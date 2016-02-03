@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Direction {
 	private int distance;
-	private List<Double[]> path;
+	private List<LatLng> path;
 	private int turnType;
 	private String text;
 	private Integer exit_number;
@@ -12,7 +12,7 @@ public class Direction {
 	Direction() {
 	}
 
-	public Direction(int distance, List<Double[]> path, int turnType, String text, Integer exit_number) {
+	public Direction(int distance, List<LatLng> path, int turnType, String text, Integer exit_number) {
 		this.distance = distance;
 		this.path = path;
 		this.turnType = turnType;
@@ -28,11 +28,11 @@ public class Direction {
 		this.distance = distance;
 	}
 
-	public List<Double[]> getPath() {
+	public List<LatLng> getPath() {
 		return path;
 	}
 
-	public void setPath(List<Double[]> path) {
+	public void setPath(List<LatLng> path) {
 		this.path = path;
 	}
 

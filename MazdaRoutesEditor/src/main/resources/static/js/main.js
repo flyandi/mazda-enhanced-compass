@@ -5,9 +5,7 @@
     var map = null;
     var contextMenu = null;
     var routeLayer = [];
-    var newRoute = {
-	start : null, finish : null, data : null
-    };
+    var newRoute = {};
 
     $(function() {
 	createMap();
@@ -23,13 +21,14 @@
 		    $.ajax(
 			    {
 				url : "/uploadFile", type : 'POST', data : formData, contentType : false,
-				processData : false, dataType : 'text'
+				processData : false, dataType : 'multipart/form-data'
 			    }).done(function(data) {
 			createRouteList(JSON.parse(data), true);
-
 		    }).fail(function(jqXHR, textStatus, errorThrown) {
-			if (jqXHR.readyState == 0 && jqXHR.status == 0 && jqXHR.statusText == "error") {
-			    alert("connection error");
+			if (jqXHR.readyState == 4 && jqXHR.status == 200 && jqXHR.statusText === "OK") {
+			    createRouteList(JSON.parse(jqXHR.responseText), true);
+			} else {
+			    alert("connection error " + jqXHR.status + ": " + jqXHR.statusText);
 			}
 		    });
 
@@ -142,12 +141,12 @@
 
 	createFinishMarker = function(obj) {
 	    if (obj.data != null) {
-		newRoute.finish = obj.data;
+		newRoute.dest = obj.data;
 		feature = new ol.Feature(new ol.geom.Point(ol.proj.transform([ obj.data.lat, obj.data.lng ],
 			'EPSG:4326', 'EPSG:3857')));
 	    } else {
 		feature = new ol.Feature(new ol.geom.Point(obj.coordinate));
-		newRoute.finish = new LatLng(ol.proj.transform(obj.coordinate, 'EPSG:3857', 'EPSG:4326'));
+		newRoute.dest = new LatLng(ol.proj.transform(obj.coordinate, 'EPSG:3857', 'EPSG:4326'));
 	    }
 	    feature.setStyle(new ol.style.Style({
 		image : new ol.style.Icon({
@@ -171,11 +170,11 @@
     }
 
     function computeRoute() {
-	if (newRoute.start != null && newRoute.finish != null) {
+	if (newRoute.start != null && newRoute.dest != null) {
 	    console.info("start: " + newRoute.start);
-	    console.info("finish: " + newRoute.finish);
-	    GraphHopper.getInstance().fetch(newRoute.start.lng, newRoute.start.lat, newRoute.finish.lng,
-		    newRoute.finish.lat, routeFinishCallback);
+	    console.info("dest: " + newRoute.dest);
+	    GraphHopper.getInstance().fetch(newRoute.start.lng, newRoute.start.lat, newRoute.dest.lng,
+		    newRoute.dest.lat, routeFinishCallback);
 	}
     }
 
@@ -239,9 +238,13 @@
 
 	var coordinates = [];
 	var path;
-	try {
-	    path = route.data.path;
-	} catch (e) {
+	if (typeof (route.data.path) != "undefined") {
+	    if (typeof (route.data.full_path) != "undefined") {
+		path = route.data.full_path;
+	    } else {
+		path = route.data.path;
+	    }
+	} else {
 	    path = route.full_path;
 	}
 
@@ -307,45 +310,64 @@
 	routeLayer = [];
     }
 
-    function createNewRoute() {
-	newRoute.start = null;
-	newRoute.finish = null;
+    function createNewRoute(dontHideRoute) {
+	newRoute = {};
 	$('#addNewRoute').parent().addClass("disabled");
+	if (!dontHideRoute) {
+	    clearRoutes();
+	}
     }
 
     function addNewRoute() {
-	newRoute.data.start = newRoute.start;
-	newRoute.data.dest = newRoute.finish;
-
 	if (routeData === null || routeData.length === 0) {
 	    routeData = [];
 	}
-	routeData.push(newRoute.data);
-	newRoute.start = null;
-	newRoute.finish = null;
-	newRoute.data = null;
+	if (newRoute == null) {
+	    return;
+	}
+	routeData.push(newRoute);
 	createRouteList(routeData, false);
+	createNewRoute(true);
     }
 
     function saveToFile() {
-	// TODO wait till all routes are send, then call saveAsZip
+	// wait till all routes are send, then call saveAsZip
+
+	var errorDetected = null;
+	var toBeUploaded = routeData.length;
+	function callbackInternal() {
+	    toBeUploaded--;
+	    if (toBeUploaded == 0) {
+		// uploading finished
+		if (errorDetected != null) {
+		    alert(errorDetected.status + ": " + errorDetected.statusText);
+		} else {
+		    $.fileDownload('/saveAsZip/filename/routesCacheFile.zip', {
+			successCallback : function(url) {
+			    console.info("routes sent by email");
+			}, failCallback : function(html, url, error) {
+			    alert('Error downloading file with the routes: ' + error);
+			}
+		    });
+		}
+	    }
+	};
+
 	for (i = 0; i < routeData.length; i++) {
-	    var reqUrl = "/importRoute?data=" + routeData[i].data;
-	    $.ajax({
-		url : reqUrl, dataType : "jsonp"
-	    }).done(function(data) {
-		console.info("route sent");
+	    $.ajax(
+		    {
+			url : "/importRoute", type : 'POST', data : JSON.stringify(routeData[i]), dataType : 'json',
+			contentType : "application/json"
+		    }).done(function(data) {
+		console.info("route uploaded");
 	    }).fail(function(jqXHR, textStatus, errorThrown) {
-		alert(jqXHR);
-		return;
+		console.info(jqXHR);
+		if (errorDetected == null) {
+		    errorDetected = jqXHR;
+		}
+	    }).always(function() {
+		callbackInternal();
 	    });
 	}
-	$.ajax({
-	    url : "/saveAsZip", dataType : "jsonp"
-	}).done(function(data) {
-	    console.info("routes sent by email");
-	}).fail(function(jqXHR, textStatus, errorThrown) {
-	    console.info(jqXHR);
-	});
     }
 })();

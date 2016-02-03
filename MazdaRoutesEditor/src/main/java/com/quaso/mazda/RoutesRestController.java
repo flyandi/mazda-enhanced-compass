@@ -1,5 +1,6 @@
 package com.quaso.mazda;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -7,18 +8,20 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Attachment;
 import com.google.appengine.api.mail.MailService.Message;
-import com.google.gson.Gson;
 import com.quaso.mazda.json.Route;
 import com.quaso.mazda.util.RouteCacheFileUtils;
 import com.quaso.mazda.util.ZipUtils;
@@ -47,10 +49,11 @@ public class RoutesRestController {
 	@Autowired
 	private MailService mailService;
 
-	@RequestMapping(value = "/importRoute")
+	@RequestMapping(value = "/importRoute", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
-	public void importRoute(String data) {
-		this.routeRepository.addRoute(new Gson().fromJson(data, Route.class));
+	public String importRoute(@RequestBody Route route) {
+		this.routeRepository.addRoute(route);
+		return "{}";
 	}
 
 	@RequestMapping(value = "/sendEmail")
@@ -63,8 +66,7 @@ public class RoutesRestController {
 	@ResponseStatus(HttpStatus.OK)
 	public void sendEmail(String fromAddress, String toAddress) throws IOException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-		Message message = new Message(fromAddress, toAddress,
-				"Your mazda routes exported at " + sdf.format(new Date()),
+		Message message = new Message(fromAddress, toAddress, "Your mazda routes exported at " + sdf.format(new Date()),
 				"These are your exported cached routes from Mazda");
 		Attachment attachment = new Attachment("routes.zip", createZip());
 		message.setAttachments(attachment);
@@ -73,7 +75,8 @@ public class RoutesRestController {
 	}
 
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
-	public @ResponseBody Collection<Route> handleFileUpload(@RequestParam("file") MultipartFile file) {
+	@ResponseStatus(value = HttpStatus.OK)
+	public Collection<Route> handleFileUpload(@RequestParam("file") MultipartFile file) {
 		Collection<Route> result = Collections.emptyList();
 		if (!file.isEmpty()) {
 			log.info("{} uploaded", file.getOriginalFilename());
@@ -100,11 +103,19 @@ public class RoutesRestController {
 		return result;
 	}
 
-	@RequestMapping(value = "/saveAsZip", method = RequestMethod.GET)
-	@ResponseStatus(HttpStatus.OK)
-	public void saveAsZip(HttpServletResponse response) throws IOException{
-		IOUtils.write(createZip(), response.getOutputStream());
-		response.flushBuffer();
+	@RequestMapping(value = "/saveAsZip/filename/{filename}", method = RequestMethod.GET, produces = "application/zip")
+	public ResponseEntity<InputStreamResource> saveAsZip(@PathVariable String filename) throws IOException {
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+		headers.add("Pragma", "no-cache");
+		headers.add("Expires", "0");
+		headers.add("Content-Dispositionn", "attachment; filename=" + filename + ".zip");
+		headers.add("Set-Cookie", "fileDownload=true; path=/");
+
+		byte[] data = createZip();
+		return ResponseEntity.ok().headers(headers).contentLength(data.length)
+				.contentType(MediaType.parseMediaType("application/zip"))
+				.body(new InputStreamResource(new ByteArrayInputStream(data)));
 	}
 
 	private byte[] createZip() throws IOException {

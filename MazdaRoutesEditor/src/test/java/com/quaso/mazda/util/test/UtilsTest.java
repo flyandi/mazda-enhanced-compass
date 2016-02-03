@@ -28,9 +28,9 @@ public class UtilsTest {
 		List<Route> routes2 = new RouteCacheFileUtils().parseRoutes(data);
 		EqualsBuilder.reflectionEquals(routes, routes2);
 	}
-	
+
 	@Test
-	public void testZip() throws IOException{
+	public void testZip() throws IOException {
 		List<Route> routes = new ArrayList<>();
 		routes.add(createRoute());
 		routes.add(createRoute());
@@ -60,7 +60,7 @@ public class UtilsTest {
 					String.valueOf(Math.random()), exitNo));
 		}
 
-		RouteData data = new RouteData(directions, summary, createRandomPath());
+		RouteData data = new RouteData(directions, summary, createRandomPathDoubles());
 		result.setData(data);
 
 		return result;
@@ -70,7 +70,15 @@ public class UtilsTest {
 		return (int) (max * Math.random());
 	}
 
-	private List<Double[]> createRandomPath() {
+	private List<LatLng> createRandomPath() {
+		List<LatLng> path = new ArrayList<>();
+		for (int i = 0; i < createRandomInt(20); i++) {
+			path.add(new LatLng(Math.random(), Math.random()));
+		}
+		return path;
+	}
+
+	private List<Double[]> createRandomPathDoubles() {
 		List<Double[]> path = new ArrayList<>();
 		for (int i = 0; i < createRandomInt(20); i++) {
 			path.add(new Double[] { Math.random(), Math.random() });

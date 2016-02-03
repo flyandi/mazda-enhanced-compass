@@ -2,12 +2,11 @@ package com.quaso.mazda.json;
 
 import java.util.List;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-
 public class RouteData {
 	private List<Direction> directions;
 	private Summary summary;
 	private List<Double[]> path;
+	private List<Double[]> full_path;
 
 	RouteData() {
 
@@ -41,5 +40,13 @@ public class RouteData {
 
 	public void setPath(List<Double[]> path) {
 		this.path = path;
+	}
+
+	public List<Double[]> getFull_path() {
+		return full_path;
+	}
+
+	public void setFull_path(List<Double[]> full_path) {
+		this.full_path = full_path;
 	}
 }
