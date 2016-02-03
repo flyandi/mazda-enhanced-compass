@@ -1,0 +1,1 @@
+var ALERTS = [{lat:0, lng:0}, {lat:1, lng:1}]
