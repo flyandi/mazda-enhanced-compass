@@ -98,7 +98,7 @@ NavCtrl.prototype = {
     _VENDOR : ('opera' in window) ? 'O' : 'webkit',
 
     // Paths
-    _PATH : null,
+    _PATH : 'apps/emnavi/controls/Compass/resources/',
 
     maxOffRouteTime : 5,
 
@@ -172,12 +172,6 @@ NavCtrl.prototype = {
 	// check for initialization
 	if (this._initialized)
 	    return;
-
-	if (typeof (framework) == "undefined") {
-	    this._PATH = './';
-	} else {
-	    this._PATH = 'apps/emnavi/controls/Compass/resources/';
-	}
 
 	// load css
 	this.addCss('system/css/NavCtrl.css');
@@ -256,7 +250,7 @@ NavCtrl.prototype = {
 	});
 
 	// create map source
-	if (typeof (framework) == "undefined") {
+	if (SETTINGS.mapOnline) {
 	    this.mapSource = new ol.source.OSM();
 	} else {
 	    this.mapSource = new ol.source.OSM({
