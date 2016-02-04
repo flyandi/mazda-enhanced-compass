@@ -113,6 +113,7 @@ public class RoutesRestController {
 		headers.add("Set-Cookie", "fileDownload=true; path=/");
 
 		byte[] data = createZip();
+		routeRepository.clearRoutes();
 		return ResponseEntity.ok().headers(headers).contentLength(data.length)
 				.contentType(MediaType.parseMediaType("application/zip"))
 				.body(new InputStreamResource(new ByteArrayInputStream(data)));

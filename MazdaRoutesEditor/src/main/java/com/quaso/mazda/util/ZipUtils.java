@@ -10,7 +10,6 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 public class ZipUtils {
 	private static final Logger log = LoggerFactory.getLogger(ZipUtils.class);

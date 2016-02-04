@@ -1,8 +1,10 @@
 package com.quaso.mazda.json;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class RouteData {
+@SuppressWarnings("serial")
+public class RouteData implements Serializable {
 	private List<Direction> directions;
 	private Summary summary;
 	private List<Double[]> path;

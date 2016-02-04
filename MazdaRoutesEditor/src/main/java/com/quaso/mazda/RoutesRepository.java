@@ -26,5 +26,8 @@ public class RoutesRepository implements Serializable{
 		return Collections.unmodifiableCollection(this.routes);
 	}
 
+	public void clearRoutes() {
+		this.routes.clear();
+	}
 	
 }

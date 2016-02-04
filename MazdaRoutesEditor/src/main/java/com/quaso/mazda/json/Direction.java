@@ -1,12 +1,15 @@
 package com.quaso.mazda.json;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Direction {
+@SuppressWarnings("serial")
+public class Direction implements Serializable {
 	private int distance;
 	private List<LatLng> path;
 	private int turnType;
 	private String text;
+	@SuppressWarnings("unused")
 	private Integer exit_number;
 
 	Direction() {

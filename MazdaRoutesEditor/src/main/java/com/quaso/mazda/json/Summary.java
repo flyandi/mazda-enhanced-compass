@@ -1,6 +1,9 @@
 package com.quaso.mazda.json;
 
-public class Summary {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class Summary implements Serializable {
 	private int distance;
 	private double duration;
 

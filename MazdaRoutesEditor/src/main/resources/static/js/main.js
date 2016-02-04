@@ -238,7 +238,7 @@
 
 	var coordinates = [];
 	var path;
-	if (typeof (route.data.path) != "undefined") {
+	if (typeof (route.data) != "undefined") {
 	    if (typeof (route.data.full_path) != "undefined") {
 		path = route.data.full_path;
 	    } else {

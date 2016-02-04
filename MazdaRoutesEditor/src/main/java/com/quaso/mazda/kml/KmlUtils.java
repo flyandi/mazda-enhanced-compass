@@ -44,6 +44,7 @@ public class KmlUtils {
 			System.out.println("[" + i + "] -> " + categories[i]);
 		}
 		System.out.println("Enter space separates numbers of categories you want to include:");
+		@SuppressWarnings("resource")
 		String[] catIds = new Scanner(System.in).nextLine().split(" ");
 
 		Set<AlertData> result = new HashSet<>();

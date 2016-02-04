@@ -1,6 +1,9 @@
 package com.quaso.mazda.json;
 
-public class Route {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class Route implements Serializable{
 	private LatLng start;
 	private LatLng dest;
 	private RouteData data;

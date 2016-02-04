@@ -1,6 +1,9 @@
 package com.quaso.mazda.json;
 
-public class LatLng {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class LatLng implements Serializable {
 	public double lat;
 	public double lng;
 
