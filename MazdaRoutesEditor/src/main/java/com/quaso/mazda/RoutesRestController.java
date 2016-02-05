@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +50,7 @@ public class RoutesRestController {
 	@Autowired
 	private MailService mailService;
 
+	@CrossOrigin
 	@RequestMapping(value = "/importRoute", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	public String importRoute(@RequestBody Route route) {
@@ -56,22 +58,25 @@ public class RoutesRestController {
 		return "{}";
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/sendEmail")
 	@ResponseStatus(HttpStatus.OK)
-	public void sendEmail(String address) throws IOException {
-		sendEmail(address, address);
+	public String sendEmail(String address) throws IOException {
+		return sendEmail(address, address);
 	}
 
 	@RequestMapping(value = "/sendEmailFromTo")
 	@ResponseStatus(HttpStatus.OK)
-	public void sendEmail(String fromAddress, String toAddress) throws IOException {
+	public String sendEmail(String fromAddress, String toAddress) throws IOException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-		Message message = new Message(fromAddress, toAddress, "Your mazda routes exported at " + sdf.format(new Date()),
+		Message message = new Message(fromAddress, toAddress,
+				"Your mazda		 routes exported at " + sdf.format(new Date()),
 				"These are your exported cached routes from Mazda");
 		Attachment attachment = new Attachment("routes.zip", createZip());
 		message.setAttachments(attachment);
 		mailService.send(message);
 		log.info("Routes sent to \"{}\"", toAddress);
+		return "{}";
 	}
 
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)

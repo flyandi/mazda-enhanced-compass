@@ -194,31 +194,54 @@ var RoutesCache = (function() {
 	    },
 
 	    exportCachedRoutes : function() {
-		//TODO wait till all routes are send, then call sendEmail
+		// wait till all routes are send, then call sendEmail
+		var toBeUploaded = 0;
 		for ( var name in localStorage) {
 		    if (name.indexOf(CACHED_ROUTE_PREFIX) == 0) {
-			var reqUrl = SETTINGS.exportURI + "/importRoute?data=" + localStorage.getItem(name);
+			toBeUploaded++;
+		    }
+		}
 
-			$.ajax({
-			    url : reqUrl, dataType : "jsonp"
-			}).done(function(data) {
-			    console.info("route sent");
+		var errorDetected = null;
+		function callbackInternal() {
+		    toBeUploaded--;
+		    if (toBeUploaded == 0) {
+			// uploading finished
+			if (errorDetected != null) {
+			    alert(errorDetected.status + ": " + errorDetected.statusText);
+			} else {
+			    var reqUrl = SETTINGS.exportURI + "/sendEmail?address=" + "some@address";
+			    $.ajax({
+				url : reqUrl, dataType : "json"
+			    }).done(function(data) {
+				console.info("routes sent by email");
+			    }).fail(function(jqXHR, textStatus, errorThrown) {
+				console.info(jqXHR);
+			    });
+			}
+		    }
+		};
+
+		for ( var name in localStorage) {
+		    if (name.indexOf(CACHED_ROUTE_PREFIX) == 0) {
+			var route = eval('(' + localStorage.getItem(name) + ')');
+			$.ajax(
+				{
+				    url : SETTINGS.exportURI + "/importRoute", method : 'POST', type : 'POST',
+				    data : JSON.stringify(route), dataType : 'json',
+				    contentType : "application/json", processData :false
+				}).done(function(data) {
+			    console.info("route uploaded");
 			}).fail(function(jqXHR, textStatus, errorThrown) {
 			    console.info(jqXHR);
+			    if (errorDetected == null) {
+				errorDetected = jqXHR;
+			    }
+			}).always(function() {
+			    callbackInternal();
 			});
 		    }
 		}
-		
-		//TODO: read address from settings
-		var reqUrl = SETTINGS.exportURI + "/sendEmail?address=" + "some@address";
-
-		$.ajax({
-		    url : reqUrl, dataType : "jsonp"
-		}).done(function(data) {
-		    console.info("routes sent by email");
-		}).fail(function(jqXHR, textStatus, errorThrown) {
-		    console.info(jqXHR);
-		});
 	    },
 	};
     };
