@@ -10,7 +10,7 @@ Route.prototype = {
 
     directions : null,
 
-    full_path : null,
+    path : null,
 
     // Public methods and variables
     parse : function(json) {
@@ -19,14 +19,14 @@ Route.prototype = {
 	}
 	this.summary = json.summary;
 	this.directions = json.directions;
-	this.full_path = json.path;
+	this.path = json.path;
 
 	if (this.directions.length > 0 && this.directions[0].path.length > 0
 		&& typeof (this.directions[0].path[0].lat) == "undefined") {
 	    for (var i = 0, len = this.directions.length; i < len; i++) {
 		var path = this.directions[i].path, newPath = [];
 		for (var j = 0, plen = path.length; j < plen; j++) {
-		    newPath.push(new LatLng(path[j][0], path[j][1]));
+		    newPath.push([path[j][0], path[j][1]]);
 		}
 		this.directions[i].path = newPath;
 	    }

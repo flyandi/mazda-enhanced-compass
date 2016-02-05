@@ -215,7 +215,7 @@
 		    // route selected
 		    $('#addNewRoute').parent().addClass("disabled");
 		    clearRoutes();
-		    showRoute(route);
+		    showRoute(route.data);
 		});
 
 		$('#route-item-delete-' + i).on('click', function(e) {
@@ -235,21 +235,10 @@
     }
 
     function showRoute(route, lineWidth, removeCurrent) {
-
 	var coordinates = [];
-	var path;
-	if (typeof (route.data) != "undefined") {
-	    if (typeof (route.data.full_path) != "undefined") {
-		path = route.data.full_path;
-	    } else {
-		path = route.data.path;
-	    }
-	} else {
-	    path = route.full_path;
-	}
 
-	for (var i = 0, len = path.length; i < len; i++) {
-	    var point = path[i];
+	for (var i = 0, len = route.path.length; i < len; i++) {
+	    var point = route.path[i];
 	    coordinates.push(ol.proj.transform([ point[1], point[0] ], 'EPSG:4326', 'EPSG:3857'));
 	}
 

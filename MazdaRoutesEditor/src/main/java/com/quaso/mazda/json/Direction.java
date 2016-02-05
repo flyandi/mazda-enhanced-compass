@@ -6,7 +6,7 @@ import java.util.List;
 @SuppressWarnings("serial")
 public class Direction implements Serializable {
 	private int distance;
-	private List<LatLng> path;
+	private List<Double[]> path;
 	private int turnType;
 	private String text;
 	@SuppressWarnings("unused")
@@ -15,7 +15,7 @@ public class Direction implements Serializable {
 	Direction() {
 	}
 
-	public Direction(int distance, List<LatLng> path, int turnType, String text, Integer exit_number) {
+	public Direction(int distance, List<Double[]> path, int turnType, String text, Integer exit_number) {
 		this.distance = distance;
 		this.path = path;
 		this.turnType = turnType;
@@ -31,11 +31,11 @@ public class Direction implements Serializable {
 		this.distance = distance;
 	}
 
-	public List<LatLng> getPath() {
+	public List<Double[]> getPath() {
 		return path;
 	}
 
-	public void setPath(List<LatLng> path) {
+	public void setPath(List<Double[]> path) {
 		this.path = path;
 	}
 

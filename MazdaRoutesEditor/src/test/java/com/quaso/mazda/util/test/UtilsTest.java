@@ -56,7 +56,7 @@ public class UtilsTest {
 			if (exitNo == 0) {
 				exitNo = null;
 			}
-			directions.add(new Direction(createRandomInt(100), createRandomPath(), createRandomInt(10) - 5,
+			directions.add(new Direction(createRandomInt(100), createRandomPathDoubles(), createRandomInt(10) - 5,
 					String.valueOf(Math.random()), exitNo));
 		}
 
@@ -68,14 +68,6 @@ public class UtilsTest {
 
 	private int createRandomInt(int max) {
 		return (int) (max * Math.random());
-	}
-
-	private List<LatLng> createRandomPath() {
-		List<LatLng> path = new ArrayList<>();
-		for (int i = 0; i < createRandomInt(20); i++) {
-			path.add(new LatLng(Math.random(), Math.random()));
-		}
-		return path;
 	}
 
 	private List<Double[]> createRandomPathDoubles() {
