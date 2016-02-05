@@ -6,11 +6,14 @@
     var contextMenu = null;
     var routeLayer = [];
     var newRoute = {};
+    var destinationsData = [];
 
     $(function() {
 	createMap();
 
-	createRouteList(null);
+	createRoutesList(null);
+
+	createDestinationsList();
 
 	$('#routesForm').submit(
 		function(e) {
@@ -23,10 +26,10 @@
 				url : "/uploadFile", type : 'POST', data : formData, contentType : false,
 				processData : false, dataType : 'multipart/form-data'
 			    }).done(function(data) {
-			createRouteList(JSON.parse(data), true);
+			createRoutesList(JSON.parse(data), true);
 		    }).fail(function(jqXHR, textStatus, errorThrown) {
 			if (jqXHR.readyState == 4 && jqXHR.status == 200 && jqXHR.statusText === "OK") {
-			    createRouteList(JSON.parse(jqXHR.responseText), true);
+			    createRoutesList(JSON.parse(jqXHR.responseText), true);
 			} else {
 			    alert("connection error " + jqXHR.status + ": " + jqXHR.statusText);
 			}
@@ -64,6 +67,9 @@
 				    } ];
 				    contextMenu.extend(item);
 				}
+
+				destinationsData = destinationsData.concat(SETTINGS.destinations);
+				createDestinationsList();
 			    }
 			}
 			reader.onerror = function(evt) {
@@ -77,6 +83,7 @@
 	$('#createNewRoute').on('click', createNewRoute);
 	$('#addNewRoute').on('click', addNewRoute);
 	$('#saveToFile').on('click', saveToFile);
+	$('#createSettings').on('click', createSettings);
     });
 
     function createMap() {
@@ -164,6 +171,8 @@
 	    }, '-', // this is a separator
 	    {
 		text : 'Set finish', icon : 'images/routeFinish.png', callback : createFinishMarker
+	    }, {
+		text : 'Create destination here', callback : createDestination
 	    } ]
 	});
 	map.addControl(contextMenu);
@@ -192,7 +201,7 @@
 	}
     };
 
-    function createRouteList(data, doConcat) {
+    function createRoutesList(data, doConcat) {
 	var $listRoutes = $('#routesList');
 	$listRoutes.empty();
 
@@ -203,35 +212,65 @@
 	}
 
 	if (routeData === null || routeData.length === 0) {
-	    $("#message").html("<b>No routes found.</b>");
+	    $("#routesMessage").html("<b>No routes found.</b>");
 	} else {
-	    $("#message").html("");
+	    $("#routesMessage").html("");
 
-	    $.each(routeData, function(i, route) {
-		var htmlRoute = createListItem(i, route);
+	    $.each(routeData, function(id, route) {
+		var htmlRoute = createRouteListItem(i, route);
 		$(htmlRoute).appendTo($listRoutes);
 
-		$('#route-item-' + i).on('click', function() {
+		$('#route-item-' + id).on('click', function() {
 		    // route selected
 		    $('#addNewRoute').parent().addClass("disabled");
 		    clearRoutes();
 		    showRoute(route.data);
 		});
 
-		$('#route-item-delete-' + i).on('click', function(e) {
+		$('#route-item-delete-' + id).on('click', function(e) {
 		    // remove route
 		    e.stopPropagation();
-		    routeData.splice(i, 1);
-		    createRouteList(routeData);
+		    routeData.splice(id, 1);
+		    createRoutesList(routeData);
 		});
 	    });
 	}
+
+	function createRouteListItem(id, route) {
+	    return "<li id='route-item-" + id + "' class='list-group-item'><button id='route-item-delete-" + id
+		    + "' class='remove' ><i class='fa fa-trash-o'></i></button>" + route.start.lat + ","
+		    + route.start.lng + " - " + route.dest.lat + "," + route.dest.lng + "</li>";
+	}
     }
 
-    function createListItem(id, route) {
-	return "<li id='route-item-" + id + "' class='list-group-item'><button id='route-item-delete-" + id
-		+ "' class='remove-route' ><i class='fa fa-trash-o'></i></button>" + route.start.lat + ","
-		+ route.start.lng + " - " + route.dest.lat + "," + route.dest.lng + "</li>";
+    function createDestinationsList() {
+	var $listDestinations = $('#destinationsList');
+	$listDestinations.empty();
+
+	if (destinationsData.length === 0) {
+	    $("#destinationsMessage").html("<b>No destinations</b>");
+	} else {
+	    $("#destinationsMessage").html("");
+
+	    $.each(destinationsData, function(id, destination) {
+		var htmlRoute = "<li id='destination-item-" + id
+			+ "' class='list-group-item'><button id='destination-item-delete-" + id
+			+ "' class='remove' ><i class='fa fa-trash-o'></i></button>" + destination.name + "</li>"
+		$(htmlRoute).appendTo($listDestinations);
+
+		$('#destination-item-' + id).on('click', function() {
+		    // destination selected
+		    showDestination(destination);
+		});
+
+		$('#destination-item-delete-' + id).on('click', function(e) {
+		    // remove destination
+		    e.stopPropagation();
+		    destinationsData.splice(id, 1);
+		    createDestinationsList();
+		});
+	    });
+	}
     }
 
     function showRoute(route, lineWidth, removeCurrent) {
@@ -285,6 +324,40 @@
 	});
     }
 
+    function showDestination(destination) {
+	clearRoutes();
+	var point = ol.proj.transform([ destination.lng, destination.lat ], 'EPSG:4326', 'EPSG:3857');
+	var marker = new ol.Feature({
+	    geometry : new ol.geom.Point(point)
+	});
+	marker.setStyle(new ol.style.Style({
+	    image : new ol.style.Icon({
+		anchor : [ 0.5, 1 ], src : 'images/routeFinish.png'
+	    })
+	}));
+
+	var layer = new ol.layer.Vector({
+	    source : new ol.source.Vector({
+		features : [ marker ]
+	    })
+	});
+
+	routeLayer.push(layer);
+	map.addLayer(layer);
+
+	mapView.setCenter(point);
+	mapView.setZoom(15);
+    }
+
+    function createDestination(data) {
+	var name = window.prompt("Name this destination", "");
+	temp = ol.proj.transform([ data.coordinate[1], data.coordinate[0] ], 'EPSG:3857', 'EPSG:4326');
+	destinationsData.push({
+		name : name, lat : temp[0], lng : temp[1]
+	    });
+	createDestinationsList();
+    }
+
     function showAllRoutes() {
 	clearRoutes();
 	$.each(routeData, function(i, route) {
@@ -315,7 +388,7 @@
 	    return;
 	}
 	routeData.push(newRoute);
-	createRouteList(routeData, false);
+	createRoutesList(routeData, false);
 	createNewRoute(true);
     }
 
@@ -358,5 +431,9 @@
 		callbackInternal();
 	    });
 	}
+    }
+
+    function createSettings() {
+
     }
 })();

@@ -39,7 +39,7 @@
 						</ul></li>
 					<li class="dropdown" id="menuNewRoute"><a
 						class="dropdown-toggle" href="#" data-toggle="dropdown"
-						id="navCreate">Create new route<span class="caret"></span></a>
+						id="navCreate">New route<span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li><a href="#" id="createNewRoute">Clean new route</a></li>
 							<li class="disabled"><a href="#" id="addNewRoute">Add to
@@ -48,6 +48,10 @@
 					<li><a href="#" id="saveToFile">Save to file</a></li>
 					<li><a href="#" id="show-all-routes">Show all routes</a></li>
 				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li class="disabled"><a href="#" id="createSettings">Create
+							settings.js</a></li>
+				</ul>
 			</div>
 		</nav>
 		<!-- /.navbar-collapse -->
@@ -55,9 +59,16 @@
 			<div id="map" class="map col-md-8 col-lg-9"></div>
 
 			<div id="menu" class="col-md-4 col-lg-3">
-				<div class="well" style="max-height: 300px; overflow: auto;">
-					<div id="message"></div>
+				<div class="well" style="max-height: 400px; overflow: auto;">
+					List of routes
+					<div id="routesMessage"></div>
 					<ul id="routesList" class="list-group">
+					</ul>
+				</div>
+				<div class="well" style="max-height: 300px; overflow: auto;">
+					List of destinations
+					<div id="destinationsMessage"></div>
+					<ul id="destinationsList" class="list-group">
 					</ul>
 				</div>
 
