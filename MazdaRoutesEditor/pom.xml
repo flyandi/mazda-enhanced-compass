@@ -22,29 +22,24 @@
 		<java.version>1.7</java.version>
 		<spring-boot-legacy.version>1.0.1.RELEASE</spring-boot-legacy.version>
 		<appengine.target.version>1.9.17</appengine.target.version>
-		<hibernate-validator.version>4.3.2.Final</hibernate-validator.version>
+		<spring.version>4.2.5.BUILD-SNAPSHOT</spring.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<!-- TODO uncomment for Google App Engine -->
-			<!-- <exclusions> -->
-			<!-- <exclusion> -->
-			<!-- <groupId>org.springframework.boot</groupId> -->
-			<!-- <artifactId>spring-boot-starter-tomcat</artifactId> -->
-			<!-- </exclusion> -->
-			<!-- </exclusions> -->
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -112,17 +107,13 @@
 		<dependency>
 			<groupId>com.github.kernel164</groupId>
 			<artifactId>gmultipart</artifactId>
-			<version>0.4</version>
+			<version>0.5</version>
 		</dependency>
 		<!-- == End Google App Engine == -->
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-cypher-compiler-2.1</artifactId>
 			<version>2.1.5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-remote-shell</artifactId>
 		</dependency>
 	</dependencies>
 	<build>
@@ -145,6 +136,9 @@
 							<targetPath>WEB-INF</targetPath>
 						</resource>
 					</webResources>
+					<profiles>
+						<profile>boot</profile>
+					</profiles>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -168,5 +162,46 @@
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
 		</repository>
+		<repository>
+			<id>repository.spring.snapshot</id>
+			<name>Spring Snapshot Repository</name>
+			<url>http://repo.spring.io/snapshot</url>
+		</repository>
 	</repositories>
+
+	<profiles>
+		<profile>
+			<id>boot</id>
+			<activation>
+				<property>
+					<name>boot</name>
+				</property>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+
+		<profile>
+			<id>not_boot</id>
+			<activation>
+				<property>
+					<name>!boot</name>
+				</property>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-jdbc</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.hsqldb</groupId>
+					<artifactId>hsqldb</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>

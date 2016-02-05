@@ -217,7 +217,7 @@
 	    $("#routesMessage").html("");
 
 	    $.each(routeData, function(id, route) {
-		var htmlRoute = createRouteListItem(i, route);
+		var htmlRoute = createRouteListItem(id, route);
 		$(htmlRoute).appendTo($listRoutes);
 
 		$('#route-item-' + id).on('click', function() {
