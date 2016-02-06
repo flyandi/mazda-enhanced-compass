@@ -37,47 +37,38 @@
 
 		});
 
-	$('#settingsForm').submit(
-		function(e) {
-		    e.preventDefault();
-		    $('#menuUpload.dropdown.open .dropdown-toggle').dropdown('toggle');
-		    var file = inputSettingsFile.files[0];
-		    if (file) {
-			var reader = new FileReader();
-			reader.readAsText(file, "UTF-8");
-			reader.onload = function(evt) {
-			    var elm = document.getElementById("settingsJs");
-			    if (elm != null) {
-				alert("You cannot load settings.js file more than once. Reload the page.");
-			    } else {
-				elm = document.createElement('script');
-				elm.id = "settingsJs";
-				elm.type = "application/javascript";
-				elm.innerHTML = evt.target.result;
-				document.body.appendChild(elm);
-				GraphHopper.getInstance().apiKey = SETTINGS.credentials.graphHopper;
-				GraphHopper.getInstance().locale = SETTINGS.locale;
+	$('#settingsForm').submit(function(e) {
+	    e.preventDefault();
+	    $('#menuUpload.dropdown.open .dropdown-toggle').dropdown('toggle');
+	    var file = inputSettingsFile.files[0];
+	    if (file) {
+		var reader = new FileReader();
+		reader.readAsText(file, "UTF-8");
+		reader.onload = function(evt) {
+		    var elm = document.getElementById("settingsJs");
+		    if (elm != null) {
+			alert("You cannot load settings.js file more than once. Reload the page.");
+		    } else {
+			elm = document.createElement('script');
+			elm.id = "settingsJs";
+			elm.type = "application/javascript";
+			elm.innerHTML = evt.target.result;
+			document.body.appendChild(elm);
+			GraphHopper.getInstance().apiKey = SETTINGS.credentials.graphHopper;
+			GraphHopper.getInstance().locale = SETTINGS.locale;
 
-				for (i = 0; i < SETTINGS.destinations.length; i++) {
-				    var item = [ {
-					text : 'Go to: ' + SETTINGS.destinations[i].name,
-					icon : 'images/routeFinish.png', callback : createFinishMarker, data : {
-					    lat : SETTINGS.destinations[i].lat, lng : SETTINGS.destinations[i].lng
-					}
-				    } ];
-				    contextMenu.extend(item);
-				}
-
-				destinationsData = destinationsData.concat(SETTINGS.destinations);
-				createDestinationsList();
-			    }
-			}
-			reader.onerror = function(evt) {
-			    alert("error reading file");
-			}
+			destinationsData = destinationsData.concat(SETTINGS.destinations);
+			createDestinationsList();
+			createMapContextMenu();
+			createRoutesList();
 		    }
+		}
+		reader.onerror = function(evt) {
+		    alert("error reading file");
+		}
+	    }
 
-		});
+	});
 
 	$('#show-all-routes').on('click', showAllRoutes);
 	$('#createNewRoute').on('click', createNewRoute);
@@ -152,8 +143,25 @@
 		feature = new ol.Feature(new ol.geom.Point(ol.proj.transform([ obj.data.lat, obj.data.lng ],
 			'EPSG:4326', 'EPSG:3857')));
 	    } else {
+		newFinish = new LatLng(ol.proj.transform(obj.coordinate, 'EPSG:3857', 'EPSG:4326'));
+		// check if destination exists
+		var foundDestination = false;
+		for (i = 0; i < destinationsData.length; i++) {
+		    if (Math.abs(destinationsData[i].lat - newFinish.lat) < 0.0001
+			    && Math.abs(destinationsData[i].lng - newFinish.lng) < 0.0001) {
+			foundDestination = true;
+			newFinish = destinationsData[i];
+			break;
+		    }
+		}
+		if (!foundDestination) {
+		    // we have to create new one
+		    if (!createDestination(obj, "This destination does not exist yet. Create new with this name:")) {
+			return;
+		    }
+		}
 		feature = new ol.Feature(new ol.geom.Point(obj.coordinate));
-		newRoute.dest = new LatLng(ol.proj.transform(obj.coordinate, 'EPSG:3857', 'EPSG:4326'));
+		newRoute.dest = newFinish;
 	    }
 	    feature.setStyle(new ol.style.Style({
 		image : new ol.style.Icon({
@@ -166,16 +174,35 @@
 	}
 
 	contextMenu = new ContextMenu({
-	    width : 170, default_items : false, items : [ {
-		text : 'Set start', icon : 'images/routeStart.png', callback : createStartMarker
-	    }, '-', // this is a separator
-	    {
-		text : 'Set finish', icon : 'images/routeFinish.png', callback : createFinishMarker
-	    }, {
-		text : 'Create destination here', callback : createDestination
-	    } ]
+	    width : 170, default_items : false, items : []
 	});
+	createMapContextMenu();
 	map.addControl(contextMenu);
+    }
+
+    function createMapContextMenu() {
+	contextMenu.clear();
+	contextMenu.extend([ {
+	    text : 'Set start', icon : 'images/routeStart.png', callback : createStartMarker
+	}, {
+	    text : 'Set finish', icon : 'images/routeFinish.png', callback : createFinishMarker
+	} ]);
+
+	if (typeof (SETTINGS) != "undefined") {
+	    contextMenu.extend([ '-', // this is a separator
+	    {
+		text : 'Create destination here', callback : createDestination
+	    } ]);
+	    for (i = 0; i < destinationsData.length; i++) {
+		var item = [ {
+		    text : 'Go to: ' + destinationsData[i].name, icon : 'images/routeFinish.png',
+		    callback : createFinishMarker, data : {
+			lat : destinationsData[i].lat, lng : destinationsData[i].lng
+		    }
+		} ];
+		contextMenu.extend(item);
+	    }
+	}
     }
 
     function computeRoute() {
@@ -205,10 +232,12 @@
 	var $listRoutes = $('#routesList');
 	$listRoutes.empty();
 
-	if (routeData != null && doConcat) {
-	    routeData = routeData.concat(data);
-	} else {
-	    routeData = data;
+	if (typeof (data) != "undefined" && data != null) {
+	    if (routeData != null && doConcat) {
+		routeData = routeData.concat(data);
+	    } else {
+		routeData = data;
+	    }
 	}
 
 	if (routeData === null || routeData.length === 0) {
@@ -237,9 +266,17 @@
 	}
 
 	function createRouteListItem(id, route) {
+	    var dest = route.dest.lat + "," + route.dest.lng;
+	    for (i = 0; i < destinationsData.length; i++) {
+		if (Math.abs(destinationsData[i].lat - route.dest.lat) < 0.000001
+			&& Math.abs(destinationsData[i].lng - route.dest.lng) < 0.000001) {
+		    dest = destinationsData[i].name;
+		    break;
+		}
+	    }
 	    return "<li id='route-item-" + id + "' class='list-group-item'><button id='route-item-delete-" + id
 		    + "' class='remove' ><i class='fa fa-trash-o'></i></button>" + route.start.lat + ","
-		    + route.start.lng + " - " + route.dest.lat + "," + route.dest.lng + "</li>";
+		    + route.start.lng + " - " + dest + "</li>";
 	}
     }
 
@@ -268,6 +305,7 @@
 		    e.stopPropagation();
 		    destinationsData.splice(id, 1);
 		    createDestinationsList();
+		    createMapContextMenu();
 		});
 	    });
 	}
@@ -349,13 +387,18 @@
 	mapView.setZoom(15);
     }
 
-    function createDestination(data) {
-	var name = window.prompt("Name this destination", "");
-	temp = ol.proj.transform([ data.coordinate[1], data.coordinate[0] ], 'EPSG:3857', 'EPSG:4326');
-	destinationsData.push({
-		name : name, lat : temp[0], lng : temp[1]
+    function createDestination(data, message) {
+	var name = window.prompt(message || "Name this destination", "");
+	if (name != null) {
+	    temp = ol.proj.transform([ data.coordinate[0], data.coordinate[1] ], 'EPSG:3857', 'EPSG:4326');
+	    destinationsData.push({
+		name : name, lat : temp[1], lng : temp[0]
 	    });
-	createDestinationsList();
+	    createDestinationsList();
+	    createMapContextMenu();
+	    return true;
+	}
+	return false;
     }
 
     function showAllRoutes() {
