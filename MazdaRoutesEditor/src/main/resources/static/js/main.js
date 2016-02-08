@@ -71,7 +71,7 @@
 	});
 
 	$('#show-all-routes').on('click', showAllRoutes);
-	$('#createNewRoute').on('click', createNewRoute);
+	$('#cleanNewRoute').on('click', cleanNewRoute);
 	$('#addNewRoute').on('click', addNewRoute);
 	$('#saveToFile').on('click', saveToFile);
 	$('#createSettings').on('click', createSettings);
@@ -94,10 +94,10 @@
 
 	mapLayer.setUseInterimTilesOnError(false);
 
-	var startMarkerLayer = new ol.layer.Vector({
+	startMarkerLayer = new ol.layer.Vector({
 	    source : new ol.source.Vector({})
 	});
-	var finishMarkerLayer = new ol.layer.Vector({
+	finishMarkerLayer = new ol.layer.Vector({
 	    source : new ol.source.Vector({})
 	});
 
@@ -207,8 +207,6 @@
 
     function computeRoute() {
 	if (newRoute.start != null && newRoute.dest != null) {
-	    console.info("start: " + newRoute.start);
-	    console.info("dest: " + newRoute.dest);
 	    GraphHopper.getInstance().fetch(newRoute.start.lng, newRoute.start.lat, newRoute.dest.lng,
 		    newRoute.dest.lat, routeFinishCallback);
 	}
@@ -312,6 +310,9 @@
     }
 
     function showRoute(route, lineWidth, removeCurrent) {
+	finishMarkerLayer.getSource().clear();
+	startMarkerLayer.getSource().clear();
+	
 	var coordinates = [];
 
 	for (var i = 0, len = route.path.length; i < len; i++) {
@@ -415,12 +416,10 @@
 	routeLayer = [];
     }
 
-    function createNewRoute(dontHideRoute) {
+    function cleanNewRoute(dontHideRoute) {
 	newRoute = {};
 	$('#addNewRoute').parent().addClass("disabled");
-	if (!dontHideRoute) {
-	    clearRoutes();
-	}
+	clearRoutes();
     }
 
     function addNewRoute() {
@@ -432,7 +431,7 @@
 	}
 	routeData.push(newRoute);
 	createRoutesList(routeData, false);
-	createNewRoute(true);
+	cleanNewRoute();
     }
 
     function saveToFile() {
