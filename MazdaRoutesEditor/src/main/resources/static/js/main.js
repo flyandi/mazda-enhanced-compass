@@ -8,6 +8,8 @@
     var newRoute = {};
     var destinationsData = [];
 
+    GraphHopper.getInstance().locale = "en";
+
     $(function() {
 	createMap();
 
@@ -61,6 +63,10 @@
 			createDestinationsList();
 			createMapContextMenu();
 			createRoutesList();
+			
+			$('#graphhopperAPILabel').html("GraphHopper API key set");
+			$('#graphhopperAPILabel').removeClass("alert-danger");
+			$('#graphhopperAPILabel').addClass("alert-success");
 		    }
 		}
 		reader.onerror = function(evt) {
@@ -74,7 +80,6 @@
 	$('#cleanNewRoute').on('click', cleanNewRoute);
 	$('#addNewRoute').on('click', addNewRoute);
 	$('#saveToFile').on('click', saveToFile);
-	$('#createSettings').on('click', createSettings);
     });
 
     function createMap() {
@@ -475,7 +480,49 @@
 	}
     }
 
-    function createSettings() {
+    $('#createSettings').click(function(e) {
+	createSettings();
+	e.preventDefault();
+    });
 
+    function createSettings() {
+	if (GraphHopper.getInstance().apiKey == null) {
+	    GraphHopper.getInstance().apiKey = window.prompt(
+		    "Enter GraphHopper API key or obtain one at https://graphhopper.com/", "");
+	    if (GraphHopper.getInstance().apiKey == null) {
+		return;
+	    } else {
+		$('#graphhopperAPILabel').html("GraphHopper API key set");
+		$('#graphhopperAPILabel').removeClass("alert-danger");
+		$('#graphhopperAPILabel').addClass("alert-success");
+	    }
+	}
+
+	if (SETTINGS != null) {
+	    exportURI = SETTINGS.exportURI;
+	} else {
+	    exportURI = "https://mazdaroutesmanager.appspot.com/";
+	}
+	var newExportURI = window.prompt("Change export URL", exportURI);
+	if (newExportURI != null) {
+	    exportURI = newExportURI;
+	}
+
+	var SETTINGS = {
+	    locale : GraphHopper.getInstance().locale, destinations : [], credentials : {
+		graphHopper : GraphHopper.getInstance().apiKey
+	    }, exportURI : exportURI
+	};
+
+	for (i = 0; i < destinationsData.length; i++) {
+	    SETTINGS.destinations.push({
+		name : destinationsData[i].name, lat : destinationsData[i].lat, lng : destinationsData[i].lng
+	    });
+	}
+
+	var blob = new Blob([ "var SETTINGS =" + JSON.stringify(SETTINGS, null, 2) + ";" ], {
+	    type : "text/plain;charset=utf-8"
+	});
+	saveAs(blob, "settings.js");
     }
 })();
