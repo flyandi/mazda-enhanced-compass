@@ -1,0 +1,29 @@
+.map {
+	font-family: "Tipperary", Arial, Helvetica, sans-serif;
+	text-align: left;
+	background: #555;
+	font-size: 1.8em;
+	height: 600px;
+	padding: 15px;
+}
+
+.remove{
+	margin-right:0.2em;
+
+	}
+
+.remove i{
+    padding: 0.1em;
+}
+
+.list-group-item{
+	cursor: pointer;
+}
+
+.list-group-item:hover{
+	background-color: lightblue;
+}
+
+.list-group-item.active button{
+	color: black;
+}

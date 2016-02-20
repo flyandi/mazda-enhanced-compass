@@ -1,0 +1,9 @@
+# See http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+spring:
+  main.show-banner: false
+  jmx.enabled: false
+  thymeleaf.cache: false
+endpoints:
+  metrics.enabled: false
+  dump.enabled: false
+  shutdown.enabled: false

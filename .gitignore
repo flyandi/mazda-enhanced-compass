@@ -12,3 +12,6 @@ settings.js
 .settings
 routesCacheFile.js
 src/test*
+.idea/
+*.iml
+alerts.js

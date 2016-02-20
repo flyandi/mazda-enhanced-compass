@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+<link rel="stylesheet" href="css/ol.css" type="text/css" />
+<link rel="stylesheet" href="css/ol3-contextmenu.min.css"
+	type="text/css" />
+<link rel="stylesheet" href="css/font-awesome.min.css" type="text/css" />
+<title>Mazda Routes Editor</title>
+</head>
+<body>
+	<div class="container-fluid">
+		<nav class="navbar navbar-default">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">Mazda Routes Manager</a>
+			</div>
+			<div class="collapse navbar-collapse">
+				<ul class="nav navbar-nav">
+					<li class="dropdown" id="menuUpload"><a
+						class="dropdown-toggle" href="#" data-toggle="dropdown"
+						id="navUpload">Upload file<span class="caret"></span></a>
+						<ul class="dropdown-menu" style="padding: 17px;">
+							<li><form class="form" id="settingsForm">
+									<input type="file" id="inputSettingsFile" /><br />
+									<button type="submit" class="btn btn-default">
+										<i class="fa fa-plus"></i>Load settings
+									</button>
+								</form></li>
+							<li role="separator" class="divider"></li>
+							<li><form class="form" id="routesForm">
+									<input type="file" id="inputRoutesFile"
+										placeholder="routeCacheFile.js or zip with this file" /><br />
+									<button type="submit" class="btn btn-default">
+										<i class="fa fa-plus"></i>Load routes
+									</button>
+								</form></li>
+						</ul></li>
+					<li class="dropdown" id="menuNewRoute"><a
+						class="dropdown-toggle" href="#" data-toggle="dropdown"
+						id="navCreate">New route<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="#" id="cleanNewRoute">Clean route</a></li>
+							<li class="disabled"><a href="#" id="addNewRoute">Add to
+									list</a></li>
+						</ul></li>
+					<li><a href="#" id="saveToFile">Save to file</a></li>
+					<li><a href="#" id="show-all-routes">Show all routes</a></li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="https://graphhopper.com/" target="_blank"><div
+								id="graphhopperAPILabel" class="alert-danger" role="alert">GraphHopper
+								API key not set!</div></a></li>
+					<li><a href="#" id="createSettings">Create settings.js</a></li>
+				</ul>
+			</div>
+		</nav>
+		<!-- /.navbar-collapse -->
+		<div class="row">
+			<div id="map" class="map col-md-8 col-lg-9"></div>
+
+			<div id="menu" class="col-md-4 col-lg-3">
+				<div class="well" style="max-height: 300px; overflow: auto;">
+					List of routes
+					<div id="routesMessage"></div>
+					<ul id="routesList" class="list-group">
+					</ul>
+				</div>
+				<div class="well" style="max-height: 300px; overflow: auto;">
+					List of destinations
+					<div id="destinationsMessage"></div>
+					<ul id="destinationsList" class="list-group">
+					</ul>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-2.2.0.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/ol-debug.js"></script>
+	<script type="text/javascript" src="js/ol3-contextmenu-debug.js"></script>
+	<script type="text/javascript" src="js/graph_hopper.js"></script>
+	<script type="text/javascript" src="js/route.js"></script>
+	<script type="text/javascript" src="js/lat_lng.js"></script>
+	<script type="text/javascript" src="js/listgroup.min.js"></script>
+	<script type="text/javascript" src="js/jquery.fileDownload.js"></script>
+	<script type="text/javascript" src="js/FileSaver.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>
