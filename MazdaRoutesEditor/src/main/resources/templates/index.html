@@ -49,7 +49,7 @@
 					<li><a href="#" id="show-all-routes">Show all routes</a></li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li><a href="https://graphhopper.com/" target="_blank"><div
+					<li><a href="#" id="setAPIKey"><div
 								id="graphhopperAPILabel" class="alert-danger" role="alert">GraphHopper
 								API key not set!</div></a></li>
 					<li><a href="#" id="createSettings">Create settings.js</a></li>
@@ -88,5 +88,20 @@
 	<script type="text/javascript" src="js/jquery.fileDownload.js"></script>
 	<script type="text/javascript" src="js/FileSaver.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
+	<script>
+	(function(i, s, o, g, r, a, m) {
+	    i['GoogleAnalyticsObject'] = r;
+	    i[r] = i[r] || function() {
+		(i[r].q = i[r].q || []).push(arguments)
+	    }, i[r].l = 1 * new Date();
+	    a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+	    a.async = 1;
+	    a.src = g;
+	    m.parentNode.insertBefore(a, m)
+	})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+	ga('create', 'UA-74113626-1', 'auto');
+	ga('send', 'pageview');
+    </script>
 </body>
 </html>

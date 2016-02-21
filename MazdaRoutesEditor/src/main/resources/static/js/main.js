@@ -80,6 +80,11 @@
 	$('#cleanNewRoute').on('click', cleanNewRoute);
 	$('#addNewRoute').on('click', addNewRoute);
 	$('#saveToFile').on('click', saveToFile);
+	$('#setAPIKey').on('click', setAPIKey);
+	 $('#createSettings').click(function(e) {
+		createSettings();
+		e.preventDefault();
+	    });
     });
 
     function createMap() {
@@ -479,22 +484,22 @@
 	    });
 	}
     }
-
-    $('#createSettings').click(function(e) {
-	createSettings();
-	e.preventDefault();
-    });
-
-    function createSettings() {
-	if (GraphHopper.getInstance().apiKey == null) {
-	    GraphHopper.getInstance().apiKey = window.prompt(
-		    "Enter GraphHopper API key or obtain one at https://graphhopper.com/", "");
-	    if (GraphHopper.getInstance().apiKey == null) {
-		return;
-	    } else {
+    
+    function setAPIKey(){
+	GraphHopper.getInstance().apiKey = window.prompt(
+		    "Enter GraphHopper API key or obtain one at https://graphhopper.com/", GraphHopper.getInstance().apiKey || "");
+	    if (GraphHopper.getInstance().apiKey != null) {
 		$('#graphhopperAPILabel').html("GraphHopper API key set");
 		$('#graphhopperAPILabel').removeClass("alert-danger");
 		$('#graphhopperAPILabel').addClass("alert-success");
+	    }
+    }
+
+    function createSettings() {
+	if (GraphHopper.getInstance().apiKey == null) {
+	    setAPIKey();
+	    if (GraphHopper.getInstance().apiKey == null) {
+		return;
 	    }
 	}
 
@@ -511,7 +516,7 @@
 	var SETTINGS = {
 	    locale : GraphHopper.getInstance().locale, destinations : [], credentials : {
 		graphHopper : GraphHopper.getInstance().apiKey
-	    }, exportURI : exportURI
+	    }, exportURI : exportURI, exportEmail: "some@address"
 	};
 
 	for (i = 0; i < destinationsData.length; i++) {

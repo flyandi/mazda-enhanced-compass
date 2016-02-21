@@ -28,4 +28,5 @@ var SETTINGS = {
 	// whether to use local titles or OSM online titles
 	mapOnline:false
 	exportURI: "http://localhost:8080",
+	exportEmail: "some@address"
 };

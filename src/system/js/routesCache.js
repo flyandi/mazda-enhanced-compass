@@ -210,7 +210,7 @@ var RoutesCache = (function() {
 			if (errorDetected != null) {
 			    alert(errorDetected.status + ": " + errorDetected.statusText);
 			} else {
-			    var reqUrl = SETTINGS.exportURI + "/sendEmail?address=" + "some@address";
+			    var reqUrl = SETTINGS.exportURI + "/sendEmail?address=" + SETTINGS.exportEmail;
 			    $.ajax({
 				url : reqUrl, dataType : "json"
 			    }).done(function(data) {
