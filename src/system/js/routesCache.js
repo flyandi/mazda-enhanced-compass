@@ -105,6 +105,19 @@ var RoutesCache = (function() {
 	    return Math.abs(routeDest.lat - dest.lat) < 0.000001 && Math.abs(routeDest.lng - dest.lng) < 0.000001;
 	}
 
+	function generateUUID() {
+	    var d = new Date().getTime();
+	    if (window.performance && typeof window.performance.now === "function") {
+		d += performance.now(); // use high-precision timer if available
+	    }
+	    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		var r = (d + Math.random() * 16) % 16 | 0;
+		d = Math.floor(d / 16);
+		return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+	    });
+	    return uuid;
+	}
+
 	return {
 	    // Public methods and variables
 	    cacheResult : function(startLat, startLng, destLat, destLng, routeStruct) {
@@ -193,7 +206,12 @@ var RoutesCache = (function() {
 		}
 	    },
 
-	    exportCachedRoutes : function() {
+	    exportCachedRoutes : function(exportProgressCallback) {
+		if (SETTINGS.exportEmail == null || SETTINGS.exportEmail === ""){
+		    exportProgressCallback("Export email not set. Cannot export routes.");
+		    return;
+		}
+		
 		// wait till all routes are send, then call sendEmail
 		var toBeUploaded = 0;
 		for ( var name in localStorage) {
@@ -201,35 +219,50 @@ var RoutesCache = (function() {
 			toBeUploaded++;
 		    }
 		}
+		var uploadingRouteId = 1;
+
+		uuid = generateUUID();
 
 		var errorDetected = null;
 		function callbackInternal() {
-		    toBeUploaded--;
-		    if (toBeUploaded == 0) {
+		    console.info("Exported " + uploadingRouteId + "/" + toBeUploaded + " routes");
+		    exportProgressCallback("Exported " + uploadingRouteId + "/" + toBeUploaded + " routes");
+		    if (toBeUploaded == uploadingRouteId) {
 			// uploading finished
 			if (errorDetected != null) {
-			    alert(errorDetected.status + ": " + errorDetected.statusText);
+			    exportProgressCallback("Exporting error " + errorDetected.status + ": "
+				    + errorDetected.statusText);
 			} else {
-			    var reqUrl = SETTINGS.exportURI + "/sendEmail?address=" + SETTINGS.exportEmail;
-			    $.ajax({
-				url : reqUrl, dataType : "json"
-			    }).done(function(data) {
+			    exportProgressCallback("Sending routes to " + SETTINGS.exportEmail);
+			    $.ajax(
+				    {
+					url : SETTINGS.exportURI + "/sendEmail", method : 'POST', type : 'POST',
+					data : JSON.stringify({
+					    uuid : uuid, email : SETTINGS.exportEmail
+					}), dataType : 'json', contentType : "application/json", processData : false
+				    }).done(function(data) {
 				console.info("routes sent by email");
+				exportProgressCallback("Routes successfully exported to " + SETTINGS.exportEmail);
 			    }).fail(function(jqXHR, textStatus, errorThrown) {
 				console.info(jqXHR);
 			    });
 			}
+		    } else {
+			uploadingRouteId++;
 		    }
 		};
 
 		for ( var name in localStorage) {
-		    if (name.indexOf(CACHED_ROUTE_PREFIX) == 0) {
+		    if (name.indexOf(CACHED_ROUTE_PREFIX) == 0 && errorDetected == null) {
 			var route = eval('(' + localStorage.getItem(name) + ')');
+			console.info("Exporting route [start=[lat=" + route.start.lat + ", lng=" + route.start.lng
+				+ "], dest=[lat=" + route.dest.lat + ", lng=" + route.dest.lng + "]]");
 			$.ajax(
 				{
 				    url : SETTINGS.exportURI + "/importRoute", method : 'POST', type : 'POST',
-				    data : JSON.stringify(route), dataType : 'json',
-				    contentType : "application/json", processData :false
+				    data : JSON.stringify({
+					uuid : uuid, route : route
+				    }), dataType : 'json', contentType : "application/json", processData : false
 				}).done(function(data) {
 			    console.info("route uploaded");
 			}).fail(function(jqXHR, textStatus, errorThrown) {

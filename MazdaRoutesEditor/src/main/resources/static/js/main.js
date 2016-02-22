@@ -7,6 +7,7 @@
     var routeLayer = [];
     var newRoute = {};
     var destinationsData = [];
+    var routeColor = "red";
 
     GraphHopper.getInstance().locale = "en";
 
@@ -16,6 +17,21 @@
 	createRoutesList(null);
 
 	createDestinationsList();
+
+	createColorpicker();
+
+	$('#localeId').val(GraphHopper.getInstance().locale);
+	$('#localeId').change(function() {
+	    newLocale = $('#localeId').val();
+	    if (newLocale === "") {
+		alert("locale code cannot be empty");
+	    } else {
+		if (newLocale != GraphHopper.getInstance().locale && routeData.length > 0) {
+		    alert("Current routes uses different locale and you must regenerate them.");
+		}
+		GraphHopper.getInstance().locale = newLocale;
+	    }
+	});
 
 	$('#routesForm').submit(
 		function(e) {
@@ -58,15 +74,20 @@
 			document.body.appendChild(elm);
 			GraphHopper.getInstance().apiKey = SETTINGS.credentials.graphHopper;
 			GraphHopper.getInstance().locale = SETTINGS.locale;
+			routeColor = SETTINGS.routeColor;
 
 			destinationsData = destinationsData.concat(SETTINGS.destinations);
 			createDestinationsList();
 			createMapContextMenu();
 			createRoutesList();
-			
+
+			$('#colorPicker').colorpicker('destroy');
+			createColorpicker(routeColor);
+
 			$('#graphhopperAPILabel').html("GraphHopper API key set");
 			$('#graphhopperAPILabel').removeClass("alert-danger");
 			$('#graphhopperAPILabel').addClass("alert-success");
+			$('#localeId').val(GraphHopper.getInstance().locale);
 		    }
 		}
 		reader.onerror = function(evt) {
@@ -81,14 +102,22 @@
 	$('#addNewRoute').on('click', addNewRoute);
 	$('#saveToFile').on('click', saveToFile);
 	$('#setAPIKey').on('click', setAPIKey);
-	 $('#createSettings').click(function(e) {
-		createSettings();
-		e.preventDefault();
-	    });
+	$('#unsavedRouteWarning').on('click', addNewRoute);
+	$('#createSettings').click(function(e) {
+	    createSettings();
+	    e.preventDefault();
+	});
     });
 
-    function createMap() {
+    function createColorpicker(color) {
+	$('#colorPicker').colorpicker({
+	    color : color || 'red'
+	}).on('changeColor', function(ev) {
+	    routeColor = ev.color.toHex();
+	});
+    }
 
+    function createMap() {
 	// create view
 	mapView = new ol.View({
 	    maxZoom : 17, zoom : 15
@@ -138,7 +167,7 @@
 	    feature = new ol.Feature(new ol.geom.Point(obj.coordinate));
 	    feature.setStyle(new ol.style.Style({
 		image : new ol.style.Icon({
-		    scale : .6, anchor : [ 0.5, 1 ], src : 'images/routeStart.png'
+		    scale : .6, anchor : [ 0.5, 1 ], src : 'img/routeStart.png'
 		})
 	    }));
 	    startMarkerLayer.getSource().clear();
@@ -175,7 +204,7 @@
 	    }
 	    feature.setStyle(new ol.style.Style({
 		image : new ol.style.Icon({
-		    scale : .6, anchor : [ 0.5, 1 ], src : 'images/routeFinish.png'
+		    scale : .6, anchor : [ 0.5, 1 ], src : 'img/routeFinish.png'
 		})
 	    }));
 	    finishMarkerLayer.getSource().clear();
@@ -193,9 +222,9 @@
     function createMapContextMenu() {
 	contextMenu.clear();
 	contextMenu.extend([ {
-	    text : 'Set start', icon : 'images/routeStart.png', callback : createStartMarker
+	    text : 'Set start', icon : 'img/routeStart.png', callback : createStartMarker
 	}, {
-	    text : 'Set finish', icon : 'images/routeFinish.png', callback : createFinishMarker
+	    text : 'Set finish', icon : 'img/routeFinish.png', callback : createFinishMarker
 	} ]);
 
 	if (typeof (SETTINGS) != "undefined") {
@@ -205,7 +234,7 @@
 	    } ]);
 	    for (i = 0; i < destinationsData.length; i++) {
 		var item = [ {
-		    text : 'Go to: ' + destinationsData[i].name, icon : 'images/routeFinish.png',
+		    text : 'Go to: ' + destinationsData[i].name, icon : 'img/routeFinish.png',
 		    callback : createFinishMarker, data : {
 			lat : destinationsData[i].lat, lng : destinationsData[i].lng
 		    }
@@ -230,9 +259,11 @@
 		alert("Error: " + route.error);
 	    }
 	} else {
+	    clearRoutes();
 	    newRoute.data = route;
-	    showRoute(route);
+	    showRoute(newRoute);
 	    $('#addNewRoute').parent().removeClass("disabled");
+	    setVisible($('#unsavedRouteWarning'));
 	}
     };
 
@@ -261,7 +292,7 @@
 		    // route selected
 		    $('#addNewRoute').parent().addClass("disabled");
 		    clearRoutes();
-		    showRoute(route.data);
+		    showRoute(route);
 		});
 
 		$('#route-item-delete-' + id).on('click', function(e) {
@@ -322,11 +353,11 @@
     function showRoute(route, lineWidth, removeCurrent) {
 	finishMarkerLayer.getSource().clear();
 	startMarkerLayer.getSource().clear();
-	
+
 	var coordinates = [];
 
-	for (var i = 0, len = route.path.length; i < len; i++) {
-	    var point = route.path[i];
+	for (var i = 0, len = route.data.path.length; i < len; i++) {
+	    var point = route.data.path[i];
 	    coordinates.push(ol.proj.transform([ point[1], point[0] ], 'EPSG:4326', 'EPSG:3857'));
 	}
 
@@ -335,7 +366,7 @@
 	});
 	routeFeature.setStyle(new ol.style.Style({
 	    stroke : new ol.style.Stroke({
-		color : '#ff0000', width : 4
+		color : routeColor, width : 4
 	    })
 	}));
 
@@ -344,7 +375,7 @@
 	});
 	startMarker.setStyle(new ol.style.Style({
 	    image : new ol.style.Icon({
-		anchor : [ 0.5, 1 ], src : 'images/routeStart.png'
+		anchor : [ 0.5, 1 ], src : 'img/routeStart.png'
 	    })
 	}));
 
@@ -353,7 +384,7 @@
 	});
 	endMarker.setStyle(new ol.style.Style({
 	    image : new ol.style.Icon({
-		anchor : [ 0.5, 1 ], src : 'images/routeFinish.png'
+		anchor : [ 0.5, 1 ], src : 'img/routeFinish.png'
 	    })
 	}));
 
@@ -381,7 +412,7 @@
 	});
 	marker.setStyle(new ol.style.Style({
 	    image : new ol.style.Icon({
-		anchor : [ 0.5, 1 ], src : 'images/routeFinish.png'
+		anchor : [ 0.5, 1 ], src : 'img/routeFinish.png'
 	    })
 	}));
 
@@ -429,7 +460,10 @@
     function cleanNewRoute(dontHideRoute) {
 	newRoute = {};
 	$('#addNewRoute').parent().addClass("disabled");
-	clearRoutes();
+	setHidden($('#unsavedRouteWarning'));
+	if (!dontHideRoute) {
+	    clearRoutes();
+	}
     }
 
     function addNewRoute() {
@@ -441,7 +475,20 @@
 	}
 	routeData.push(newRoute);
 	createRoutesList(routeData, false);
-	cleanNewRoute();
+	cleanNewRoute(true);
+    }
+
+    function generateUUID() {
+	var d = new Date().getTime();
+	if (window.performance && typeof window.performance.now === "function") {
+	    d += performance.now(); // use high-precision timer if available
+	}
+	var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+	    var r = (d + Math.random() * 16) % 16 | 0;
+	    d = Math.floor(d / 16);
+	    return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+	});
+	return uuid;
     }
 
     function saveToFile() {
@@ -449,6 +496,9 @@
 
 	var errorDetected = null;
 	var toBeUploaded = routeData.length;
+
+	uuid = generateUUID();
+
 	function callbackInternal() {
 	    toBeUploaded--;
 	    if (toBeUploaded == 0) {
@@ -456,9 +506,9 @@
 		if (errorDetected != null) {
 		    alert(errorDetected.status + ": " + errorDetected.statusText);
 		} else {
-		    $.fileDownload('/saveAsZip/filename/routesCacheFile.zip', {
+		    $.fileDownload('/saveAsZip/filename/' + uuid + '/routesCacheFile.zip?', {
 			successCallback : function(url) {
-			    console.info("routes sent by email");
+			    console.info("routes downloaded");
 			}, failCallback : function(html, url, error) {
 			    alert('Error downloading file with the routes: ' + error);
 			}
@@ -468,13 +518,16 @@
 	};
 
 	for (i = 0; i < routeData.length; i++) {
-	    $.ajax(
-		    {
-			url : "/importRoute", type : 'POST', data : JSON.stringify(routeData[i]), dataType : 'json',
-			contentType : "application/json"
-		    }).done(function(data) {
-		console.info("route uploaded");
-	    }).fail(function(jqXHR, textStatus, errorThrown) {
+	    var route = routeData[i];
+	    $.ajax({
+		url : "/importRoute", type : 'POST', data : JSON.stringify({
+		    uuid : uuid, route : route
+		}), dataType : 'json', contentType : "application/json"
+	    }).done(
+		    function(data) {
+			console.info("route [start=[lat=" + route.start.lat + ", lng=" + route.start.lng
+				+ "], dest=[lat=" + route.dest.lat + ", lng=" + route.dest.lng + "]] exported");
+		    }).fail(function(jqXHR, textStatus, errorThrown) {
 		console.info(jqXHR);
 		if (errorDetected == null) {
 		    errorDetected = jqXHR;
@@ -484,15 +537,16 @@
 	    });
 	}
     }
-    
-    function setAPIKey(){
+
+    function setAPIKey() {
 	GraphHopper.getInstance().apiKey = window.prompt(
-		    "Enter GraphHopper API key or obtain one at https://graphhopper.com/", GraphHopper.getInstance().apiKey || "");
-	    if (GraphHopper.getInstance().apiKey != null) {
-		$('#graphhopperAPILabel').html("GraphHopper API key set");
-		$('#graphhopperAPILabel').removeClass("alert-danger");
-		$('#graphhopperAPILabel').addClass("alert-success");
-	    }
+		"Enter GraphHopper API key or obtain one at https://graphhopper.com/", GraphHopper.getInstance().apiKey
+			|| "");
+	if (GraphHopper.getInstance().apiKey != null) {
+	    $('#graphhopperAPILabel').html("GraphHopper API key set");
+	    $('#graphhopperAPILabel').removeClass("alert-danger");
+	    $('#graphhopperAPILabel').addClass("alert-success");
+	}
     }
 
     function createSettings() {
@@ -516,7 +570,7 @@
 	var SETTINGS = {
 	    locale : GraphHopper.getInstance().locale, destinations : [], credentials : {
 		graphHopper : GraphHopper.getInstance().apiKey
-	    }, exportURI : exportURI, exportEmail: "some@address"
+	    }, routeColor : routeColor, exportURI : exportURI, exportEmail : "some@address"
 	};
 
 	for (i = 0; i < destinationsData.length; i++) {
@@ -530,4 +584,14 @@
 	});
 	saveAs(blob, "settings.js");
     }
+
+    function setVisible(el) {
+	el.removeClass("hidden");
+	el.addClass("visible");
+    };
+
+    function setHidden(el) {
+	el.removeClass("visible");
+	el.addClass("hidden");
+    };
 })();

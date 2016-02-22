@@ -224,7 +224,7 @@ NavCtrl.prototype = {
 		'system/js/menu_manager.js', 'system/js/turn_types.js', 'system/js/lat_lng.js', 'system/js/route.js',
 		'system/js/graph_hopper.js', 'system/js/geo.js', 'system/js/navigation_info.js',
 		'system/js/navigation.js', 'system/js/offline_navigation.js', 'system/js/routesCache.js',
-		'routesCacheFile.js', 'system/js/destination_holder.js', "alerts.js"];
+		'routesCacheFile.js', 'system/js/destination_holder.js', "alerts.js" ];
 	var toBeLoaded = files.length;
 	function callbackInternal() {
 	    toBeLoaded--;
@@ -652,18 +652,21 @@ NavCtrl.prototype = {
 	menu.addItem('Manage...', function() {
 	    this.selectAndShowActiveMenu("managedCachedRoutesMenu");
 	}, false, false);
-	menu.addItem('...back', function() {}, true, false);
+	menu.addItem('...back', function() {
+	}, true, false);
     },
 
     createManageCachedRoutesMenu : function() {
 	var menu = MenuManager.getInstance().registerMenu("managedCachedRoutesMenu", this.menuContainer);
 	menu.addItem('export cached routes', function() {
-	    RoutesCache.getInstance().exportCachedRoutes();
+	    RoutesCache.getInstance().exportCachedRoutes(this.exportProgressCallback);
 	});
 	menu.addItem('clear cached routes', function() {
 	    RoutesCache.getInstance().clearCachedRoutes();
+	    this.showNotification("Cached routes cleared", 2000);
 	});
-	menu.addItem('...back', function() {}, true, false);
+	menu.addItem('...back', function() {
+	}, true, false);
     },
 
     selectAndShowActiveMenu : function(id) {
@@ -992,6 +995,10 @@ NavCtrl.prototype = {
     /**
      * (hooks) methods
      */
+
+    exportProgressCallback : function(message) {
+	__NavPOICtrl.showNotification(message, 3000);
+    },
 
     setLocationData : function(location) {
 	if (location.isValidInfo) {

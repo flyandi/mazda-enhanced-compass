@@ -27,3 +27,11 @@
 .list-group-item.active button{
 	color: black;
 }
+
+.visible {
+	visibility: visible;
+}
+
+.hidden {
+	visibility: hidden;
+}

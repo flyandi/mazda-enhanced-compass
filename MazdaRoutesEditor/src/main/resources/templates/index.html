@@ -8,7 +8,9 @@
 <link rel="stylesheet" href="css/ol3-contextmenu.min.css"
 	type="text/css" />
 <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css" />
-<title>Mazda Routes Editor</title>
+<link rel="stylesheet" href="css/bootstrap-colorpicker.min.css"
+	type="text/css" />
+<title>Mazda Routes Manager</title>
 </head>
 <body>
 	<div class="container-fluid">
@@ -20,20 +22,13 @@
 				<ul class="nav navbar-nav">
 					<li class="dropdown" id="menuUpload"><a
 						class="dropdown-toggle" href="#" data-toggle="dropdown"
-						id="navUpload">Upload file<span class="caret"></span></a>
+						id="navUpload">Upload routes<span class="caret"></span></a>
 						<ul class="dropdown-menu" style="padding: 17px;">
-							<li><form class="form" id="settingsForm">
-									<input type="file" id="inputSettingsFile" /><br />
-									<button type="submit" class="btn btn-default">
-										<i class="fa fa-plus"></i>Load settings
-									</button>
-								</form></li>
-							<li role="separator" class="divider"></li>
 							<li><form class="form" id="routesForm">
 									<input type="file" id="inputRoutesFile"
 										placeholder="routeCacheFile.js or zip with this file" /><br />
 									<button type="submit" class="btn btn-default">
-										<i class="fa fa-plus"></i>Load routes
+										<i class="fa fa-plus"></i>Load js/zip
 									</button>
 								</form></li>
 						</ul></li>
@@ -49,10 +44,32 @@
 					<li><a href="#" id="show-all-routes">Show all routes</a></li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
+					<li><a href="#" id="unsavedRouteWarning" class="hidden"><div
+								class="alert-danger" role="alert">Route not saved</div></a></li>
 					<li><a href="#" id="setAPIKey"><div
 								id="graphhopperAPILabel" class="alert-danger" role="alert">GraphHopper
 								API key not set!</div></a></li>
-					<li><a href="#" id="createSettings">Create settings.js</a></li>
+
+					<li class="dropdown" id="menuSettings"><a
+						class="dropdown-toggle" href="#" data-toggle="dropdown"
+						id="navSettings">Settings.js<span class="caret"></span></a>
+						<ul class="dropdown-menu" style="padding: 17px;">
+							<li><form class="form" id="settingsForm">
+									<input type="file" id="inputSettingsFile" /><br />
+									<button type="submit" class="btn btn-default">
+										<i class="fa fa-plus"></i>Load settings
+									</button>
+								</form></li>
+							<li role="separator" class="divider"></li>
+							<li>Route color
+								<div id="colorPicker" data-container="true" data-inline="true"></div>
+							</li>
+							<li role="separator" class="divider"></li>
+							<li>Route language code:<input type="text" id="localeId" maxlength="10" placeholder="Locale ID used for navigation texts" />
+							</li>
+							<li role="separator" class="divider"></li>
+							<li><a href="#" id="createSettings">Create settings.js</a></li>
+						</ul></li>
 				</ul>
 			</div>
 		</nav>
@@ -87,6 +104,7 @@
 	<script type="text/javascript" src="js/listgroup.min.js"></script>
 	<script type="text/javascript" src="js/jquery.fileDownload.js"></script>
 	<script type="text/javascript" src="js/FileSaver.js"></script>
+	<script type="text/javascript" src="js/bootstrap-colorpicker.min.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
 	<script>
 	(function(i, s, o, g, r, a, m) {
