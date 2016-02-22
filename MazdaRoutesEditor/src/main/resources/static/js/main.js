@@ -557,20 +557,27 @@
 	    }
 	}
 
+	var exportEmail = "";
 	if (SETTINGS != null) {
 	    exportURI = SETTINGS.exportURI;
+	    exportEmail = SETTINGS.exportEmail;
 	} else {
 	    exportURI = "https://mazdaroutesmanager.appspot.com/";
 	}
-	var newExportURI = window.prompt("Change export URL", exportURI);
+	var newExportURI = window.prompt("Set export URL\n(You will not be able to export cached routes from Opera browser in your Mazda, unless you specify one)", exportURI);
 	if (newExportURI != null) {
 	    exportURI = newExportURI;
+	}
+	
+	var newExportEmail = window.prompt("Set export email.\n(You will not be able to export cached routes from Opera browser in your Mazda, unless you specify one)", exportEmail);
+	if (newExportEmail != null) {
+	    exportEmail = newExportEmail;
 	}
 
 	var SETTINGS = {
 	    locale : GraphHopper.getInstance().locale, destinations : [], credentials : {
 		graphHopper : GraphHopper.getInstance().apiKey
-	    }, routeColor : routeColor, exportURI : exportURI, exportEmail : "some@address"
+	    }, routeColor : routeColor, exportURI : exportURI, exportEmail : exportEmail
 	};
 
 	for (i = 0; i < destinationsData.length; i++) {
