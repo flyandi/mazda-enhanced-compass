@@ -27,7 +27,6 @@ public class MazdaRoutesManagerApplication {
 	}
 
 	@Bean
-//	@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 	public RoutesRepository routesRepository() {
 		return new RoutesRepository();
 	}

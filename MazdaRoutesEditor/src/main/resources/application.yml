@@ -3,6 +3,7 @@ spring:
   main.show-banner: false
   jmx.enabled: false
   thymeleaf.cache: false
+  autoconfigure.exclude: org.springframework.boot.actuate.autoconfigure.CrshAutoConfiguration
 endpoints:
   metrics.enabled: false
   dump.enabled: false

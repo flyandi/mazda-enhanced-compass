@@ -236,7 +236,7 @@ var RoutesCache = (function() {
 			    exportProgressCallback("Sending routes to " + SETTINGS.exportEmail);
 			    $.ajax(
 				    {
-					url : SETTINGS.exportURI + "/sendEmail", method : 'POST', type : 'POST',
+					url : SETTINGS.exportURI + "/sendEmail", type : 'POST',
 					data : JSON.stringify({
 					    uuid : uuid, email : SETTINGS.exportEmail
 					}), dataType : 'json', contentType : "application/json", processData : false
@@ -259,7 +259,7 @@ var RoutesCache = (function() {
 				+ "], dest=[lat=" + route.dest.lat + ", lng=" + route.dest.lng + "]]");
 			$.ajax(
 				{
-				    url : SETTINGS.exportURI + "/importRoute", method : 'POST', type : 'POST',
+				    url : SETTINGS.exportURI + "/importRoute", type : 'POST',
 				    data : JSON.stringify({
 					uuid : uuid, route : route
 				    }), dataType : 'json', contentType : "application/json", processData : false
