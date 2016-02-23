@@ -120,16 +120,16 @@ NavCtrl.prototype = {
 
     showingAlerts : false,
 
+    alertsLoaded : false,
+
     /**
      * (framework)
      */
 
     cleanUp : function() {
-
 	clearInterval(this.clockTimer);
 	clearInterval(this.notificationTimer);
 	clearInterval(this.copyrightTimer);
-
     },
 
     addCss : function(path) {
@@ -140,13 +140,20 @@ NavCtrl.prototype = {
 	document.body.appendChild(elm);
     },
 
-    addJs : function(path, onLoadCallback) {
+    addJs : function(path, onLoadCallback, onErrorCallback) {
 	var elm = document.createElement('script');
 	elm.type = "application/javascript";
 	elm.src = this._PATH + path;
 	if (typeof (onLoadCallback) !== "undefined") {
 	    elm.onload = function() {
 		onLoadCallback();
+	    }
+	}
+	elm.onerror = function(e) {
+	    if (typeof (onErrorCallback) !== "undefined") {
+		onErrorCallback();
+	    } else {
+		__NavPOICtrl.showNotification("Cannot load " + path, 5000);
 	    }
 	}
 	document.body.appendChild(elm);
@@ -217,6 +224,10 @@ NavCtrl.prototype = {
 
 	this._initialized = true;
 
+	// global error handler, just in case ...
+	window.onerror = function(message) {
+	    __NavPOICtrl.showNotification(message, 5000);
+	};
     },
 
     loadJavascripts : function(onLoadCallback) {
@@ -224,12 +235,20 @@ NavCtrl.prototype = {
 		'system/js/menu_manager.js', 'system/js/turn_types.js', 'system/js/lat_lng.js', 'system/js/route.js',
 		'system/js/graph_hopper.js', 'system/js/geo.js', 'system/js/navigation_info.js',
 		'system/js/navigation.js', 'system/js/offline_navigation.js', 'system/js/routesCache.js',
-		'routesCacheFile.js', 'system/js/destination_holder.js', "alerts.js" ];
+		'routesCacheFile.js', 'system/js/destination_holder.js' ];
 	var toBeLoaded = files.length;
 	function callbackInternal() {
 	    toBeLoaded--;
 	    if (toBeLoaded == 0) {
-		onLoadCallback();
+		__NavPOICtrl.addJs("alerts.js", function() {
+		    __NavPOICtrl.alertsLoaded = true;
+		    onLoadCallback();
+		}, function() {
+		    // ignore missing alert.js
+		    ALERTS = [];
+		    __NavPOICtrl.alertsLoaded = false;
+		    onLoadCallback();
+		});
 	    }
 	};
 
@@ -604,9 +623,11 @@ NavCtrl.prototype = {
 	mainMenu.addItem('Navigate...', function() {
 	    this.selectAndShowActiveMenu("navigationMenu");
 	}, false, false);
-	mainMenu.addItem('Toggle alerts POI', function() {
-	    this.toggleAlerts();
-	});
+	if (this.alertsLoaded) {
+	    mainMenu.addItem('Toggle alerts POI', function() {
+		this.toggleAlerts();
+	    });
+	}
     },
 
     createAlertsLayer : function() {
