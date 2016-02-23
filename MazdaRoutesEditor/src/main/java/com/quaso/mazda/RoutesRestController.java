@@ -56,7 +56,7 @@ public class RoutesRestController {
 	@Autowired
 	private MailService mailService;
 
-	@CrossOrigin
+	@CrossOrigin(origins="*")
 	@RequestMapping(value = "/importRoute", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	public String importRoute(@RequestBody RouteWithUuid routeUuid) {
@@ -64,13 +64,14 @@ public class RoutesRestController {
 		return "{}";
 	}
 
-	@CrossOrigin
+	@CrossOrigin(origins="*")
 	@RequestMapping(value = "/sendEmail", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	public String sendEmail(@RequestBody EmailData emailData) throws IOException {
 		return sendEmail(emailData.getEmail(), emailData.getEmail(), emailData.getUuid());
 	}
 
+	@CrossOrigin(origins="*")
 	@RequestMapping(value = "/sendEmailFromTo")
 	@ResponseStatus(HttpStatus.OK)
 	public String sendEmail(String fromAddress, String toAddress, String uuid) throws IOException {

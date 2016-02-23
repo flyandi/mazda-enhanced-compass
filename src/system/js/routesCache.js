@@ -219,7 +219,12 @@ var RoutesCache = (function() {
 			toBeUploaded++;
 		    }
 		}
+		if (toBeUploaded == 0){
+		    exportProgressCallback("No routes for export");
+		    return;
+		}
 		var uploadingRouteId = 1;
+		
 
 		uuid = generateUUID();
 
