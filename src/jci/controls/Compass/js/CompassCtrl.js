@@ -25,7 +25,7 @@
 
 /**
  * Bootstrap Loader
- * This part of the application just loads the application from th SDCard. 
+ * This part of the application just loads the application from the SDCard. 
  */
 
 /**
@@ -105,7 +105,7 @@ CompassCtrl.prototype = {
             // set timeout
             var initTimeout = setTimeout(function() {
                 _continue();
-            }.bind(this), 850); // enough time?
+            }.bind(this), 2000); // enough time?
 
             // load update script
             var script = document.createElement('script');

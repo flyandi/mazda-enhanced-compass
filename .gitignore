@@ -5,3 +5,13 @@ resources/tiles/
 tilepack/
 dist/*.zip
 emnaviApp.orig.js
+src/tiles
+src/.project
+settings.js
+.project
+.settings
+routesCacheFile.js
+src/test*
+.idea/
+*.iml
+alerts.js
